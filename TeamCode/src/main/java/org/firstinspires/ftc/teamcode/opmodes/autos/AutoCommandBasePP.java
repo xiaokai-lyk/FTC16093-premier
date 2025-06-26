@@ -9,9 +9,7 @@ import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.ParallelDeadlineGroup;
 import com.arcrobotics.ftclib.command.RunCommand;
-import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
-import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.Path;
@@ -19,14 +17,11 @@ import com.pedropathing.pathgen.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.commands.AutoDriveCommandPP;
-import org.firstinspires.ftc.teamcode.commands.SampleAutoAlignCommandPP;
 //import org.firstinspires.ftc.teamcode.subsystems.Climber;
 //import org.firstinspires.ftc.teamcode.subsystems.Lift;
 //import org.firstinspires.ftc.teamcode.subsystems.LiftClaw;
 //import org.firstinspires.ftc.teamcode.subsystems.SlideSuperStructure;
 //import org.firstinspires.ftc.teamcode.subsystems.Vision;
-
-import java.util.concurrent.atomic.AtomicReference;
 
 import lombok.Getter;
 import pedroPathing.constants.FConstants;
