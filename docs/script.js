@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 if(count < num) {
                     counter.innerText = Math.ceil(count + inc);
-                    setTimeout(updateCount, 100);
+                    setTimeout(updateCount, 200);
                 } else {
                     counter.innerText = target; // 显示"7+"
                 }
