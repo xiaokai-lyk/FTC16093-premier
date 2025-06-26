@@ -2,7 +2,7 @@
 
 ## Official repo for code that team 16093 will use in the upcoming FTC premier event!
 
-![banner](assets/banner.png)
+![banner](docs/assets/banner.png)
 
 ---
 
@@ -20,7 +20,7 @@ Coming soon
 
 Beijing National Day School
 
-![BNDS logo](assets/bnds_logo.png)
+![BNDS logo](docs/assets/bnds_logo.png)
 
 GX Servo
 
