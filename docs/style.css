@@ -824,3 +824,45 @@ footer p {
         padding: 5rem 5%;
     }
 }
+
+/* Repos部分 */
+#repos {
+    background: rgba(10, 10, 20, 0.6);
+    padding: 5rem 5%;
+}
+
+.repos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.repo-block {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1.5rem;
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.repo-block:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.repo-block h3 {
+    color: var(--primary);
+    margin-bottom: 1rem;
+}
+
+.repo-block a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.repo-block p {
+    color: #ccc;
+    line-height: 1.6;
+}
