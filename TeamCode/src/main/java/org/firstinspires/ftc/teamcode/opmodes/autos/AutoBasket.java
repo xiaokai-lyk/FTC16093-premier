@@ -97,6 +97,7 @@ public class AutoBasket extends AutoOpModeEx {
         liftArm.initPos();
     }
 
+
     @Override
     public void run() {
         follower.update();

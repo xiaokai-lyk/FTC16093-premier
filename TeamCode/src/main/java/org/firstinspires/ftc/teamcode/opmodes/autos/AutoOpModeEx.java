@@ -14,4 +14,6 @@ public abstract class AutoOpModeEx extends CommandOpModeEx {
 
     @Override
     public abstract void run();
+    @Override
+    public void addButtons() {}
 }

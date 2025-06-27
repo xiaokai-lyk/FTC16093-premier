@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.SubsystemBase;
 
 import com.arcrobotics.ftclib.command.WaitCommand;
@@ -58,7 +59,7 @@ public class FrontArm extends SubsystemBase {
         FrontSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
-    public double claw_deg(){
+    public double getClawDeg(){
         return claw_in.getVoltage()/claw_in.getMaxVoltage()*360;
     }
 
@@ -108,30 +109,54 @@ public class FrontArm extends SubsystemBase {
     public Command intake(boolean is_far) {
         return new ConditionalCommand(
                 new ConditionalCommand(
-                        new InstantCommand(()->set_wrist(ServoConstants.WRIST_DOWN))
+                        new InstantCommand(()-> {
+                            set_wrist(ServoConstants.WRIST_DOWN);
+                            set_arm_wrist(ServoConstants.ARM_WRIST_DOWN);
+                        })
                                 .andThen(
-                                        new InstantCommand(()-> {
-                                            set_arm_wrist(ServoConstants.ARM_WRIST_DOWN);
-                                            open_claw(false);
-                                        }),
-                                        new WaitCommand(200),
-                                        new InstantCommand(this::initPos),
-                                        new WaitCommand(200),
-                                        new InstantCommand(()->this.state = State.HANDOVER
-                                        )
+                                        new WaitCommand(30),
+                                        new InstantCommand(()->ServoConstants.CLAW_CHECK.setToServo(Claw)),
+                                        new WaitCommand(70),
+                                        new ConditionalCommand(
+                                                new SequentialCommandGroup(
+                                                        new InstantCommand(()->open_claw(false)),
+                                                        new WaitCommand(50),
+                                                        new InstantCommand(this::initPos),
+                                                        new WaitCommand(120),
+                                                        new InstantCommand(()->this.state = State.HANDOVER)
+                                                ),
+                                                new InstantCommand(() ->
+                                                {
+                                                    open_claw(true);
+                                                    FrontSlide.setTargetPosition(is_far ? MotorConstants.FRONT_MAX.value : MotorConstants.FRONT_NEAR.value);
+                                                    set_arm_spinner(ServoConstants.ARM_SPINNER_FRONT);
+                                                    set_arm_wrist(ServoConstants.ARM_WRIST_PREINTAKE);
+                                                    set_wrist(ServoConstants.WRIST_DOWN);
+                                                    this.state = State.DOWN;
+                                                }).andThen(
+                                                        new ConditionalCommand(
+                                                                new InstantCommand(() -> set_spinner(SpinnerConstant.PARALLEL)),
+                                                                new InstantCommand(),
+                                                                () -> this.state != State.DOWN
+                                                        ),
+                                                        new InstantCommand(() -> this.state = State.DOWN)
+                                                ),
+                                                ()->getClawDeg()>ServoConstants.CLAW_HAS_BLOCK_MIN_DEGREE.value
+                                        )//检查有没有夹到块，
+                                        //有块：夹起，没有：回intake状态
                                 ),
-                        new InstantCommand(()->this.FrontSlide.setTargetPosition(is_far ? MotorConstants.FRONT_MAX.value : 0)),
+                        new InstantCommand(()->this.FrontSlide.setTargetPosition(is_far ? MotorConstants.FRONT_MAX.value : MotorConstants.FRONT_NEAR.value)),
                         ()->(is_far && (this.FrontSlide.getCurrentPosition() >
                                 0.97*MotorConstants.FRONT_MAX.value-MotorConstants.FRONT_TOLERANCE.value))
                                 ||(
-                                !is_far && this.FrontSlide.getCurrentPosition() < 10
+                                !is_far && this.FrontSlide.getCurrentPosition() < MotorConstants.FRONT_NEAR.value + 10
                         )//判断is_far参数代表的滑轨位置和实际位置是否一致
-                        //不一致：动滑轨；一致：夹起
+                        //一致：夹起；不一致：动滑轨
                 ),
                 new InstantCommand(() ->
                 {
                     open_claw(true);
-                    FrontSlide.setTargetPosition(is_far ? MotorConstants.FRONT_MAX.value : 0);
+                    FrontSlide.setTargetPosition(is_far ? MotorConstants.FRONT_MAX.value : MotorConstants.FRONT_NEAR.value);
                     set_arm_spinner(ServoConstants.ARM_SPINNER_FRONT);
                     set_arm_wrist(ServoConstants.ARM_WRIST_PREINTAKE);
                     set_wrist(ServoConstants.WRIST_DOWN);
@@ -158,9 +183,9 @@ public class FrontArm extends SubsystemBase {
             open_claw(false);
             FrontSlide.setTargetPosition(0);
         }).andThen(
-                new WaitCommand(500),
+                new WaitCommand(300),
                 new InstantCommand(()->this.open_claw(true)),
-                new WaitCommand(400),
+                new WaitCommand(200),
                 new InstantCommand(this::initPos),
                 new InstantCommand(()->this.state = State.FREE)
         );

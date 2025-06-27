@@ -21,13 +21,13 @@ import org.firstinspires.ftc.teamcode.utils.ButtonEx;
 
 import com.arcrobotics.ftclib.gamepad.GamepadKeys.Button;
 
-@Config
-@TeleOp(name = "16093 TeleOp", group = "Competition")
-public class TeleOpBase extends CommandOpModeEx {
-    private GamepadEx gamepadEx2;
-    private GamepadEx gamepadEx1;
-    private NewMecanumDrive driveCore;
-    private FrontArm frontArm;
+public abstract class TeleOpBase extends CommandOpModeEx {
+    GamepadEx gamepadEx2;
+    GamepadEx gamepadEx1;
+    NewMecanumDrive driveCore;
+    FrontArm frontArm;
+    LiftArm liftArm;
+
     @Override
     public void initialize() {
         CommandScheduler.getInstance().cancelAll();
@@ -40,8 +40,8 @@ public class TeleOpBase extends CommandOpModeEx {
         TeleOpDriveCommand driveCommand = new TeleOpDriveCommand(driveCore,
                 ()->gamepadEx1.getLeftX(),
                 ()->gamepadEx1.getLeftY(),
-                ()->frontArm.state==FrontArm.State.DOWN?(gamepadEx1.getRightX()*0.45):gamepadEx1.getRightX(),
-                ()->(gamepadEx1.getButton(Button.START) && !gamepad1.touchpad),
+                ()->frontArm.state== FrontArm.State.DOWN?(gamepadEx1.getRightX()*0.45):gamepadEx1.getRightX(),
+                ()->(gamepadEx1.getButton(GamepadKeys.Button.START) && !gamepad1.touchpad),
                 ()->frontArm.state==FrontArm.State.DOWN?0.3:1);
 
         frontArm = new FrontArm(hardwareMap);
@@ -52,28 +52,8 @@ public class TeleOpBase extends CommandOpModeEx {
         driveCore.resetOdo();
         driveCore.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         CommandScheduler.getInstance().schedule(driveCommand);
-
-        /// buttons ///
-        new ButtonEx(()->gamepadEx1.getButton(Button.Y)).whenPressed(
-                frontArm.intake(true).andThen(new ConditionalCommand(new ParallelCommandGroup(frontArm.handover(),liftArm.handover()),
-                        new InstantCommand(),
-                        ()->frontArm.state==FrontArm.State.HANDOVER))
-        );
-        new ButtonEx(()->gamepadEx1.getButton(Button.X)).whenPressed(
-                frontArm.intake(false).andThen(new ConditionalCommand(new ParallelCommandGroup(frontArm.handover(),liftArm.handover()),
-                        new InstantCommand(),
-                        ()->frontArm.state==FrontArm.State.HANDOVER))
-        );
-        new ButtonEx(()->(gamepadEx1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)>0.5 && frontArm.state== FrontArm.State.DOWN))
-                .whenPressed(()->frontArm.spinner_rotate(true));
-        new ButtonEx(()->(gamepadEx1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)>0.5 && frontArm.state== FrontArm.State.DOWN))
-                .whenPressed(()->frontArm.spinner_rotate(false));
-        new ButtonEx(()->(gamepadEx1.getButton(Button.DPAD_RIGHT) && frontArm.state== FrontArm.State.FREE)).whenPressed(
-                frontArm.giveHP()
-        );
-        new ButtonEx(()->gamepadEx1.getButton(Button.LEFT_BUMPER)).whenPressed(new ParallelCommandGroup(liftArm.releaseHigh(), new InstantCommand(frontArm::initPos)));
     }
-    private LiftArm liftArm;
+
     @Override
     public void onStart() {
         liftArm.initPos();
@@ -86,6 +66,7 @@ public class TeleOpBase extends CommandOpModeEx {
         telemetry.addData("front arm state", frontArm.state);
         telemetry.addData("spinner pos", frontArm.CurrentSpinnerPos);
         telemetry.addData("lift slide info", liftArm.slideInfo());
+        telemetry.addData("claw deg", frontArm.getClawDeg());
         telemetry.update();
     }
 }

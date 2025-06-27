@@ -123,6 +123,15 @@ public class LiftArm extends SubsystemBase {
 
     public String slideInfo(){return lifter.getMotorInfo();}
 
+    public Command getFromWall(){
+        return new InstantCommand(()->{
+            lifter.resetSlide();
+            clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE.value);
+            slideUp.setPosition(ServoConstants.UP_SLIDE_MIN.value);
+            wristUp.setPosition(ServoConstants.UP_WRIST_WALL.value);
+        });
+    }
+
     public Command handover(){
         return new InstantCommand(()->{
             armUp.setPosition(ServoConstants.UP_ARM_HANDOVER.value);
@@ -130,7 +139,7 @@ public class LiftArm extends SubsystemBase {
             slideUp.setPosition(ServoConstants.UP_SLIDE_MIN.value);
             clawUp.setPosition(ServoConstants.UP_CLAW_OPEN.value);
         }).andThen(
-                new WaitCommand(500),
+                new WaitCommand(400),
                 new InstantCommand(()->clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE.value))
         );
     }
