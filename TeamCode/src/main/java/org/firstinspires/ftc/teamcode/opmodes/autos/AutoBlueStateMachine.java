@@ -2,8 +2,6 @@ package org.firstinspires.ftc.teamcode.opmodes.autos;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.arcrobotics.ftclib.command.InstantCommand;
-import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
@@ -16,27 +14,30 @@ import com.pedropathing.util.Timer;
 
 import org.firstinspires.ftc.teamcode.Subsystems.FrontArm;
 import org.firstinspires.ftc.teamcode.Subsystems.LiftArm;
+import org.firstinspires.ftc.teamcode.opmodes.autos.AutoOpModeEx;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@Autonomous(name = "Auto Basket", group = "Auto")
-public class AutoBasket extends AutoOpModeEx {
+@Autonomous(name = "Auto Blue StateMachine", group = "Auto")
+public class AutoBlueStateMachine extends AutoOpModeEx {
     private Follower follower;
     private FrontArm frontArm;
     private LiftArm liftArm;
     private Timer pathTimer;
     private int pathState;
 
+    // 路径定义
     private Path scorePreload, park;
     private PathChain grabPickup1, grabPickup2, grabPickup3, scorePickup1, scorePickup2, scorePickup3;
 
-    private final Pose startPose = new Pose(0, 0, Math.toRadians(0));
-
-    private final Pose scorePose = new Pose(3, 0, Math.toRadians(0));
-    private final Pose pickup1Pose = new Pose(6, 0, Math.toRadians(0));
-    private final Pose pickup2Pose = new Pose(9, 0, Math.toRadians(0));
-    private final Pose pickup3Pose = new Pose(6, 0, Math.toRadians(0));
-    private final Pose parkPose = new Pose(3, 0, Math.toRadians(0));
+    // 关键点位
+    private final Pose startPose = new Pose(9, 111, Math.toRadians(270));
+    private final Pose scorePose = new Pose(14, 129, Math.toRadians(315));
+    private final Pose pickup1Pose = new Pose(37, 121, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(43, 130, Math.toRadians(0));
+    private final Pose pickup3Pose = new Pose(49, 135, Math.toRadians(0));
+    private final Pose parkPose = new Pose(60, 98, Math.toRadians(90));
+    private final Pose parkControlPose = new Pose(60, 98, Math.toRadians(90));
 
     @Override
     public void initialize() {
@@ -46,6 +47,8 @@ public class AutoBasket extends AutoOpModeEx {
         follower.setStartingPose(startPose);
         frontArm = new FrontArm(hardwareMap);
         liftArm = new LiftArm(hardwareMap);
+        frontArm.initPos();
+        liftArm.initPos();
         buildPaths();
         pathState = 0;
     }
@@ -92,6 +95,7 @@ public class AutoBasket extends AutoOpModeEx {
     public void onStart() {
         pathTimer.resetTimer();
         pathState = 0;
+        // 自动阶段开始时可做额外准备
         frontArm.initPos();
         liftArm.initPos();
     }
@@ -112,13 +116,12 @@ public class AutoBasket extends AutoOpModeEx {
             case 0:
                 follower.followPath(scorePreload);
                 liftArm.releaseHigh().schedule();
-                liftArm.releaseHigh().schedule();
+                frontArm.handover().schedule();
                 setPathState(1);
                 break;
             case 1:
                 if (!follower.isBusy()) {
                     follower.followPath(grabPickup1, true);
-                    frontArm.intake(true).schedule();
                     frontArm.intake(true).schedule();
                     setPathState(2);
                 }
@@ -126,9 +129,8 @@ public class AutoBasket extends AutoOpModeEx {
             case 2:
                 if (!follower.isBusy()) {
                     follower.followPath(scorePickup1, true);
+                    liftArm.releaseHigh().schedule();
                     frontArm.handover().schedule();
-                    liftArm.releaseHigh().schedule();
-                    liftArm.releaseHigh().schedule();
                     setPathState(3);
                 }
                 break;
@@ -136,16 +138,14 @@ public class AutoBasket extends AutoOpModeEx {
                 if (!follower.isBusy()) {
                     follower.followPath(grabPickup2, true);
                     frontArm.intake(true).schedule();
-                    frontArm.intake(true).schedule()
                     setPathState(4);
                 }
                 break;
             case 4:
                 if (!follower.isBusy()) {
                     follower.followPath(scorePickup2, true);
+                    liftArm.releaseHigh().schedule();
                     frontArm.handover().schedule();
-                    liftArm.releaseHigh().schedule();
-                    liftArm.releaseHigh().schedule();
                     setPathState(5);
                 }
                 break;
@@ -153,16 +153,14 @@ public class AutoBasket extends AutoOpModeEx {
                 if (!follower.isBusy()) {
                     follower.followPath(grabPickup3, true);
                     frontArm.intake(true).schedule();
-                    frontArm.intake(true).schedule();
                     setPathState(6);
                 }
                 break;
             case 6:
                 if (!follower.isBusy()) {
                     follower.followPath(scorePickup3, true);
+                    liftArm.releaseHigh().schedule();
                     frontArm.handover().schedule();
-                    liftArm.releaseHigh().schedule();
-                    liftArm.releaseHigh().schedule();
                     setPathState(7);
                 }
                 break;
@@ -184,4 +182,4 @@ public class AutoBasket extends AutoOpModeEx {
         pathState = pState;
         pathTimer.resetTimer();
     }
-}
+} 
