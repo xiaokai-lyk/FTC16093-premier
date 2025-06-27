@@ -52,6 +52,20 @@ public abstract class TeleOpBase extends CommandOpModeEx {
         driveCore.resetOdo();
         driveCore.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         CommandScheduler.getInstance().schedule(driveCommand);
+
+        new ButtonEx(()->gamepad1.touchpad && gamepadEx1.getButton(Button.A))
+                .whenPressed(new InstantCommand(()->{
+                    CommandScheduler.getInstance().clearButtons();
+                    gamepad1.rumble(100);
+                    new SampleTeleOp().addButtons();
+                }));
+
+        new ButtonEx(()->gamepad1.touchpad && gamepadEx1.getButton(Button.B))
+                .whenPressed(new InstantCommand(()->{
+                    CommandScheduler.getInstance().clearButtons();
+                    gamepad1.rumble(100);
+                    new SpecimenTeleOp().addButtons();
+                }));
     }
 
     @Override
