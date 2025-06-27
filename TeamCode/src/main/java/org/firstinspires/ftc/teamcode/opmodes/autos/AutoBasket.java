@@ -36,7 +36,8 @@ public class AutoBasket extends AutoOpModeEx {
     private final Pose pickup1Pose = new Pose(6, 0, Math.toRadians(0));
     private final Pose pickup2Pose = new Pose(9, 0, Math.toRadians(0));
     private final Pose pickup3Pose = new Pose(6, 0, Math.toRadians(0));
-    private final Pose parkPose = new Pose(3, 0, Math.toRadians(0));
+    private final Pose parkControlPose = new Pose(3, 0,Math.toRadians(0));
+    private final Pose parkPose = new Pose(0, 0, Math.toRadians(0));
 
     @Override
     public void initialize() {
@@ -136,7 +137,7 @@ public class AutoBasket extends AutoOpModeEx {
                 if (!follower.isBusy()) {
                     follower.followPath(grabPickup2, true);
                     frontArm.intake(true).schedule();
-                    frontArm.intake(true).schedule()
+                    frontArm.intake(true).schedule();
                     setPathState(4);
                 }
                 break;
