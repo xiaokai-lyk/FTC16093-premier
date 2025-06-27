@@ -9,6 +9,7 @@ import com.arcrobotics.ftclib.command.SubsystemBase;
 
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
+import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -17,6 +18,9 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.Subsystems.Constants.MotorConstants;
 import org.firstinspires.ftc.teamcode.Subsystems.Constants.ServoConstants;
 import org.firstinspires.ftc.teamcode.Subsystems.Constants.SpinnerConstant;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class FrontArm extends SubsystemBase {
@@ -27,6 +31,8 @@ public class FrontArm extends SubsystemBase {
     private final Servo Wrist;
     private final Servo ArmSpinner;
     private final Servo ArmWrist;
+
+    private final AnalogInput claw_in;
 
     public SpinnerConstant CurrentSpinnerPos;
     public State state;
@@ -47,8 +53,13 @@ public class FrontArm extends SubsystemBase {
         this.ClawSpinner = hardwareMap.get(Servo.class,"spin");
         this.ArmWrist = hardwareMap.get(Servo.class,"armWrist");
         this.FrontSlide = hardwareMap.get(DcMotorEx.class, "slideFront");
+        this.claw_in = hardwareMap.get(AnalogInput.class,"claw_in");
         FrontSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         FrontSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
+
+    public double claw_deg(){
+        return claw_in.getVoltage()/claw_in.getMaxVoltage()*360;
     }
 
     public void open_claw(boolean open){
@@ -74,26 +85,23 @@ public class FrontArm extends SubsystemBase {
         pos.setToServo(this.ArmSpinner);
     }
 
-    public void spinner_rotate(){
-        switch (CurrentSpinnerPos){
-            case PARALLEL:
-                set_spinner(SpinnerConstant.DEG1);
+    public void spinner_rotate(boolean to_right){
+        SpinnerConstant[] spinnerConstants={
+                SpinnerConstant.DEG1,
+                SpinnerConstant.DEG2,
+                SpinnerConstant.DEG3,
+                SpinnerConstant.PARALLEL,
+                SpinnerConstant.DEG4,
+                SpinnerConstant.DEG5,
+        };
+        for(int i=0;i< spinnerConstants.length;i++){
+            if(spinnerConstants[i]==CurrentSpinnerPos){
+                if ((i==0 && !to_right) || (i == spinnerConstants.length-1 && to_right)){
+                    continue;
+                }
+                set_spinner(spinnerConstants[(i+(to_right?1:-1))% spinnerConstants.length]);
                 break;
-            case DEG1:
-                set_spinner(SpinnerConstant.DEG2);
-                break;
-            case DEG2:
-                set_spinner(SpinnerConstant.DEG3);
-                break;
-            case DEG3:
-                set_spinner(SpinnerConstant.DEG4);
-                break;
-            case DEG4:
-                set_spinner(SpinnerConstant.DEG5);
-                break;
-            case DEG5:
-                set_spinner(SpinnerConstant.PARALLEL);
-                break;
+            }
         }
     }
 

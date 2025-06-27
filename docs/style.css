@@ -406,7 +406,7 @@ nav.scrolled {
     transform: scale(1.05);
 }
 
-/* 队员介绍 */
+
 .sponsors-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -414,7 +414,7 @@ nav.scrolled {
 }
 
 .sponsor-card {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(12, 75, 236, 0.432);
     border-radius: 15px;
     padding: 2rem;
     text-align: center;
@@ -427,7 +427,7 @@ nav.scrolled {
 
 .sponsor-card:hover {
     transform: translateY(-10px);
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(12, 150, 236, 0.7);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
@@ -554,18 +554,24 @@ nav.scrolled {
 .gallery-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1.5rem;
+    gap: 170px;
+    padding: 10px; /* 增加内边距避免溢出 */
 }
 
 .gallery-item {
     height: 250px;
-    background: linear-gradient(45deg, #4ecdc4, #ff6b6b);
     border-radius: 10px;
+    overflow: hidden; /* 确保内容不溢出 */
     position: relative;
-    overflow: hidden;
-    transform: scale(0.95);
-    opacity: 0;
-    transition: all 0.3s ease;
+    transition: transform 0.3s ease;
+}
+
+.gallery-item img {
+    width: 300px;
+    height: 300px;
+    object-fit: fill; /* 填充但不变形 */
+    border-radius: inherit; /* 继承父元素的圆角 */
+    display: block; /* 消除图片底部间隙 */
 }
 
 .gallery-item:before {
@@ -580,7 +586,7 @@ nav.scrolled {
 }
 
 .gallery-item:hover {
-    transform: scale(1);
+    transform: scale(1.3);
 }
 
 .gallery-item:hover:before {
@@ -817,4 +823,46 @@ footer p {
     .section {
         padding: 5rem 5%;
     }
+}
+
+/* Repos部分 */
+#repos {
+    background: rgba(10, 10, 20, 0.6);
+    padding: 5rem 5%;
+}
+
+.repos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.repo-block {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1.5rem;
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.repo-block:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.repo-block h3 {
+    color: var(--primary);
+    margin-bottom: 1rem;
+}
+
+.repo-block a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.repo-block p {
+    color: #ccc;
+    line-height: 1.6;
 }

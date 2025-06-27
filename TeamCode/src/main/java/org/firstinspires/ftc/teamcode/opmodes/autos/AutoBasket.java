@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.opmodes.autos;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
@@ -29,12 +31,12 @@ public class AutoBasket extends AutoOpModeEx {
     private PathChain grabPickup1, grabPickup2, grabPickup3, scorePickup1, scorePickup2, scorePickup3;
 
     private final Pose startPose = new Pose(0, 0, Math.toRadians(0));
-    private final Pose scorePose = new Pose(0, 0, Math.toRadians(0));
-    private final Pose pickup1Pose = new Pose(0, 0, Math.toRadians(0));
-    private final Pose pickup2Pose = new Pose(0, 0, Math.toRadians(0));
-    private final Pose pickup3Pose = new Pose(0, 0, Math.toRadians(0));
-    private final Pose parkPose = new Pose(0, 0, Math.toRadians(0));
-    private final Pose parkControlPose = new Pose(0, 0, Math.toRadians(0));
+
+    private final Pose scorePose = new Pose(3, 0, Math.toRadians(0));
+    private final Pose pickup1Pose = new Pose(6, 0, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(9, 0, Math.toRadians(0));
+    private final Pose pickup3Pose = new Pose(6, 0, Math.toRadians(0));
+    private final Pose parkPose = new Pose(3, 0, Math.toRadians(0));
 
     @Override
     public void initialize() {
@@ -117,6 +119,7 @@ public class AutoBasket extends AutoOpModeEx {
                 if (!follower.isBusy()) {
                     follower.followPath(grabPickup1, true);
                     frontArm.intake(true).schedule();
+                    frontArm.intake(true).schedule();
                     setPathState(2);
                 }
                 break;
@@ -133,6 +136,7 @@ public class AutoBasket extends AutoOpModeEx {
                 if (!follower.isBusy()) {
                     follower.followPath(grabPickup2, true);
                     frontArm.intake(true).schedule();
+                    frontArm.intake(true).schedule()
                     setPathState(4);
                 }
                 break;
@@ -148,6 +152,7 @@ public class AutoBasket extends AutoOpModeEx {
             case 5:
                 if (!follower.isBusy()) {
                     follower.followPath(grabPickup3, true);
+                    frontArm.intake(true).schedule();
                     frontArm.intake(true).schedule();
                     setPathState(6);
                 }
