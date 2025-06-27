@@ -4,11 +4,11 @@ package org.firstinspires.ftc.teamcode.Subsystems.Constants;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public enum SpinnerConstant {
+    DEG1(0),
+    DEG2(0.2),
+    DEG3(0.4),
     PARALLEL(0.53),
-    DEG1(0.6),
-    DEG2(0.7),
-    DEG3(0.8),
-    DEG4(0.9),
+    DEG4(0.7),
     DEG5(1),
     ;
     public final double value;

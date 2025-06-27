@@ -24,11 +24,10 @@ import com.arcrobotics.ftclib.gamepad.GamepadKeys.Button;
 @Config
 @TeleOp(name = "16093 TeleOp", group = "Competition")
 public class TeleOpBase extends CommandOpModeEx {
-    private GamepadEx gamepadEx1;
     private GamepadEx gamepadEx2;
+    private GamepadEx gamepadEx1;
     private NewMecanumDrive driveCore;
     private FrontArm frontArm;
-    private LiftArm liftArm;
     @Override
     public void initialize() {
         CommandScheduler.getInstance().cancelAll();
@@ -41,9 +40,9 @@ public class TeleOpBase extends CommandOpModeEx {
         TeleOpDriveCommand driveCommand = new TeleOpDriveCommand(driveCore,
                 ()->gamepadEx1.getLeftX(),
                 ()->gamepadEx1.getLeftY(),
-                ()->gamepadEx1.getRightX(),
+                ()->frontArm.state==FrontArm.State.DOWN?(gamepadEx1.getRightX()*0.45):gamepadEx1.getRightX(),
                 ()->(gamepadEx1.getButton(Button.START) && !gamepad1.touchpad),
-                ()->1-gamepadEx1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER));
+                ()->frontArm.state==FrontArm.State.DOWN?0.3:1);
 
         frontArm = new FrontArm(hardwareMap);
         liftArm = new LiftArm(hardwareMap);
@@ -66,12 +65,15 @@ public class TeleOpBase extends CommandOpModeEx {
                         ()->frontArm.state==FrontArm.State.HANDOVER))
         );
         new ButtonEx(()->(gamepadEx1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)>0.5 && frontArm.state== FrontArm.State.DOWN))
-                .whenPressed(frontArm::spinner_rotate);
+                .whenPressed(()->frontArm.spinner_rotate(true));
+        new ButtonEx(()->(gamepadEx1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)>0.5 && frontArm.state== FrontArm.State.DOWN))
+                .whenPressed(()->frontArm.spinner_rotate(false));
         new ButtonEx(()->(gamepadEx1.getButton(Button.DPAD_RIGHT) && frontArm.state== FrontArm.State.FREE)).whenPressed(
                 frontArm.giveHP()
         );
-        new ButtonEx(()->gamepadEx1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)>0.5).whenPressed(new ParallelCommandGroup(liftArm.releaseHigh(), new InstantCommand(frontArm::initPos)));
+        new ButtonEx(()->gamepadEx1.getButton(Button.LEFT_BUMPER)).whenPressed(new ParallelCommandGroup(liftArm.releaseHigh(), new InstantCommand(frontArm::initPos)));
     }
+    private LiftArm liftArm;
     @Override
     public void onStart() {
         liftArm.initPos();

@@ -2,8 +2,9 @@ package org.firstinspires.ftc.teamcode.Subsystems.Constants;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public enum ServoConstants {
-    CLAW_OPEN(0),
-    CLAW_CLOSE(0.5),
+    CLAW_OPEN(0.6),
+    CLAW_CLOSE(0.08),
+    CLAW_HANDOVER(0.15),
     WRIST_PARALLEL(0.58),
     WRIST_DOWN(0.18),
     WRIST_HANDOVER(0.7),
