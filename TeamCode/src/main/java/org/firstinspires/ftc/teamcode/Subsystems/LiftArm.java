@@ -125,6 +125,7 @@ public class LiftArm extends SubsystemBase {
 
     public Command getFromWall(){
         return new InstantCommand(()->{
+            clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE.value);
             lifter.resetSlide();
             clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE.value);
             slideUp.setPosition(ServoConstants.UP_SLIDE_MIN.value);
