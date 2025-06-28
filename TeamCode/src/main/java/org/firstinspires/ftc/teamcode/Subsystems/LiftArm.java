@@ -73,6 +73,10 @@ class Lifter{
         return new InstantCommand(()->setPosition(MotorConstants.LIFT_HIGH.value));
     }
 
+    Command getFromWallCommand(){
+        return new InstantCommand(()->setPosition(MotorConstants.LIFT_FROM_WALL.value));
+    }
+
 
     void resetSlide(){
         setPosition(0);
@@ -101,6 +105,12 @@ class Lifter{
 public class LiftArm extends SubsystemBase {
     private final Lifter lifter;
     private final Servo clawUp, armUp, wristUp, slideUp;
+    public LiftArmState state;
+    public enum LiftArmState{
+        WALL,//从墙上夹
+        PRE_CHAMBER,//准备挂
+        FREE
+    }
 
 
     public LiftArm(HardwareMap hardwareMap) {
@@ -115,22 +125,46 @@ public class LiftArm extends SubsystemBase {
 
 
     public void initPos(){
+        lifter.resetSlide();
         clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE.value);
         armUp.setPosition(ServoConstants.UP_ARM_PARALLEL.value);
         wristUp.setPosition(ServoConstants.UP_WRIST_PARALLEL.value);
         slideUp.setPosition(ServoConstants.UP_SLIDE_MIN.value);
+        this.state = LiftArmState.FREE;
     }
 
     public String slideInfo(){return lifter.getMotorInfo();}
 
     public Command getFromWall(){
-        return new InstantCommand(()->{
-            clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE.value);
-            lifter.resetSlide();
-            clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE.value);
-            slideUp.setPosition(ServoConstants.UP_SLIDE_MIN.value);
-            wristUp.setPosition(ServoConstants.UP_WRIST_WALL.value);
-        });
+        return new ConditionalCommand(
+                new SequentialCommandGroup(
+                        new InstantCommand(()->clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE.value)),
+                        new WaitCommand(30),
+                        lifter.getFromWallCommand(),
+                        new WaitUntilCommand(lifter::isFinished),
+                        new InstantCommand(()->{
+                            clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE.value);
+                            armUp.setPosition(ServoConstants.UP_ARM_PARALLEL.value);
+                            wristUp.setPosition(ServoConstants.UP_WRIST_PARALLEL.value);
+                            slideUp.setPosition(ServoConstants.UP_SLIDE_MIN.value);
+                            this.state = LiftArmState.PRE_CHAMBER;
+                        })//TODO: replace this with correct values!
+
+                ),
+                new SequentialCommandGroup(
+                        new InstantCommand(()->{
+                            armUp.setPosition(ServoConstants.UP_ARM_WALL.value);
+                            clawUp.setPosition(ServoConstants.UP_CLAW_OPEN.value);
+                            slideUp.setPosition(ServoConstants.UP_SLIDE_MIN.value);
+                            wristUp.setPosition(ServoConstants.UP_WRIST_WALL.value);
+                            lifter.resetSlide();
+                        }),
+                        new WaitUntilCommand(lifter::isFinished),
+                        new InstantCommand(()->this.state=LiftArmState.WALL)
+                )
+                ,
+                ()->this.state==LiftArmState.WALL
+        );
     }
 
     public Command handover(){
@@ -154,8 +188,9 @@ public class LiftArm extends SubsystemBase {
                                         new InstantCommand(()->{
                                             armUp.setPosition(ServoConstants.UP_ARM_BASKET.value);
                                             wristUp.setPosition(ServoConstants.UP_WRIST_BASKET.value);
-                                            slideUp.setPosition(ServoConstants.UP_SLIDE_MAX.value);
-                                        })
+                                        }),
+                                        new WaitCommand(100),
+                                        new InstantCommand(()->slideUp.setPosition(ServoConstants.UP_SLIDE_MAX.value))
                                 ),
                                 new WaitUntilCommand(lifter::isFinished)
                         ),
@@ -166,8 +201,16 @@ public class LiftArm extends SubsystemBase {
                         new WaitCommand(100),
                         new InstantCommand(()->armUp.setPosition(ServoConstants.UP_ARM_PARALLEL.value)),
                         new WaitCommand(150),
+                        new InstantCommand(()->slideUp.setPosition(ServoConstants.UP_SLIDE_MIN.value)),
+                        new WaitCommand(100),
+                        new InstantCommand(()->{
+                            clawUp.setPosition(ServoConstants.UP_CLAW_OPEN.value);
+                            armUp.setPosition(ServoConstants.UP_ARM_PARALLEL.value);
+                            wristUp.setPosition(ServoConstants.UP_WRIST_PARALLEL.value);
+                        }),
                         new InstantCommand(lifter::resetSlide),
-                        new InstantCommand(this::initPos)
+                        new WaitUntilCommand(lifter::isFinished),
+                        new InstantCommand(()->this.state = LiftArmState.FREE)
                 ),
                 ()->this.lifter.getPosition()<0.95*MotorConstants.LIFT_HIGH.value
         );

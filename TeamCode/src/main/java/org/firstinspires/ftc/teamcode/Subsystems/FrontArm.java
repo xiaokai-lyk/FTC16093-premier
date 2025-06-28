@@ -9,8 +9,6 @@ import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.SubsystemBase;
 
 import com.arcrobotics.ftclib.command.WaitCommand;
-import com.arcrobotics.ftclib.command.WaitUntilCommand;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -20,9 +18,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.Subsystems.Constants.MotorConstants;
 import org.firstinspires.ftc.teamcode.Subsystems.Constants.ServoConstants;
 import org.firstinspires.ftc.teamcode.Subsystems.Constants.SpinnerConstant;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class FrontArm extends SubsystemBase {
@@ -44,7 +39,7 @@ public class FrontArm extends SubsystemBase {
         FREE,
         DOWN,
         GIVEHP,
-        HANDOVER
+        HOLDING_BLOCK
     }
 
 
@@ -124,7 +119,7 @@ public class FrontArm extends SubsystemBase {
                                                         new WaitCommand(50),
                                                         new InstantCommand(this::initPos),
                                                         new WaitCommand(120),
-                                                        new InstantCommand(()->this.state = State.HANDOVER)
+                                                        new InstantCommand(()->this.state = State.HOLDING_BLOCK)
                                                 ),
                                                 new InstantCommand(() ->
                                                 {
@@ -192,7 +187,7 @@ public class FrontArm extends SubsystemBase {
                                         new WaitCommand(50),
                                         new InstantCommand(this::initPos),
                                         new WaitCommand(120),
-                                        new InstantCommand(() -> this.state = State.HANDOVER)
+                                        new InstantCommand(() -> this.state = State.HOLDING_BLOCK)
                                 )
                         ),
                         // 如果滑轨没有到位，先动滑轨

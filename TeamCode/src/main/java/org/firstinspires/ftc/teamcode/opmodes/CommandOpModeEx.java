@@ -4,12 +4,12 @@ import com.arcrobotics.ftclib.command.CommandOpMode;
 
 public abstract class CommandOpModeEx extends CommandOpMode {
     public abstract void onStart();
-    public abstract void addButtons();
+    public abstract void functionalButtons();
     @Override
     public void runOpMode() throws InterruptedException {
         initialize();
 
-        addButtons();
+        functionalButtons();
 
         waitForStart();
 
