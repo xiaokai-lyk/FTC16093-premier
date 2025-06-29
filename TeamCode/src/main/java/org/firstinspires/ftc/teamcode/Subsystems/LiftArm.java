@@ -158,11 +158,10 @@ public class LiftArm {
                 new ConditionalCommand(
                         new SequentialCommandGroup(
                                 new InstantCommand(()->clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE.value)),
-                                new WaitCommand(30),
+                                new WaitCommand(50),
                                 lifter.getFromWallCommand(),
                                 new WaitUntilCommand(lifter::isFinished),
                                 new InstantCommand(()->{
-                                    clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE.value);
                                     armUp.setPosition(ServoConstants.UP_ARM_PARALLEL.value);
                                     wristUp.setPosition(ServoConstants.UP_WRIST_PARALLEL.value);
                                     slideUp.setPosition(ServoConstants.UP_SLIDE_MIN.value);
@@ -181,13 +180,13 @@ public class LiftArm {
                                         new InstantCommand(lifter::resetSlide),
                                         new WaitUntilCommand(lifter::isFinished),
                                         new InstantCommand(()->{
-                                            clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE.value);
-                                            armUp.setPosition(ServoConstants.UP_ARM_PARALLEL.value);
-                                            wristUp.setPosition(ServoConstants.UP_WRIST_PARALLEL.value);
-                                            this.state = LiftArmState.FREE;
+                                            armUp.setPosition(ServoConstants.UP_ARM_WALL.value);
+                                            clawUp.setPosition(ServoConstants.UP_CLAW_OPEN.value);
+                                            slideUp.setPosition(ServoConstants.UP_SLIDE_MIN.value);
+                                            wristUp.setPosition(ServoConstants.UP_WRIST_WALL.value);
+                                            this.state=LiftArmState.WALL;
                                         })
-                                ),
-                                new InstantCommand(()->this.state = LiftArmState.FREE)
+                                )
                         )
                         ,()->this.state==LiftArmState.WALL
                 ),

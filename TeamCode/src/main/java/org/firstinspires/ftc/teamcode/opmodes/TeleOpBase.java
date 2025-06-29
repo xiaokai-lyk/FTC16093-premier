@@ -39,7 +39,7 @@ public class TeleOpBase extends CommandOpModeEx {
                 ()->gamepadEx1.getLeftX(),
                 ()->gamepadEx1.getLeftY(),
                 ()->frontArm.state== FrontArm.State.DOWN?(gamepadEx1.getRightX()*0.45):gamepadEx1.getRightX(),
-                ()->(gamepadEx1.getButton(GamepadKeys.Button.START) && !gamepad1.touchpad),
+                ()->(gamepadEx1.getButton(GamepadKeys.Button.START)),
                 ()->frontArm.state==FrontArm.State.DOWN?0.3:1);
 
         frontArm = new FrontArm(hardwareMap);
@@ -63,6 +63,11 @@ public class TeleOpBase extends CommandOpModeEx {
             isSample = !isSample;
             gamepad1.rumble(100);
         });
+        new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.BACK))
+                .whenPressed(()->{
+                    liftArm.initPos();
+                    frontArm.initPos();
+                });
     }
 
     @Override
@@ -83,7 +88,7 @@ public class TeleOpBase extends CommandOpModeEx {
                 && frontArm.state == FrontArm.State.HOLDING_BLOCK) && !isSample)
                 .whenPressed(frontArm.giveHP());
         new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.LEFT_BUMPER)
-                && frontArm.state != FrontArm.State.DOWN- && !isSample)
+                && frontArm.state != FrontArm.State.DOWN && !isSample)
                 .whenPressed(liftArm.highChamber());
 
 
