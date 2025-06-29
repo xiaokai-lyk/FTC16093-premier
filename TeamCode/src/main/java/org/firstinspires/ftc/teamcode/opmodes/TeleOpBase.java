@@ -75,14 +75,16 @@ public class TeleOpBase extends CommandOpModeEx {
     @Override
     public void functionalButtons() {
         //Sample
-        new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.LEFT_BUMPER) && frontArm.state!= FrontArm.State.DOWN && isSample)
+        new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.LEFT_BUMPER) && frontArm.state != FrontArm.State.DOWN && isSample)
                 .whenPressed(new ParallelCommandGroup(liftArm.releaseHigh(), new InstantCommand(frontArm::initPos)));
 
         //Specimen
-        new ButtonEx(()->(gamepadEx1.getButton(GamepadKeys.Button.RIGHT_BUMPER) && frontArm.state== FrontArm.State.HOLDING_BLOCK) && !isSample)
+        new ButtonEx(()->(gamepadEx1.getButton(GamepadKeys.Button.RIGHT_BUMPER)
+                && frontArm.state == FrontArm.State.HOLDING_BLOCK) && !isSample)
                 .whenPressed(frontArm.giveHP());
-        new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.LEFT_BUMPER) && frontArm.state != FrontArm.State.DOWN && !isSample)
-                .whenPressed(liftArm.getFromWall());
+        new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.LEFT_BUMPER)
+                && frontArm.state != FrontArm.State.DOWN- && !isSample)
+                .whenPressed(liftArm.highChamber());
 
 
         //Shared

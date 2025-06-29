@@ -20,7 +20,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.Constants.ServoConstants;
 import org.firstinspires.ftc.teamcode.Subsystems.Constants.SpinnerConstant;
 
 
-public class FrontArm extends SubsystemBase {
+public class FrontArm {
     private final DcMotorEx FrontSlide;
 
     private final Servo Claw;
@@ -43,7 +43,7 @@ public class FrontArm extends SubsystemBase {
     }
 
 
-    public FrontArm(HardwareMap hardwareMap){
+    public FrontArm(@NonNull HardwareMap hardwareMap){
         this.ArmSpinner = hardwareMap.get(Servo.class, "armSpin");
         this.Claw = hardwareMap.get(Servo.class, "claw");
         this.Wrist = hardwareMap.get(Servo.class, "wrist");
