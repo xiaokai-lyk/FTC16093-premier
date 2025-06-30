@@ -137,7 +137,7 @@ public class AutoBasket extends AutoOpModeEx {
             case 2:
                 if (!follower.isBusy()) {
                     follower.followPath(scorePickup1, true);
-                    liftArm.releaseHigh().schedule();
+                    autoCommand.autoReleaseHigh().schedule();
                     setPathState(3);
                 }
                 break;
