@@ -20,12 +20,15 @@ import com.pedropathing.util.Timer;
 
 import org.firstinspires.ftc.teamcode.Subsystems.FrontArm;
 import org.firstinspires.ftc.teamcode.Subsystems.LiftArm;
+import org.firstinspires.ftc.teamcode.Subsystems.SuperStructure;
+
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 @Autonomous(name = "Auto Basket", group = "Auto")
 public class AutoBasket extends AutoOpModeEx {
     private Follower follower;
+    private AutoCommand autoCommand;
     private FrontArm frontArm;
     private LiftArm liftArm;
     private Timer pathTimer;
@@ -125,22 +128,19 @@ public class AutoBasket extends AutoOpModeEx {
                 if (!follower.isBusy()) {
                     follower.followPath(grabPickup1, true);
                     schedule(new SequentialCommandGroup(
-                            frontArm.autoIntake(true),
+                            autoCommand.autoIntake(true),
                             new WaitCommand(500),
-                            frontArm.autoIntake(true),
                             frontArm.handover()));
                     setPathState(2);
                 }
                 break;
-//            case 2:
-//                if (!follower.isBusy()) {
-//                    follower.followPath(scorePickup1, true);
-//                    frontArm.handover().schedule();
-//                    liftArm.releaseHigh().schedule();
-//                    liftArm.releaseHigh().schedule();
-//                    setPathState(3);
-//                }
-//                break;
+            case 2:
+                if (!follower.isBusy()) {
+                    follower.followPath(scorePickup1, true);
+                    liftArm.releaseHigh().schedule();
+                    setPathState(3);
+                }
+                break;
 //            case 3:
 //                if (!follower.isBusy()) {
 //                    follower.followPath(grabPickup2, true);
