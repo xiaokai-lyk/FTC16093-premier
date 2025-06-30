@@ -9,6 +9,7 @@ import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.SubsystemBase;
 
 import com.arcrobotics.ftclib.command.WaitCommand;
+import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -68,17 +69,17 @@ public class FrontArm {
         }
     }
 
-    private void set_spinner(@NonNull SpinnerConstant pos){
+    public void set_spinner(@NonNull SpinnerConstant pos){
         pos.setToServo(this.ClawSpinner);
         this.CurrentSpinnerPos = pos;
     }
-    private void set_wrist(@NonNull ServoConstants pos){
+    public void set_wrist(@NonNull ServoConstants pos){
         pos.setToServo(this.Wrist);
     }
-    private void set_arm_wrist(@NonNull ServoConstants pos){
+    public void set_arm_wrist(@NonNull ServoConstants pos){
         pos.setToServo(this.ArmWrist);
     }
-    private void set_arm_spinner(@NonNull ServoConstants pos){
+    public void set_arm_spinner(@NonNull ServoConstants pos){
         pos.setToServo(this.ArmSpinner);
     }
 
@@ -169,52 +170,7 @@ public class FrontArm {
                 //若没放下则放下小臂
         );
     }
-    public Command autoIntake(boolean is_far) {
-        return new ConditionalCommand(
-                // 如果已经放下手臂
-                new ConditionalCommand(
-                        // 如果滑轨已经到位
-                        new InstantCommand(() -> {
-                            set_wrist(ServoConstants.WRIST_DOWN);
-                            set_arm_wrist(ServoConstants.ARM_WRIST_DOWN);
-                        }).andThen(
-                                new WaitCommand(30),
-                                new InstantCommand(() -> ServoConstants.CLAW_CHECK.setToServo(Claw)),
-                                new WaitCommand(70),
-                                // 自动版：无条件夹取，无需检查是否夹到块，直接 handover
-                                new SequentialCommandGroup(
-                                        new InstantCommand(() -> open_claw(false)),
-                                        new WaitCommand(50),
-                                        new InstantCommand(this::initPos),
-                                        new WaitCommand(120),
-                                        new InstantCommand(() -> this.state = State.HOLDING_BLOCK)
-                                )
-                        ),
-                        // 如果滑轨没有到位，先动滑轨
-                        new InstantCommand(() -> this.FrontSlide.setTargetPosition(is_far ? MotorConstants.FRONT_MAX.value : MotorConstants.FRONT_NEAR.value)),
-                        () -> (is_far && (this.FrontSlide.getCurrentPosition() >
-                                0.97 * MotorConstants.FRONT_MAX.value - MotorConstants.FRONT_TOLERANCE.value))
-                                || (!is_far && this.FrontSlide.getCurrentPosition() < MotorConstants.FRONT_NEAR.value + 10)
-                ),
-                // 如果还没放下手臂，先放下小臂
-                new InstantCommand(() -> {
-                    open_claw(true);
-                    FrontSlide.setTargetPosition(is_far ? MotorConstants.FRONT_MAX.value : MotorConstants.FRONT_NEAR.value);
-                    set_arm_spinner(ServoConstants.ARM_SPINNER_FRONT);
-                    set_arm_wrist(ServoConstants.ARM_WRIST_PREINTAKE);
-                    set_wrist(ServoConstants.WRIST_DOWN);
-                    this.state = State.DOWN;
-                }).andThen(
-                        new ConditionalCommand(
-                                new InstantCommand(() -> set_spinner(SpinnerConstant.PARALLEL)),
-                                new InstantCommand(),
-                                () -> this.state != State.DOWN
-                        ),
-                        new InstantCommand(() -> this.state = State.DOWN)
-                ),
-                () -> (this.state == State.DOWN)
-        );
-    }
+
     public Command handover(){
         return new InstantCommand(()->{
             set_wrist(ServoConstants.WRIST_HANDOVER);

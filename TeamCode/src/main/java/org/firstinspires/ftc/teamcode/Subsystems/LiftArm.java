@@ -19,7 +19,10 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.Subsystems.Constants.MotorConstants;
 import org.firstinspires.ftc.teamcode.Subsystems.Constants.ServoConstants;
 
+import lombok.Getter;
+
 class Lifter{
+    @Getter
     private final DcMotorEx LeftMotor, RightMotor;
     private final Servo shifter;
     private DcMotorEx.RunMode mode;
@@ -77,7 +80,7 @@ class Lifter{
             this.mode = new_mode;
         }
     }
-    private void setPosition(int pos){
+    public void setPosition(int pos){
         setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         LeftMotor.setTargetPosition(pos);
         RightMotor.setTargetPosition(pos);
@@ -101,7 +104,7 @@ class Lifter{
                 );
     }
 
-    Command highBasketCommand(){
+    public Command highBasketCommand(){
         return new InstantCommand(()->setPosition(MotorConstants.LIFT_HIGH.value));
     }
 
@@ -133,7 +136,7 @@ class Lifter{
 
 
 
-
+@Getter
 public class LiftArm {
     private final Lifter lifter;
     private final Servo clawUp, armUp, wristUp, slideUp, ascentLeft, ascentRight;
@@ -278,6 +281,7 @@ public class LiftArm {
     public Command ascent_up(){
         return lifter.ascent_up();
     }
+
     public void hold_slide(){
         lifter.hold_slide();
     }
@@ -286,5 +290,20 @@ public class LiftArm {
             ascentLeft.setPosition(ServoConstants.ASCENT_LEFT_DOWN.value);
             ascentRight.setPosition(ServoConstants.ASCENT_RIGHT_DOWN.value);
         }).andThen(new WaitCommand(300),lifter.ascent_down());
+
+    public Command highBasketCommand(){
+        return lifter.highBasketCommand();
+    }
+
+    public void setPosition(int pos){
+        lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        lifter.getLeftMotor().setTargetPosition(pos);
+        lifter.getRightMotor().setTargetPosition(pos);
+    }
+    public void resetSlide(){
+        setPosition(0);
+    }
+    public int getPosition(){
+        return (lifter.getLeftMotor().getCurrentPosition()+lifter.getRightMotor().getCurrentPosition())/2;
     }
 }
