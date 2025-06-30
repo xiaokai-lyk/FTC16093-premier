@@ -51,11 +51,23 @@ class Lifter{
     public Command ascent_up(){
         return new SequentialCommandGroup(
                 new InstantCommand(()->setPower(1)),
-                new WaitUntilCommand(()->this.getPosition()>MotorConstants.SHIFTER_TO_SLOW_THRESHOLD.value),
                 new InstantCommand(this::toSlowMode),
-                new WaitUntilCommand(()->this.getPosition()>MotorConstants.MANUAL_ASCENT_THRESHOLD.value),
-                new InstantCommand(()->setPosition(getPosition()))
+                new WaitUntilCommand(()->this.getPosition()>MotorConstants.SLOW_ASCENT_THRESHOLD.value),
+                new InstantCommand(()->setPower(0.7))
         );
+    }
+
+    void hold_slide(){
+        setPosition(getPosition());
+    }
+
+    public Command ascent_down(){
+        return new InstantCommand(()->setPower(-1));
+//        return new SequentialCommandGroup(
+//                new InstantCommand(()->setPower(-1)),
+//                new WaitUntilCommand(()->getPosition()<MotorConstants.ASCENT_DOWN_TOLERANCE.value),
+//                new InstantCommand(this::hold_slide)
+//        );
     }
 
     private void setMode(DcMotorEx.RunMode new_mode){
@@ -78,12 +90,14 @@ class Lifter{
 
     @SuppressLint("DefaultLocale")
     String getMotorInfo(){
-        return String.format("Current Pos: %d %d, Target Pos: %d %d, \nError %d %d, Finished %b, Working: %b %b",
+        return String.format("Current Pos: %d %d, Target Pos: %d %d, \nError %d %d, Finished %b, Power: %.2f %.2f, Working: %b %b",
                 LeftMotor.getCurrentPosition(),RightMotor.getCurrentPosition(),
                 LeftMotor.getTargetPosition(),RightMotor.getTargetPosition(),
                 Math.abs(LeftMotor.getCurrentPosition()-LeftMotor.getTargetPosition()),
                 Math.abs(RightMotor.getCurrentPosition()-RightMotor.getTargetPosition()),
-                isFinished(),LeftMotor.isBusy(), RightMotor.isBusy()
+                isFinished(),
+                LeftMotor.getPower(),LeftMotor.getPower(),
+                LeftMotor.isBusy(), RightMotor.isBusy()
                 );
     }
 
@@ -122,7 +136,7 @@ class Lifter{
 
 public class LiftArm {
     private final Lifter lifter;
-    private final Servo clawUp, armUp, wristUp, slideUp;
+    private final Servo clawUp, armUp, wristUp, slideUp, ascentLeft, ascentRight;
     public LiftArmState state;
     public enum LiftArmState{
         WALL,//从墙上夹
@@ -137,6 +151,8 @@ public class LiftArm {
         this.armUp = hardwareMap.get(Servo.class, "armUp");
         this.wristUp = hardwareMap.get(Servo.class, "wristUp");
         this.slideUp = hardwareMap.get(Servo.class, "slideUp");
+        this.ascentLeft = hardwareMap.get(Servo.class, "ascentLeft");
+        this.ascentRight = hardwareMap.get(Servo.class, "ascentRight");
         lifter.resetEncoder();
     }
 
@@ -147,6 +163,8 @@ public class LiftArm {
                 new InstantCommand(()->slideUp.setPosition(ServoConstants.UP_SLIDE_MIN.value)),
                 new WaitCommand(70),
                 new InstantCommand(()->{
+                    ascentLeft.setPosition(ServoConstants.ASCENT_LEFT_UP.value);
+                    ascentRight.setPosition(ServoConstants.ASCENT_RIGHT_UP.value);
                     lifter.resetSlide();
                     clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE.value);
                     armUp.setPosition(ServoConstants.UP_ARM_PARALLEL.value);
@@ -259,5 +277,14 @@ public class LiftArm {
 
     public Command ascent_up(){
         return lifter.ascent_up();
+    }
+    public void hold_slide(){
+        lifter.hold_slide();
+    }
+    public Command ascent_down(){
+        return new InstantCommand(()->{
+            ascentLeft.setPosition(ServoConstants.ASCENT_LEFT_DOWN.value);
+            ascentRight.setPosition(ServoConstants.ASCENT_RIGHT_DOWN.value);
+        }).andThen(new WaitCommand(300),lifter.ascent_down());
     }
 }

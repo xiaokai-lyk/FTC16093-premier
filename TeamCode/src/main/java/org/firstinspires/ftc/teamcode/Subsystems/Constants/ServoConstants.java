@@ -33,7 +33,12 @@ public enum ServoConstants {
     UP_ARM_WALL(0.95),
 
     SHIFTER_NORMAL(0),
-    SHIFTER_SLOW(0.64)
+    SHIFTER_SLOW(0.64),
+
+    ASCENT_LEFT_UP(0.22),
+    ASCENT_LEFT_DOWN(0.48),
+    ASCENT_RIGHT_UP(0.58),
+    ASCENT_RIGHT_DOWN(0.3),
     ;
 
 

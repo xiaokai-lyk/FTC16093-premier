@@ -7,6 +7,9 @@ import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
+import com.arcrobotics.ftclib.command.SequentialCommandGroup;
+import com.arcrobotics.ftclib.command.WaitCommand;
+import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -25,13 +28,22 @@ public class TeleOpBase extends CommandOpModeEx {
     NewMecanumDrive driveCore;
     FrontArm frontArm;
     LiftArm liftArm;
-    boolean isSample;
+
+
+    private enum Tasks{
+        SAMPLE,
+        SPECIMEN,
+        ASCENT
+    };
+    private Tasks mode;
 
     @Override
     public void initialize() {
         CommandScheduler.getInstance().cancelAll();
         this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         gamepadEx1 = new GamepadEx(gamepad1);
+
+        this.mode = Tasks.SPECIMEN;
 
 
         driveCore = new NewMecanumDrive(hardwareMap);
@@ -44,8 +56,6 @@ public class TeleOpBase extends CommandOpModeEx {
 
         frontArm = new FrontArm(hardwareMap);
         liftArm = new LiftArm(hardwareMap);
-
-        isSample = false;
 
 
         driveCore.resetHeading();
@@ -60,7 +70,7 @@ public class TeleOpBase extends CommandOpModeEx {
 
 
         new ButtonEx(()->gamepad1.touchpad).whenPressed(()-> {
-            isSample = !isSample;
+            mode = (mode ==  Tasks.SAMPLE )?Tasks.SPECIMEN:Tasks.SAMPLE;
             gamepad1.rumble(100);
         });
         new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.BACK))
@@ -80,15 +90,15 @@ public class TeleOpBase extends CommandOpModeEx {
     @Override
     public void functionalButtons() {
         //Sample
-        new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.LEFT_BUMPER) && frontArm.state != FrontArm.State.DOWN && isSample)
+        new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.LEFT_BUMPER) && frontArm.state != FrontArm.State.DOWN&& mode == Tasks.SAMPLE)
                 .whenPressed(new ParallelCommandGroup(liftArm.releaseHigh(), new InstantCommand(frontArm::initPos)));
 
         //Specimen
         new ButtonEx(()->(gamepadEx1.getButton(GamepadKeys.Button.RIGHT_BUMPER)
-                && frontArm.state == FrontArm.State.HOLDING_BLOCK) && !isSample)
+                && frontArm.state == FrontArm.State.HOLDING_BLOCK)&& mode == Tasks.SPECIMEN)
                 .whenPressed(frontArm.giveHP());
         new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.LEFT_BUMPER)
-                && frontArm.state != FrontArm.State.DOWN && !isSample)
+                && frontArm.state != FrontArm.State.DOWN&& mode == Tasks.SPECIMEN)
                 .whenPressed(liftArm.highChamber());
 
 
@@ -104,29 +114,37 @@ public class TeleOpBase extends CommandOpModeEx {
                 && liftArm.state == LiftArm.LiftArmState.FREE)).whenPressed(
                 frontArm.intake(true).andThen(new ConditionalCommand(new ParallelCommandGroup(frontArm.handover(),liftArm.handover()),
                         new InstantCommand(),
-                        ()->frontArm.state == FrontArm.State.HOLDING_BLOCK && isSample))
+                        ()->frontArm.state == FrontArm.State.HOLDING_BLOCK&& mode == Tasks.SAMPLE))
         );
         new ButtonEx(()->(gamepadEx1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)>0.5
                 && liftArm.state == LiftArm.LiftArmState.FREE)).whenPressed(
                 frontArm.intake(false).andThen(new ConditionalCommand(new ParallelCommandGroup(frontArm.handover(),liftArm.handover()),
                         new InstantCommand(),
-                        ()->frontArm.state==FrontArm.State.HOLDING_BLOCK && isSample))
+                        ()->frontArm.state==FrontArm.State.HOLDING_BLOCK && mode == Tasks.SAMPLE))
         );
 
         //Ascent
-        new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.A)).whenPressed(liftArm.ascent_up());
+        new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.A)).whenPressed(new SequentialCommandGroup(
+                new InstantCommand(()->mode=Tasks.ASCENT),
+                liftArm.ascent_up()
+        ).andThen(
+                new WaitUntilCommand(()->gamepadEx1.getButton(GamepadKeys.Button.A)),
+                new InstantCommand(liftArm::hold_slide),
+                new WaitUntilCommand(()->gamepadEx1.getButton(GamepadKeys.Button.A)),
+                liftArm.ascent_down(),
+                new WaitUntilCommand(()->gamepadEx1.getButton(GamepadKeys.Button.A)),
+                new InstantCommand(liftArm::hold_slide)
+        ));
     }
 
     @Override
     public void run(){
         CommandScheduler.getInstance().run();
-        telemetry.addData("claw open", frontArm.claw_open);
+        telemetry.addData("mode", mode);
         telemetry.addData("front arm state", frontArm.state);
         telemetry.addData("lift arm state", liftArm.state);
-        telemetry.addData("spinner pos", frontArm.CurrentSpinnerPos);
         telemetry.addData("lift slide info", liftArm.slideInfo());
         telemetry.addData("claw deg", frontArm.getClawDeg());
-        telemetry.addData("mode", isSample?"sample":"specimen");
         telemetry.update();
     }
 }
