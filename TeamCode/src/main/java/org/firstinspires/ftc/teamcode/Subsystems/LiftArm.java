@@ -73,7 +73,7 @@ class Lifter{
 //        );
     }
 
-    private void setMode(DcMotorEx.RunMode new_mode){
+    void setMode(DcMotorEx.RunMode new_mode){
         if(mode!=new_mode){
             LeftMotor.setMode(new_mode);
             RightMotor.setMode(new_mode);
@@ -285,11 +285,12 @@ public class LiftArm {
     public void hold_slide(){
         lifter.hold_slide();
     }
-    public Command ascent_down(){
-        return new InstantCommand(()->{
+    public Command ascent_down() {
+        return new InstantCommand(() -> {
             ascentLeft.setPosition(ServoConstants.ASCENT_LEFT_DOWN.value);
             ascentRight.setPosition(ServoConstants.ASCENT_RIGHT_DOWN.value);
-        }).andThen(new WaitCommand(300),lifter.ascent_down());
+        }).andThen(new WaitCommand(300), lifter.ascent_down());
+    }
 
     public Command highBasketCommand(){
         return lifter.highBasketCommand();
