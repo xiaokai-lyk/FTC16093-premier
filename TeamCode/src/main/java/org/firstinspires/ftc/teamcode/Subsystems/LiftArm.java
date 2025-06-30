@@ -30,6 +30,8 @@ class Lifter{
 
         this.mode = DcMotorEx.RunMode.RUN_TO_POSITION;
 
+        shifter.setPosition(ServoConstants.SHIFTER_NORMAL.value);
+
         LeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         RightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         LeftMotor.setTargetPosition(0);
@@ -40,6 +42,20 @@ class Lifter{
         RightMotor.setDirection(DcMotorEx.Direction.REVERSE);
         LeftMotor.setPower(1);
         RightMotor.setPower(1);
+    }
+
+    private void toSlowMode(){
+        shifter.setPosition(ServoConstants.SHIFTER_SLOW.value);
+    }
+
+    public Command ascent_up(){
+        return new SequentialCommandGroup(
+                new InstantCommand(()->setPower(1)),
+                new WaitUntilCommand(()->this.getPosition()>MotorConstants.SHIFTER_TO_SLOW_THRESHOLD.value),
+                new InstantCommand(this::toSlowMode),
+                new WaitUntilCommand(()->this.getPosition()>MotorConstants.MANUAL_ASCENT_THRESHOLD.value),
+                new InstantCommand(()->setPosition(getPosition()))
+        );
     }
 
     private void setMode(DcMotorEx.RunMode new_mode){
@@ -239,5 +255,9 @@ public class LiftArm {
                 ),
                 ()->this.lifter.getPosition()<0.95*MotorConstants.LIFT_HIGH.value
         );
+    }
+
+    public Command ascent_up(){
+        return lifter.ascent_up();
     }
 }

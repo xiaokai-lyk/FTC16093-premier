@@ -100,16 +100,21 @@ public class TeleOpBase extends CommandOpModeEx {
                 && frontArm.state == FrontArm.State.DOWN))
                 .whenPressed(()->frontArm.spinner_rotate(false));
 
-        new ButtonEx(()->(gamepadEx1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)>0.5)).whenPressed(
+        new ButtonEx(()->(gamepadEx1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)>0.5
+                && liftArm.state == LiftArm.LiftArmState.FREE)).whenPressed(
                 frontArm.intake(true).andThen(new ConditionalCommand(new ParallelCommandGroup(frontArm.handover(),liftArm.handover()),
                         new InstantCommand(),
                         ()->frontArm.state == FrontArm.State.HOLDING_BLOCK && isSample))
         );
-        new ButtonEx(()->(gamepadEx1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)>0.5)).whenPressed(
+        new ButtonEx(()->(gamepadEx1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)>0.5
+                && liftArm.state == LiftArm.LiftArmState.FREE)).whenPressed(
                 frontArm.intake(false).andThen(new ConditionalCommand(new ParallelCommandGroup(frontArm.handover(),liftArm.handover()),
                         new InstantCommand(),
                         ()->frontArm.state==FrontArm.State.HOLDING_BLOCK && isSample))
         );
+
+        //Ascent
+        new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.A)).whenPressed(liftArm.ascent_up());
     }
 
     @Override

@@ -6,7 +6,10 @@ public enum MotorConstants {
     FRONT_TOLERANCE(10),
     LIFT_HIGH(980),
     LIFT_ABOVE_BASKET_TOLERANCE(700),
-    LIFT_HIGH_CHAMBER(460)
+    LIFT_HIGH_CHAMBER(460),
+
+    SHIFTER_TO_SLOW_THRESHOLD(600),
+    MANUAL_ASCENT_THRESHOLD(900),
     ;
 
     public final int value;

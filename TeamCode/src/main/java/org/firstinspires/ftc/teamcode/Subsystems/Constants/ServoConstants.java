@@ -31,6 +31,9 @@ public enum ServoConstants {
     UP_ARM_PARALLEL(0.25),
     UP_ARM_HANDOVER(0.07),
     UP_ARM_WALL(0.95),
+
+    SHIFTER_NORMAL(0),
+    SHIFTER_SLOW(0.64)
     ;
 
 
