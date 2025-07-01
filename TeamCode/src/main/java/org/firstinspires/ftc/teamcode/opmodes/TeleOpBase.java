@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
 
+import android.widget.Button;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.command.CommandScheduler;
@@ -14,6 +16,7 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.teamcode.Subsystems.Constants.ServoConstants;
 import org.firstinspires.ftc.teamcode.Subsystems.FrontArm;
 import org.firstinspires.ftc.teamcode.Subsystems.LiftArm;
 import org.firstinspires.ftc.teamcode.Subsystems.driving.NewMecanumDrive;
@@ -124,6 +127,12 @@ public class TeleOpBase extends CommandOpModeEx {
         );
 
         //Ascent
+        new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.B)).whenPressed(new SequentialCommandGroup(
+                new InstantCommand(()->{
+                    liftArm.getAscentLeft().setPosition(ServoConstants.ASCENT_LEFT_UP.value);
+                    liftArm.getAscentRight().setPosition(ServoConstants.ASCENT_RIGHT_UP.value);
+                })
+        ));
         new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.A)).whenPressed(new SequentialCommandGroup(
                 new InstantCommand(()->mode=Tasks.ASCENT),
                 liftArm.ascent_up()

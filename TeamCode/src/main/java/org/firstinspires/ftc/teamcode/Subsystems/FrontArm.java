@@ -6,10 +6,8 @@ import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
-import com.arcrobotics.ftclib.command.SubsystemBase;
 
 import com.arcrobotics.ftclib.command.WaitCommand;
-import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -20,11 +18,13 @@ import org.firstinspires.ftc.teamcode.Subsystems.Constants.MotorConstants;
 import org.firstinspires.ftc.teamcode.Subsystems.Constants.ServoConstants;
 import org.firstinspires.ftc.teamcode.Subsystems.Constants.SpinnerConstant;
 
+import lombok.Getter;
 
+@Getter
 public class FrontArm {
     private final DcMotorEx FrontSlide;
 
-    private final Servo Claw;
+    private final Servo claw;
     private final Servo ClawSpinner;
     private final Servo Wrist;
     private final Servo ArmSpinner;
@@ -46,7 +46,7 @@ public class FrontArm {
 
     public FrontArm(@NonNull HardwareMap hardwareMap){
         this.ArmSpinner = hardwareMap.get(Servo.class, "armSpin");
-        this.Claw = hardwareMap.get(Servo.class, "claw");
+        this.claw = hardwareMap.get(Servo.class, "claw");
         this.Wrist = hardwareMap.get(Servo.class, "wrist");
         this.ClawSpinner = hardwareMap.get(Servo.class,"spin");
         this.ArmWrist = hardwareMap.get(Servo.class,"armWrist");
@@ -63,9 +63,9 @@ public class FrontArm {
     public void open_claw(boolean open){
         claw_open = open;
         if(claw_open){
-            ServoConstants.CLAW_OPEN.setToServo(this.Claw);
+            ServoConstants.CLAW_OPEN.setToServo(this.claw);
         }else{
-            ServoConstants.CLAW_CLOSE.setToServo(this.Claw);
+            ServoConstants.CLAW_CLOSE.setToServo(this.claw);
         }
     }
 
@@ -112,7 +112,7 @@ public class FrontArm {
                         })
                                 .andThen(
                                         new WaitCommand(30),
-                                        new InstantCommand(()->ServoConstants.CLAW_CHECK.setToServo(Claw)),
+                                        new InstantCommand(()->ServoConstants.CLAW_CHECK.setToServo(claw)),
                                         new WaitCommand(70),
                                         new ConditionalCommand(
                                                 new SequentialCommandGroup(

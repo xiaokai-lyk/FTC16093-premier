@@ -3,8 +3,6 @@ package org.firstinspires.ftc.teamcode.opmodes.autos;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.command.CommandScheduler;
-import com.arcrobotics.ftclib.command.InstantCommand;
-import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
@@ -56,6 +54,8 @@ public class AutoBasket extends AutoOpModeEx {
         liftArm = new LiftArm(hardwareMap);
         buildPaths();
         pathState = 0;
+        this.autoCommand = new AutoCommand(frontArm, liftArm);
+        SuperStructure.init(hardwareMap);
     }
 
     private void buildPaths() {
@@ -121,26 +121,27 @@ public class AutoBasket extends AutoOpModeEx {
         switch (pathState) {
             case 0:
                 follower.followPath(scorePreload);
-                schedule(new SequentialCommandGroup(liftArm.releaseHigh(), new ParallelCommandGroup(liftArm.releaseHigh()),new InstantCommand(frontArm::initPos)));
+                autoCommand.autoReleaseHigh().schedule(false);
                 setPathState(1);
                 break;
             case 1:
                 if (!follower.isBusy()) {
                     follower.followPath(grabPickup1, true);
                     schedule(new SequentialCommandGroup(
-                            autoCommand.autoIntake(true),
-                            new WaitCommand(500),
-                            frontArm.handover()));
+                        autoCommand.autoSampleIntake(),
+                        new WaitCommand(500),
+                        autoCommand.autoHandover()
+                    ));
                     setPathState(2);
                 }
                 break;
-            case 2:
-                if (!follower.isBusy()) {
-                    follower.followPath(scorePickup1, true);
-                    autoCommand.autoReleaseHigh().schedule();
-                    setPathState(3);
-                }
-                break;
+//            case 2:
+//                if (!follower.isBusy()) {
+//                    follower.followPath(scorePickup1, true);
+//                    autoCommand.autoReleaseHigh().schedule();
+//                    setPathState(3);
+//                }
+//                break;
 //            case 3:
 //                if (!follower.isBusy()) {
 //                    follower.followPath(grabPickup2, true);

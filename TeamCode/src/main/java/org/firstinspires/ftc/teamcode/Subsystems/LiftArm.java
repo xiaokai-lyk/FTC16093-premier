@@ -23,28 +23,28 @@ import lombok.Getter;
 
 class Lifter{
     @Getter
-    private final DcMotorEx LeftMotor, RightMotor;
+    private final DcMotorEx leftMotor, rightMotor;
     private final Servo shifter;
     private DcMotorEx.RunMode mode;
     public Lifter(@NonNull HardwareMap hardwareMap){
-        this.LeftMotor = hardwareMap.get(DcMotorEx.class, "slideLeft");
-        this.RightMotor = hardwareMap.get(DcMotorEx.class, "slideRight");
+        this.leftMotor = hardwareMap.get(DcMotorEx.class, "slideLeft");
+        this.rightMotor = hardwareMap.get(DcMotorEx.class, "slideRight");
         this.shifter = hardwareMap.get(Servo.class, "shifter");
 
         this.mode = DcMotorEx.RunMode.RUN_TO_POSITION;
 
         shifter.setPosition(ServoConstants.SHIFTER_NORMAL.value);
 
-        LeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        RightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        LeftMotor.setTargetPosition(0);
-        RightMotor.setTargetPosition(0);
-        LeftMotor.setMode(this.mode);
-        RightMotor.setMode(this.mode);
-        LeftMotor.setDirection(DcMotorEx.Direction.REVERSE);
-        RightMotor.setDirection(DcMotorEx.Direction.REVERSE);
-        LeftMotor.setPower(1);
-        RightMotor.setPower(1);
+        leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftMotor.setTargetPosition(0);
+        rightMotor.setTargetPosition(0);
+        leftMotor.setMode(this.mode);
+        rightMotor.setMode(this.mode);
+        leftMotor.setDirection(DcMotorEx.Direction.REVERSE);
+        rightMotor.setDirection(DcMotorEx.Direction.REVERSE);
+        leftMotor.setPower(1);
+        rightMotor.setPower(1);
     }
 
     private void toSlowMode(){
@@ -75,32 +75,32 @@ class Lifter{
 
     void setMode(DcMotorEx.RunMode new_mode){
         if(mode!=new_mode){
-            LeftMotor.setMode(new_mode);
-            RightMotor.setMode(new_mode);
+            leftMotor.setMode(new_mode);
+            rightMotor.setMode(new_mode);
             this.mode = new_mode;
         }
     }
     public void setPosition(int pos){
         setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        LeftMotor.setTargetPosition(pos);
-        RightMotor.setTargetPosition(pos);
+        leftMotor.setTargetPosition(pos);
+        rightMotor.setTargetPosition(pos);
     }
     private void setPower(double power){
         setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        LeftMotor.setPower(power);
-        RightMotor.setPower(power);
+        leftMotor.setPower(power);
+        rightMotor.setPower(power);
     }
 
     @SuppressLint("DefaultLocale")
     String getMotorInfo(){
         return String.format("Current Pos: %d %d, Target Pos: %d %d, \nError %d %d, Finished %b, Power: %.2f %.2f, Working: %b %b",
-                LeftMotor.getCurrentPosition(),RightMotor.getCurrentPosition(),
-                LeftMotor.getTargetPosition(),RightMotor.getTargetPosition(),
-                Math.abs(LeftMotor.getCurrentPosition()-LeftMotor.getTargetPosition()),
-                Math.abs(RightMotor.getCurrentPosition()-RightMotor.getTargetPosition()),
+                leftMotor.getCurrentPosition(), rightMotor.getCurrentPosition(),
+                leftMotor.getTargetPosition(), rightMotor.getTargetPosition(),
+                Math.abs(leftMotor.getCurrentPosition()- leftMotor.getTargetPosition()),
+                Math.abs(rightMotor.getCurrentPosition()- rightMotor.getTargetPosition()),
                 isFinished(),
-                LeftMotor.getPower(),LeftMotor.getPower(),
-                LeftMotor.isBusy(), RightMotor.isBusy()
+                leftMotor.getPower(), leftMotor.getPower(),
+                leftMotor.isBusy(), rightMotor.isBusy()
                 );
     }
 
@@ -121,11 +121,11 @@ class Lifter{
         setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
     }
     public int getPosition(){
-        return (LeftMotor.getCurrentPosition()+RightMotor.getCurrentPosition())/2;
+        return (leftMotor.getCurrentPosition()+ rightMotor.getCurrentPosition())/2;
     }
     public boolean isFinished(int tolerance) {
-        return Math.abs((LeftMotor.getCurrentPosition() + RightMotor.getCurrentPosition()) / 2
-                - ((LeftMotor.getTargetPosition() + RightMotor.getTargetPosition()) / 2)) < tolerance;
+        return Math.abs((leftMotor.getCurrentPosition() + rightMotor.getCurrentPosition()) / 2
+                - ((leftMotor.getTargetPosition() + rightMotor.getTargetPosition()) / 2)) < tolerance;
     }
     public boolean isFinished(){
         return isFinished(15);
@@ -166,8 +166,8 @@ public class LiftArm {
                 new InstantCommand(()->slideUp.setPosition(ServoConstants.UP_SLIDE_MIN.value)),
                 new WaitCommand(70),
                 new InstantCommand(()->{
-                    ascentLeft.setPosition(ServoConstants.ASCENT_LEFT_UP.value);
-                    ascentRight.setPosition(ServoConstants.ASCENT_RIGHT_UP.value);
+//                    ascentLeft.setPosition(ServoConstants.ASCENT_LEFT_UP.value);
+//                    ascentRight.setPosition(ServoConstants.ASCENT_RIGHT_UP.value);
                     lifter.resetSlide();
                     clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE.value);
                     armUp.setPosition(ServoConstants.UP_ARM_PARALLEL.value);
@@ -292,7 +292,7 @@ public class LiftArm {
         }).andThen(new WaitCommand(300), lifter.ascent_down());
     }
 
-    public Command highBasketCommand(){
+    public Command reachHighBasket(){
         return lifter.highBasketCommand();
     }
 
@@ -306,5 +306,11 @@ public class LiftArm {
     }
     public int getPosition(){
         return (lifter.getLeftMotor().getCurrentPosition()+lifter.getRightMotor().getCurrentPosition())/2;
+    }
+    public boolean isFinished(int tolerance) {
+        return lifter.isFinished(tolerance);
+    }
+    public boolean isFinished(){
+        return isFinished(15);
     }
 }

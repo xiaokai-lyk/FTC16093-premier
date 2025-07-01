@@ -98,11 +98,11 @@ public class SuperStructure {
         return instance;
     }
 
-    public boolean isFinished(int tolerance) {
-        return Math.abs((slideLeft.getCurrentPosition() + slideRight.getCurrentPosition()) / 2
-                - ((slideLeft.getTargetPosition() + slideRight.getTargetPosition()) / 2)) < tolerance;
-    }
-    public boolean isFinished(){
-        return isFinished(15);
-    }
+//    public boolean isFinished(int tolerance) {
+//        return Math.abs((slideLeft.getCurrentPosition() + slideRight.getCurrentPosition()) / 2
+//                - ((slideLeft.getTargetPosition() + slideRight.getTargetPosition()) / 2)) < tolerance;
+//    }
+//    public boolean isFinished(){
+//        return isFinished(15);
+//    }
 }
