@@ -25,14 +25,14 @@ public class FrontArm {
     private final DcMotorEx FrontSlide;
 
     private final Servo claw;
-    private final Servo ClawSpinner;
-    private final Servo Wrist;
-    private final Servo ArmSpinner;
-    private final Servo ArmWrist;
+    private final Servo clawSpinner;
+    private final Servo wrist;
+    private final Servo armSpinner;
+    private final Servo armWrist;
 
     private final AnalogInput claw_in;
 
-    public SpinnerConstant CurrentSpinnerPos;
+    public SpinnerConstant currentSpinnerPos;
     public State state;
     public boolean claw_open = false;
 
@@ -45,11 +45,11 @@ public class FrontArm {
 
 
     public FrontArm(@NonNull HardwareMap hardwareMap){
-        this.ArmSpinner = hardwareMap.get(Servo.class, "armSpin");
+        this.armSpinner = hardwareMap.get(Servo.class, "armSpin");
         this.claw = hardwareMap.get(Servo.class, "claw");
-        this.Wrist = hardwareMap.get(Servo.class, "wrist");
-        this.ClawSpinner = hardwareMap.get(Servo.class,"spin");
-        this.ArmWrist = hardwareMap.get(Servo.class,"armWrist");
+        this.wrist = hardwareMap.get(Servo.class, "wrist");
+        this.clawSpinner = hardwareMap.get(Servo.class,"spin");
+        this.armWrist = hardwareMap.get(Servo.class,"armWrist");
         this.FrontSlide = hardwareMap.get(DcMotorEx.class, "slideFront");
         this.claw_in = hardwareMap.get(AnalogInput.class,"claw_in");
         FrontSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -70,17 +70,17 @@ public class FrontArm {
     }
 
     public void set_spinner(@NonNull SpinnerConstant pos){
-        pos.setToServo(this.ClawSpinner);
-        this.CurrentSpinnerPos = pos;
+        pos.setToServo(this.clawSpinner);
+        this.currentSpinnerPos = pos;
     }
     public void set_wrist(@NonNull ServoConstants pos){
-        pos.setToServo(this.Wrist);
+        pos.setToServo(this.wrist);
     }
     public void set_arm_wrist(@NonNull ServoConstants pos){
-        pos.setToServo(this.ArmWrist);
+        pos.setToServo(this.armWrist);
     }
     public void set_arm_spinner(@NonNull ServoConstants pos){
-        pos.setToServo(this.ArmSpinner);
+        pos.setToServo(this.armSpinner);
     }
 
     public void spinner_rotate(boolean to_right){
@@ -93,7 +93,7 @@ public class FrontArm {
                 SpinnerConstant.DEG5,
         };
         for(int i=0;i< spinnerConstants.length;i++){
-            if(spinnerConstants[i]==CurrentSpinnerPos){
+            if(spinnerConstants[i]== currentSpinnerPos){
                 if ((i==0 && !to_right) || (i == spinnerConstants.length-1 && to_right)){
                     continue;
                 }

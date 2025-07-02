@@ -37,8 +37,8 @@ public class AutoBasket extends AutoOpModeEx {
 
     private final Pose startPose = new Pose(0, 0, Math.toRadians(0));
 
-    private final Pose scorePose = new Pose(3, 0, Math.toRadians(0));
-    private final Pose pickup1Pose = new Pose(6, 0, Math.toRadians(0));
+    private final Pose scorePose = new Pose(1, 0, Math.toRadians(0));
+    private final Pose pickup1Pose = new Pose(2, 0, Math.toRadians(0));
     private final Pose pickup2Pose = new Pose(9, 0, Math.toRadians(0));
     private final Pose pickup3Pose = new Pose(6, 0, Math.toRadians(0));
     private final Pose parkControlPose = new Pose(3, 0,Math.toRadians(0));
@@ -127,21 +127,17 @@ public class AutoBasket extends AutoOpModeEx {
             case 1:
                 if (!follower.isBusy()) {
                     follower.followPath(grabPickup1, true);
-                    schedule(new SequentialCommandGroup(
-                        autoCommand.autoSampleIntake(),
-                        new WaitCommand(500),
-                        autoCommand.autoHandover()
-                    ));
+                    autoCommand.autoSampleIntake().schedule(false);
                     setPathState(2);
                 }
                 break;
-//            case 2:
-//                if (!follower.isBusy()) {
-//                    follower.followPath(scorePickup1, true);
-//                    autoCommand.autoReleaseHigh().schedule();
-//                    setPathState(3);
-//                }
-//                break;
+            case 2:
+                if (!follower.isBusy()) {
+                    follower.followPath(scorePickup1, true);
+                    autoCommand.autoReleaseHigh().schedule(false);
+                    setPathState(3);
+                }
+                break;
 //            case 3:
 //                if (!follower.isBusy()) {
 //                    follower.followPath(grabPickup2, true);

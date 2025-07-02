@@ -4,7 +4,6 @@ import static java.lang.Math.abs;
 
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.InstantCommand;
-import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
@@ -42,73 +41,64 @@ public class AutoCommand {
 //                new WaitUntilCommand(() ->
 //                        (frontArm.getFrontSlide().getCurrentPosition() > abs(0.9 * MotorConstants.FRONT_MAX.value - MotorConstants.FRONT_TOLERANCE.value))
 //                ),
-                new WaitCommand(2000),
+                new WaitCommand(1000),
                 new InstantCommand(()->{
                     frontArm.getArmWrist().setPosition(ServoConstants.ARM_WRIST_DOWN.value);
                     frontArm.set_wrist(ServoConstants.WRIST_DOWN);
                     new WaitCommand(30);
                     frontArm.open_claw(false);
                     new WaitCommand(100);
-                })
-
-        );
-    }
-
-    public Command autoHandover(){
-        return new SequentialCommandGroup(
-                new InstantCommand(()->frontArm.open_claw(false)),
-                new ParallelCommandGroup(
-                    new InstantCommand(()->{
-                        liftArm.getArmUp().setPosition(ServoConstants.UP_ARM_HANDOVER.value);
-                        liftArm.getWristUp().setPosition(ServoConstants.UP_WRIST_HANDOVER.value);
-                        liftArm.getSlideUp().setPosition(ServoConstants.UP_SLIDE_MIN.value);
-                        liftArm.getClawUp().setPosition(ServoConstants.UP_CLAW_OPEN.value);
-                    }).andThen(
-                            new InstantCommand(()->liftArm.resetSlide()),
-                            new WaitUntilCommand(()-> liftArm.isFinished())
-                    ).andThen(
+                }).andThen(
                         new InstantCommand(()->{
                             frontArm.set_wrist(ServoConstants.WRIST_HANDOVER);
                             frontArm.set_spinner(SpinnerConstant.PARALLEL);
                             frontArm.set_arm_wrist(ServoConstants.ARM_WRIST_HANDOVER);
                             frontArm.set_arm_spinner(ServoConstants.ARM_SPINNER_FRONT);
-                            frontArm.open_claw(false);
                             frontArm.getFrontSlide().setTargetPosition(0);
-                        })
-                    ).andThen(
-                            new SequentialCommandGroup(
-                                new InstantCommand(()->liftArm.getClawUp().setPosition(ServoConstants.UP_CLAW_CLOSE.value)),
+                        }),
+                        new WaitUntilCommand(()-> Math.abs(frontArm.getFrontSlide().getCurrentPosition() - frontArm.getFrontSlide().getTargetPosition())<10)
+                ).andThen(
+                        new SequentialCommandGroup(
                                 new WaitCommand(100),
+                                new InstantCommand(()->liftArm.getClawUp().setPosition(ServoConstants.UP_CLAW_CLOSE.value)),
+                                new WaitCommand(200),
                                 new InstantCommand(()->frontArm.open_claw(true))
-                            )
-
-                    )
+                        )
                 )
         );
     }
 
+//    public Command autoHandover(){
+//        return new SequentialCommandGroup(
+//                new WaitCommand(400),
+//                new InstantCommand(()->liftArm.getClawUp().setPosition(ServoConstants.UP_CLAW_CLOSE.value)),
+//                new WaitCommand(200),
+//                new InstantCommand(()->frontArm.open_claw(true))
+//        );
+//    }
+
     public Command autoReleaseHigh() {
         return new SequentialCommandGroup(
-                new InstantCommand(()-> liftArm.getClawUp().setPosition(ServoConstants.UP_CLAW_CLOSE.value)),
-                new WaitCommand(100),
                 new InstantCommand(() -> liftArm.getSlideUp().setPosition(ServoConstants.UP_SLIDE_MIN.value)),
-                new WaitCommand(100),
                 new InstantCommand(() -> liftArm.resetSlide()),
                 new WaitUntilCommand(() -> liftArm.isFinished()),
-                new WaitCommand(100),
-                new InstantCommand(() -> liftArm.state = LiftArm.LiftArmState.FREE),
-
                 liftArm.reachHighBasket(),
                 new WaitUntilCommand(() -> liftArm.isFinished(MotorConstants.LIFT_ABOVE_BASKET_TOLERANCE.value)),
                 new InstantCommand(() -> {
                     liftArm.getArmUp().setPosition(ServoConstants.UP_ARM_BASKET.value);
                     liftArm.getWristUp().setPosition(ServoConstants.UP_WRIST_BASKET.value);
                 }),
-                new WaitCommand(100),
                 new InstantCommand(() -> liftArm.getSlideUp().setPosition(ServoConstants.UP_SLIDE_MAX.value)),
                 new WaitUntilCommand(()-> liftArm.isFinished()),
+                new WaitCommand(100),
                 new InstantCommand(()->liftArm.getClawUp().setPosition(ServoConstants.UP_CLAW_OPEN.value)),
-                new InstantCommand(()->liftArm.resetSlide()),
+                new WaitCommand(80),
+                new InstantCommand(()->{
+                    liftArm.resetSlide();
+                    liftArm.getArmUp().setPosition(ServoConstants.UP_ARM_HANDOVER.value);
+                    liftArm.getWristUp().setPosition(ServoConstants.UP_WRIST_HANDOVER.value);
+                    liftArm.getSlideUp().setPosition(ServoConstants.UP_SLIDE_MIN.value);
+                }),
                 new WaitUntilCommand(()-> liftArm.isFinished())
         );
     }
