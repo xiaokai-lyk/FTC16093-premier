@@ -114,6 +114,7 @@ public class AutoBasket extends AutoOpModeEx {
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("heading", follower.getPose().getHeading());
+        telemetry.addData("lift slide info", liftArm.slideInfo());
         telemetry.update();
     }
 
@@ -124,20 +125,20 @@ public class AutoBasket extends AutoOpModeEx {
                 autoCommand.autoReleaseHigh().schedule(false);
                 setPathState(1);
                 break;
-            case 1:
-                if (!follower.isBusy()) {
-                    follower.followPath(grabPickup1, true);
-                    autoCommand.autoSampleIntake().schedule(false);
-                    setPathState(2);
-                }
-                break;
-            case 2:
-                if (!follower.isBusy()) {
-                    follower.followPath(scorePickup1, true);
-                    autoCommand.autoReleaseHigh().schedule(false);
-                    setPathState(3);
-                }
-                break;
+//            case 1:
+//                if (!follower.isBusy()) {
+//                    follower.followPath(grabPickup1, true);
+//                    autoCommand.autoSampleIntake().schedule(false);
+//                    setPathState(2);
+//                }
+//                break;
+//            case 2:
+//                if (!follower.isBusy()) {
+//                    follower.followPath(scorePickup1, true);
+//                    autoCommand.autoReleaseHigh().schedule(false);
+//                    setPathState(3);
+//                }
+//                break;
 //            case 3:
 //                if (!follower.isBusy()) {
 //                    follower.followPath(grabPickup2, true);

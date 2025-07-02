@@ -292,10 +292,6 @@ public class LiftArm {
         }).andThen(new WaitCommand(300), lifter.ascent_down());
     }
 
-    public Command reachHighBasket(){
-        return lifter.highBasketCommand();
-    }
-
     public void setPosition(int pos){
         lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         lifter.getLeftMotor().setTargetPosition(pos);
@@ -313,4 +309,30 @@ public class LiftArm {
     public boolean isFinished(){
         return isFinished(15);
     }
+    public Command moveSlideUpTo(int targetPosition, double power, int tolerance) {
+        return new SequentialCommandGroup(
+                new InstantCommand(() -> {
+                    // 设置左电机
+                    lifter.getLeftMotor().setTargetPosition(targetPosition);
+                    lifter.getLeftMotor().setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    lifter.getLeftMotor().setPower(power);
+
+                    // 设置右电机
+                    lifter.getRightMotor().setTargetPosition(targetPosition);
+                    lifter.getRightMotor().setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    lifter.getRightMotor().setPower(power);
+                }),
+                new WaitUntilCommand(() ->
+                        Math.abs(lifter.getLeftMotor().getCurrentPosition() - targetPosition) <= tolerance
+                                &&
+                                Math.abs(lifter.getRightMotor().getCurrentPosition() - targetPosition) <= tolerance
+                )
+        );
+    }
+    public Command reachHighBasket(int tolerance){
+//        return moveSlideUpTo(MotorConstants.LIFT_HIGH.value, 0.95, tolerance);
+        return lifter.highBasketCommand();
+    }
+
+
 }
