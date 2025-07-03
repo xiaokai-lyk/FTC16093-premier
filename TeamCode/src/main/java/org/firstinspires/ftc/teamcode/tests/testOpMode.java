@@ -28,13 +28,13 @@ import org.firstinspires.ftc.teamcode.Subsystems.driving.NewMecanumDrive;
 @TeleOp(name = "testOpmode", group = "tests")
 public class testOpMode extends LinearOpMode {
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode(){
         NewMecanumDrive drive = new NewMecanumDrive(hardwareMap);
         waitForStart();
         while(opModeIsActive()){
             drive.update();
             drive.updateOdo();
-            drive.setFieldCentric(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
+            drive.setFieldCentric(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x, 1);
         }
     }
 }

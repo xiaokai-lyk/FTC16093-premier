@@ -50,12 +50,13 @@ public class TeleOpBase extends CommandOpModeEx {
 
 
         driveCore = new NewMecanumDrive(hardwareMap);
+        driveCore.init();
         TeleOpDriveCommand driveCommand = new TeleOpDriveCommand(driveCore,
                 ()->gamepadEx1.getLeftX(),
                 ()->gamepadEx1.getLeftY(),
                 ()->frontArm.state== FrontArm.State.DOWN?(gamepadEx1.getRightX()*0.45):gamepadEx1.getRightX(),
-                ()->(gamepadEx1.getButton(GamepadKeys.Button.START)),
-                ()->frontArm.state==FrontArm.State.DOWN?0.3:1);
+                ()->(gamepadEx1.getButton(GamepadKeys.Button.RIGHT_STICK_BUTTON)),
+                ()->frontArm.state==FrontArm.State.DOWN?0.7:1);
 
         frontArm = new FrontArm(hardwareMap);
         liftArm = new LiftArm(hardwareMap);
@@ -127,22 +128,19 @@ public class TeleOpBase extends CommandOpModeEx {
         );
 
         //Ascent
-        new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.B)).whenPressed(new SequentialCommandGroup(
-                new InstantCommand(()->{
-                    liftArm.getAscentLeft().setPosition(ServoConstants.ASCENT_LEFT_UP.value);
-                    liftArm.getAscentRight().setPosition(ServoConstants.ASCENT_RIGHT_UP.value);
-                })
-        ));
         new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.A)).whenPressed(new SequentialCommandGroup(
                 new InstantCommand(()->mode=Tasks.ASCENT),
-                liftArm.ascent_up()
+                liftArm.ascent_up().alongWith(new InstantCommand(frontArm::ascentPos))
         ).andThen(
                 new WaitUntilCommand(()->gamepadEx1.getButton(GamepadKeys.Button.A)),
                 new InstantCommand(liftArm::hold_slide),
                 new WaitUntilCommand(()->gamepadEx1.getButton(GamepadKeys.Button.A)),
                 liftArm.ascent_down(),
                 new WaitUntilCommand(()->gamepadEx1.getButton(GamepadKeys.Button.A)),
-                new InstantCommand(liftArm::hold_slide)
+                new InstantCommand(liftArm::hold_slide).alongWith(
+                        liftArm.ascent_end(),
+                        frontArm.ascent_end()
+                )
         ));
     }
 

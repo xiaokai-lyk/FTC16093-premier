@@ -1,4 +1,6 @@
 package org.firstinspires.ftc.teamcode.Subsystems.Constants;
+import androidx.annotation.NonNull;
+
 import com.qualcomm.robotcore.hardware.Servo;
 
 public enum ServoConstants {
@@ -8,7 +10,7 @@ public enum ServoConstants {
     CLAW_CHECK(0.08),
     WRIST_PARALLEL(0.58),
     WRIST_DOWN(0.13),
-    WRIST_HANDOVER(0.7),
+    WRIST_HANDOVER(0.63),
     ARM_SPINNER_FRONT(0.45),
     ARM_SPINNER_LEFT45(0.6),
     ARM_SPINNER_RIGHT45(0.27),
@@ -16,29 +18,33 @@ public enum ServoConstants {
     ARM_WRIST_PREINTAKE(0.19),
     ARM_WRIST_DOWN(0.1),
     ARM_WRIST_TURN(0.27),
-    ARM_WRIST_HANDOVER(0.9),
+    ARM_WRIST_HANDOVER(0.72),
+    ARM_WRIST_BACK(0.99),
     ARM_WRIST_FREE(0.43),
 
-    UP_CLAW_OPEN(0.2),
-    UP_CLAW_CLOSE(0.83),
+    UP_CLAW_OPEN(0.25),
+    UP_CLAW_CLOSE_CAN_SLIDE(0.95),
+    UP_CLAW_CLOSE(0.97),
     UP_SLIDE_MIN(0.59),
     UP_SLIDE_MAX(0.18),
     UP_WRIST_BASKET(0.55),
     UP_WRIST_PARALLEL(0.32),
     UP_WRIST_HANDOVER(0.9),
-    UP_WRIST_WALL(0.65),
-    UP_ARM_BASKET(0.7),
-    UP_ARM_PARALLEL(0.25),
-    UP_ARM_HANDOVER(0.07),
+    UP_WRIST_WALL(0.67),
+    UP_ARM_BASKET(0.72),
+    UP_ARM_PARALLEL(0.29),
+    UP_ARM_HANDOVER(0.09),
     UP_ARM_WALL(0.95),
+    UP_ARM_UPWARD(0.5),
+    UP_ARM_BACK(0.88),
 
     SHIFTER_NORMAL(0),
-    SHIFTER_SLOW(0.64),
+    SHIFTER_SLOW(0.7),
 
     ASCENT_LEFT_UP(0.22),
-    ASCENT_LEFT_DOWN(0.48),
+    ASCENT_LEFT_DOWN(0.36),
     ASCENT_RIGHT_UP(0.58),
-    ASCENT_RIGHT_DOWN(0.3),
+    ASCENT_RIGHT_DOWN(0.45),
     ;
 
 
@@ -48,7 +54,7 @@ public enum ServoConstants {
     ServoConstants(double pos) {
         value = pos;
     }
-    public void setToServo(Servo servo){
+    public void setToServo(@NonNull Servo servo){
         servo.setPosition(this.value);
     }
 }

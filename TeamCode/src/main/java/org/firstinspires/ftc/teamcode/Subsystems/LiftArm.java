@@ -53,24 +53,19 @@ class Lifter{
 
     public Command ascent_up(){
         return new SequentialCommandGroup(
-                new InstantCommand(()->setPower(1)),
+                new InstantCommand(()->setPower(0.5)),
                 new InstantCommand(this::toSlowMode),
-                new WaitUntilCommand(()->this.getPosition()>MotorConstants.SLOW_ASCENT_THRESHOLD.value),
+                new WaitUntilCommand(()->this.getPosition()>MotorConstants.FINAL_ASCENT_THRESHOLD.value),
                 new InstantCommand(()->setPower(0.7))
         );
     }
 
     void hold_slide(){
-        setPosition(getPosition());
+        setPosition(getPosition()-10);
     }
 
     public Command ascent_down(){
         return new InstantCommand(()->setPower(-1));
-//        return new SequentialCommandGroup(
-//                new InstantCommand(()->setPower(-1)),
-//                new WaitUntilCommand(()->getPosition()<MotorConstants.ASCENT_DOWN_TOLERANCE.value),
-//                new InstantCommand(this::hold_slide)
-//        );
     }
 
     void setMode(DcMotorEx.RunMode new_mode){
@@ -166,10 +161,10 @@ public class LiftArm {
                 new InstantCommand(()->slideUp.setPosition(ServoConstants.UP_SLIDE_MIN.value)),
                 new WaitCommand(70),
                 new InstantCommand(()->{
-//                    ascentLeft.setPosition(ServoConstants.ASCENT_LEFT_UP.value);
-//                    ascentRight.setPosition(ServoConstants.ASCENT_RIGHT_UP.value);
+                    ascentLeft.setPosition(ServoConstants.ASCENT_LEFT_DOWN.value);
+                    ascentRight.setPosition(ServoConstants.ASCENT_RIGHT_DOWN.value);
                     lifter.resetSlide();
-                    clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE.value);
+                    clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE_CAN_SLIDE.value);
                     armUp.setPosition(ServoConstants.UP_ARM_PARALLEL.value);
                     wristUp.setPosition(ServoConstants.UP_WRIST_PARALLEL.value);
                     this.state = LiftArmState.FREE;
@@ -201,13 +196,14 @@ public class LiftArm {
                                 new InstantCommand(()->{
                                     armUp.setPosition(ServoConstants.UP_ARM_PARALLEL.value);
                                     wristUp.setPosition(ServoConstants.UP_WRIST_PARALLEL.value);
-                                    slideUp.setPosition(ServoConstants.UP_SLIDE_MIN.value);
+                                }),
+                                new WaitCommand(150),
+                                new InstantCommand(()->{
+                                    slideUp.setPosition(ServoConstants.UP_SLIDE_MAX.value);
                                     this.state = LiftArmState.PRE_CHAMBER;
                                 })
                         ),
                         new SequentialCommandGroup(
-                                new InstantCommand(()->slideUp.setPosition(ServoConstants.UP_SLIDE_MAX.value)),
-                                new WaitCommand(150),
                                 new InstantCommand(()->clawUp.setPosition(ServoConstants.UP_CLAW_OPEN.value)),
                                 new WaitCommand(70),
                                 new InstantCommand(()->slideUp.setPosition(ServoConstants.UP_SLIDE_MIN.value)),
@@ -239,7 +235,7 @@ public class LiftArm {
             clawUp.setPosition(ServoConstants.UP_CLAW_OPEN.value);
         }).andThen(
                 new WaitCommand(400),
-                new InstantCommand(()->clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE.value))
+                new InstantCommand(()->clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE_CAN_SLIDE.value))
         );
     }
 
@@ -279,17 +275,34 @@ public class LiftArm {
     }
 
     public Command ascent_up(){
-        return lifter.ascent_up();
+        return lifter.ascent_up().alongWith(
+                new InstantCommand(()->{
+                    ascentLeft.setPosition(ServoConstants.ASCENT_LEFT_UP.value);
+                    ascentRight.setPosition(ServoConstants.ASCENT_RIGHT_UP.value);
+                    armUp.setPosition(ServoConstants.UP_ARM_UPWARD.value);
+                })
+        );
     }
 
     public void hold_slide(){
         lifter.hold_slide();
     }
+
+    public Command ascent_end(){
+        return new SequentialCommandGroup(
+                new InstantCommand(()->armUp.setPosition(ServoConstants.UP_ARM_BACK.value)),
+                new WaitCommand(150),
+                new InstantCommand(()->slideUp.setPosition(ServoConstants.UP_SLIDE_MAX.value))
+        );
+    }
     public Command ascent_down() {
         return new InstantCommand(() -> {
             ascentLeft.setPosition(ServoConstants.ASCENT_LEFT_DOWN.value);
             ascentRight.setPosition(ServoConstants.ASCENT_RIGHT_DOWN.value);
-        }).andThen(new WaitCommand(300), lifter.ascent_down());
+        }).andThen(
+                new WaitCommand(700),
+                lifter.ascent_down()
+        );
     }
 
     public void setPosition(int pos){
@@ -309,6 +322,7 @@ public class LiftArm {
     public boolean isFinished(){
         return isFinished(15);
     }
+    @Deprecated
     public Command moveSlideUpTo(int targetPosition, double power, int tolerance) {
         return new SequentialCommandGroup(
                 new InstantCommand(() -> {

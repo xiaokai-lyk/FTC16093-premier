@@ -180,7 +180,7 @@ public class FrontArm {
             open_claw(false);
             FrontSlide.setTargetPosition(0);
         }).andThen(
-                new WaitCommand(300),
+                new WaitCommand(500),
                 new InstantCommand(()->this.open_claw(true)),
                 new WaitCommand(200),
                 new InstantCommand(this::initPos),
@@ -217,5 +217,14 @@ public class FrontArm {
         FrontSlide.setTargetPosition(0);
         FrontSlide.setPower(1);
         FrontSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+
+    public Command ascent_end(){
+        return new InstantCommand(()->set_arm_wrist(ServoConstants.ARM_WRIST_BACK));
+    }
+
+    public void ascentPos(){
+        initPos();
+        set_arm_wrist(ServoConstants.ARM_WRIST_BACK);
     }
 }

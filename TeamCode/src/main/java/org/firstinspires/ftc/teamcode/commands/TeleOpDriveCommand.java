@@ -37,7 +37,7 @@ public class TeleOpDriveCommand extends CommandBase {
             drive.resetHeading();
             drive.resetOdo();
         }
-        drive.setFieldCentric(x.getAsDouble(),y.getAsDouble(),rotate.getAsDouble());
+        drive.setFieldCentric(x.getAsDouble(),y.getAsDouble(),rotate.getAsDouble(), powerCoefficient.getAsDouble());
         drive.update();
         drive.updateOdo();
     }

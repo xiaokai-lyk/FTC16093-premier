@@ -23,7 +23,6 @@ import com.acmerobotics.roadrunner.followers.TrajectoryFollower;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
-import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
 import com.acmerobotics.roadrunner.trajectory.constraints.AngularVelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.MecanumVelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.MinVelocityConstraint;
@@ -40,7 +39,6 @@ import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigu
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.Subsystems.driving.StandardLocalizer;
 import org.firstinspires.ftc.teamcode.lib.gobilda.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.lib.roadrunner.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.lib.roadrunner.trajectorysequence.TrajectorySequenceBuilder;
@@ -67,20 +65,19 @@ public class NewMecanumDrive extends MecanumDrive {
     public static double VY_WEIGHT = 1;
     public static double OMEGA_WEIGHT = 1;
 
-    private TrajectorySequenceRunner trajectorySequenceRunner;
+    private final TrajectorySequenceRunner trajectorySequenceRunner;
 
     private static final TrajectoryVelocityConstraint VEL_CONSTRAINT = getVelocityConstraint(MAX_VEL, MAX_ANG_VEL, TRACK_WIDTH);
     private static final TrajectoryAccelerationConstraint ACCEL_CONSTRAINT = getAccelerationConstraint(MAX_ACCEL);
 
-    private TrajectoryFollower follower;
     public DcMotorEx leftFront, leftRear, rightRear, rightFront;
 
-    private List<DcMotorEx> motors;
+    private final List<DcMotorEx> motors;
     public GoBildaPinpointDriver odo;
-    private VoltageSensor batteryVoltageSensor;
+    private final VoltageSensor batteryVoltageSensor;
 
-    private List<Integer> lastEncPositions = new ArrayList<>();
-    private List<Integer> lastEncVels = new ArrayList<>();
+    private final List<Integer> lastEncPositions = new ArrayList<>();
+    private final List<Integer> lastEncVels = new ArrayList<>();
     private Runnable updateRunnable;
     SlewRateLimiter driveLimiter;
     SlewRateLimiter turnLimiter;
@@ -91,13 +88,13 @@ public class NewMecanumDrive extends MecanumDrive {
 
     private double yawHeading = 0;
 
-    private BooleanSupplier switchDrivePIDCondition = ()->false;
+    private final BooleanSupplier switchDrivePIDCondition = ()->false;
     private boolean switchDrive = false;
 
     public NewMecanumDrive(HardwareMap hardwareMap) {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
 
-        follower = new HolonomicPIDVAFollower(TRANS_PID, TRANS_PID, HEADING_PID,
+        TrajectoryFollower follower = new HolonomicPIDVAFollower(TRANS_PID, TRANS_PID, HEADING_PID,
                 new Pose2d(0.5, 0.5, Math.toRadians(5.0)), 0.5);
 
         LynxModuleUtil.ensureMinimumFirmwareVersion(hardwareMap);
@@ -106,7 +103,7 @@ public class NewMecanumDrive extends MecanumDrive {
 
         odo = hardwareMap.get(GoBildaPinpointDriver.class,"odo");
         odo.setOffsets(144,44);
-        odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_SWINGARM_POD);
+        odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         odo.recalibrateIMU();
 
         leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
@@ -153,37 +150,12 @@ public class NewMecanumDrive extends MecanumDrive {
         odo.recalibrateIMU();
     }
 
-    public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {
-        return new TrajectoryBuilder(startPose, VEL_CONSTRAINT, ACCEL_CONSTRAINT);
-    }
-
-    public TrajectoryBuilder trajectoryBuilder(Pose2d startPose, boolean reversed) {
-        return new TrajectoryBuilder(startPose, reversed, VEL_CONSTRAINT, ACCEL_CONSTRAINT);
-    }
-
-    public TrajectoryBuilder trajectoryBuilder(Pose2d startPose, double startHeading) {
-        return new TrajectoryBuilder(startPose, startHeading, VEL_CONSTRAINT, ACCEL_CONSTRAINT);
-    }
-
     public TrajectorySequenceBuilder trajectorySequenceBuilder(Pose2d startPose) {
         return new TrajectorySequenceBuilder(
                 startPose,
                 VEL_CONSTRAINT, ACCEL_CONSTRAINT,
                 MAX_ANG_VEL, MAX_ANG_ACCEL
         );
-    }
-
-    public void turnAsync(double angle) {
-        trajectorySequenceRunner.followTrajectorySequenceAsync(
-                trajectorySequenceBuilder(getPoseEstimate())
-                        .turn(angle)
-                        .build()
-        );
-    }
-
-    public void turn(double angle) {
-        turnAsync(angle);
-        waitForIdle();
     }
 
     public void followTrajectoryAsync(Trajectory trajectory) {
@@ -208,27 +180,12 @@ public class NewMecanumDrive extends MecanumDrive {
         waitForIdle();
     }
 
-    public Pose2d getLastError() {
-        return trajectorySequenceRunner.getLastPoseError();
-    }
+    public void init(){
+        resetHeading();
+        resetOdo();
+        updateOdo();
+        update();
 
-    public void initialUpdate() {
-        updatePoseEstimate();
-
-        switchDrive = switchDrivePIDCondition.getAsBoolean()&&manualSwitchDrive;
-        DriveSignal signal = trajectorySequenceRunner.update(getPoseEstimate(), getPoseVelocity());
-        if (simpleMoveIsActivate) {
-            simpleMovePeriod();
-        } else if (signal != null) {
-            setDriveSignal(signal);
-        }
-//        updatePoseEstimate();
-//        DriveSignal signal = trajectorySequenceRunner.update(getPoseEstimate(), getPoseVelocity());
-//        if (simpleMoveIsActivate) {
-//            simpleMovePeriod();
-//        } else if (signal != null) {
-//            setDriveSignal(signal);
-//        }
     }
 
     public void update() {
@@ -315,7 +272,7 @@ public class NewMecanumDrive extends MecanumDrive {
     }
 
     public static boolean ignoreDriveCoefficients = false;
-    public void setFieldCentric(double x, double y, double rx) {
+    public void setFieldCentric(double x, double y, double rx, double powerCoefficient) {
         double botHeading = getHeading();
 
         double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
@@ -323,10 +280,10 @@ public class NewMecanumDrive extends MecanumDrive {
         rotX = rotX * 1.1;
 
         double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1);
-        double frontLeftPower = (rotY + rotX + rx) / denominator;
-        double backLeftPower = (rotY - rotX + rx) / denominator;
-        double frontRightPower = (rotY - rotX - rx) / denominator;
-        double backRightPower = (rotY + rotX - rx) / denominator;
+        double frontLeftPower = (rotY + rotX + rx) / denominator * powerCoefficient;
+        double backLeftPower = (rotY - rotX + rx) / denominator * powerCoefficient;
+        double frontRightPower = (rotY - rotX - rx) / denominator * powerCoefficient;
+        double backRightPower = (rotY + rotX - rx) / denominator * powerCoefficient;
 
         setMotorPowers(frontLeftPower, backLeftPower, backRightPower, frontRightPower);
     }
@@ -519,57 +476,12 @@ public class NewMecanumDrive extends MecanumDrive {
     private double turnWheelSpeedDiff = 0;
     private double poseDiff;
     private double[] motorPowerStorage = new double[4];
-    private turnDirection direction;
-    public void calculateSemicircles(Pose2d startPose, Pose2d endPose){
-        if(endPose.getY() == startPose.getY()){
-            poseDiff = endPose.getX() - startPose.getX();
-            //Difference is calculated based on x direction.
-            turnWheelSpeedDiff = calculateWheelSpeedDiff(poseDiff);
-            if(Math.toDegrees(startPose.getHeading()) == 0){
-                direction = poseDiff>0? turnDirection.LEFT:turnDirection.RIGHT;
-            }else if(Math.toDegrees(startPose.getHeading()) == 180){
-                direction = poseDiff>0? turnDirection.RIGHT:turnDirection.LEFT;
-            }
-        }else{
-            poseDiff = endPose.getY() - startPose.getY();
-            //Difference is calculated based on y direction.
-            turnWheelSpeedDiff = calculateWheelSpeedDiff(poseDiff);
-            if(Math.toDegrees(startPose.getHeading()) == 90){
-                direction = poseDiff>0? turnDirection.RIGHT:turnDirection.LEFT;
-            }else if(Math.toDegrees(startPose.getHeading()) == 270) {
-                direction = poseDiff > 0 ? turnDirection.LEFT : turnDirection.RIGHT;
-            }
-        }
-
-        if(endPose.getHeading() > startPose.getHeading()){
-            stopSemicircling = odo.getHeading() > endPose.getHeading();
-        }else{
-            stopSemicircling = odo.getHeading() < endPose.getHeading();
-        }
-    }
-    public double[] setStitchSemicirclePower(){
-        if(direction == turnDirection.LEFT){
-            motorPowerStorage[0] = 1-turnWheelSpeedDiff;
-            motorPowerStorage[1] = 1-turnWheelSpeedDiff;
-            motorPowerStorage[2] = 1;
-            motorPowerStorage[3] = 1;
-        }else{
-            motorPowerStorage[0] = 1;
-            motorPowerStorage[1] = 1;
-            motorPowerStorage[2] = 1-turnWheelSpeedDiff;
-            motorPowerStorage[3] = 1-turnWheelSpeedDiff;
-        }
-        return motorPowerStorage;
-    }
 
     public boolean stopSemicircling = true;
 
     private double calculateWheelSpeedDiff(double poseDiff){
         //Apply math
         return 1.2;
-    }
-    private enum turnDirection{
-        LEFT, RIGHT
     }
 
     public Pose2d getSimpleMovePosition() {
@@ -643,45 +555,6 @@ public class NewMecanumDrive extends MecanumDrive {
     public void resetOdo(){
         odo.recalibrateIMU();
     }
-//    public double getHeading(){
-//        Pose2D pos = odo.getPosition();
-//        return pos.getHeading(AngleUnit.DEGREES);
-//    }
-
-    public Pose2d lastStoredPos;
-    public void storeCurrentPos(){
-        if(!simpleMoveIsActivate){
-            lastStoredPos = odo.getPositionAsPose2d();
-        }
-    }
-    public String getStoredPosAsString(){
-        if(lastStoredPos != null){
-            return lastStoredPos.toString();
-        }
-        return "POSE NOT PROPERLY INITIALIZED!!!!!";
-    }
-
-    public String getCurrentPoseAsString(){
-        return odo.getPositionAsPose2d().toString();
-    }
-    public Pose2d getCurrentPose(){
-        return odo.getPositionAsPose2d();
-    }
-
-    public void testSemicircleRadius(double speedDiff){
-        setMotorPowers(1-speedDiff,1-speedDiff,1,1);
-    }
-
-    public void turnOnSwitchDrive(boolean on){
-        manualSwitchDrive = on;
-    }
 
 
-    public String printMotorSpeeds(){
-        String ret = "";
-        for(DcMotorEx motor:motors){
-            ret += (motor.getCurrentPosition())+" ";
-        }
-        return ret;
-    }
 }
