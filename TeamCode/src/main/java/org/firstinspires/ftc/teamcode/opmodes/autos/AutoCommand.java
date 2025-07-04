@@ -81,37 +81,9 @@ public class AutoCommand {
 //    }
 
     public Command autoReleaseHigh() {
-        return new SequentialCommandGroup(
-//                new InstantCommand(() -> liftArm.getSlideUp().setPosition(ServoConstants.UP_SLIDE_MIN.value)),
-//                new InstantCommand(() -> liftArm.resetSlide()),
-//                new WaitUntilCommand(() -> liftArm.isFinished()),
-                new ParallelCommandGroup(
-                        new SequentialCommandGroup(
-                                liftArm.reachHighBasket(MotorConstants.AUTO_LIFT_ABOVE_BASKET_TOLERANCE.value),
-                                new WaitUntilCommand(()-> liftArm.isFinished())),
-                        new InstantCommand(() -> {
-                            liftArm.getArmUp().setPosition(ServoConstants.UP_ARM_BASKET.value);
-                            liftArm.getWristUp().setPosition(ServoConstants.UP_WRIST_BASKET.value);
-                        })
-                ),
-                new InstantCommand(() -> liftArm.getSlideUp().setPosition(ServoConstants.UP_SLIDE_MAX.value)),
-                new WaitCommand(100),
-                new InstantCommand(()->liftArm.getClawUp().setPosition(ServoConstants.UP_CLAW_OPEN.value)),
-                new WaitCommand(50),
-                new InstantCommand(()->{
-                    liftArm.resetSlide();
-                    liftArm.getArmUp().setPosition(ServoConstants.UP_ARM_HANDOVER.value);
-                    liftArm.getWristUp().setPosition(ServoConstants.UP_WRIST_HANDOVER.value);
-                    liftArm.getSlideUp().setPosition(ServoConstants.UP_SLIDE_MIN.value);
-                }),
-                new WaitUntilCommand(()-> liftArm.isFinished())
-        );
+        return liftArm.releaseHigh();
     }
 
-
-//    public Command autoSpecimenIntake(){
-//        return null;
-//    }
 
     public Command autoDriveCommmand(PathChain pathChain, Follower follower){
         return new InstantCommand(()->follower.followPath(pathChain));
