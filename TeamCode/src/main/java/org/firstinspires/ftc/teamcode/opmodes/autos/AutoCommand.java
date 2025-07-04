@@ -3,10 +3,8 @@ package org.firstinspires.ftc.teamcode.opmodes.autos;
 import static java.lang.Math.abs;
 
 import com.arcrobotics.ftclib.command.Command;
-import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
-import com.arcrobotics.ftclib.command.FunctionalCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
@@ -16,6 +14,8 @@ import org.firstinspires.ftc.teamcode.Subsystems.Constants.ServoConstants;
 import org.firstinspires.ftc.teamcode.Subsystems.Constants.SpinnerConstant;
 import org.firstinspires.ftc.teamcode.Subsystems.FrontArm;
 import org.firstinspires.ftc.teamcode.Subsystems.LiftArm;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.pathgen.PathChain;
 
 
 public class AutoCommand {
@@ -112,4 +112,8 @@ public class AutoCommand {
 //    public Command autoSpecimenIntake(){
 //        return null;
 //    }
+
+    public Command autoDriveCommmand(PathChain pathChain, Follower follower){
+        return new InstantCommand(()->follower.followPath(pathChain));
+    }
 }

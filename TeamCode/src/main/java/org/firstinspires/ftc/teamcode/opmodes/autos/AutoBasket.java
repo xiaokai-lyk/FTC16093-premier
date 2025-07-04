@@ -4,9 +4,10 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.CommandScheduler;
+import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
-import com.arcrobotics.ftclib.command.WaitCommand;
-import com.arcrobotics.ftclib.command.WaitUntilCommand;
+import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
@@ -20,6 +21,8 @@ import com.pedropathing.util.Timer;
 import org.firstinspires.ftc.teamcode.Subsystems.FrontArm;
 import org.firstinspires.ftc.teamcode.Subsystems.LiftArm;
 import org.firstinspires.ftc.teamcode.Subsystems.SuperStructure;
+import org.firstinspires.ftc.teamcode.opmodes.TeleOpBase;
+import org.firstinspires.ftc.teamcode.utils.ButtonEx;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
@@ -111,7 +114,6 @@ public class AutoBasket extends AutoOpModeEx {
     public void run() {
         CommandScheduler.getInstance().run();
         follower.update();
-        //autonomousPathUpdate();
         telemetry.addData("path state", pathState);
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
@@ -123,15 +125,19 @@ public class AutoBasket extends AutoOpModeEx {
     @Override
     public Command getAutonomousCommand() {
         return new SequentialCommandGroup(
-                autoCommand.autoReleaseHigh()
+                autoCommand.autoReleaseHigh(),
+//                autoCommand.autoDriveCommmand(grabPickup1,follower),
+                autoCommand.autoSampleIntake(),
+//                autoCommand.autoDriveCommmand(scorePickup1,follower),
+                autoCommand.autoSampleIntake()
         );
     }
 
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
-                follower.followPath(scorePreload); //todo: 封装成Command
-                autoCommand.autoReleaseHigh().schedule();
+                follower.followPath(scorePreload); //todo: 修改为封装好的Command?
+                autoCommand.autoReleaseHigh();
                 setPathState(1);
                 break;
 //            case 1:
@@ -139,47 +145,6 @@ public class AutoBasket extends AutoOpModeEx {
 //                    follower.followPath(grabPickup1, true);
 //                    autoCommand.autoSampleIntake().schedule(false);
 //                    setPathState(2);
-//                }
-//                break;
-//            case 2:
-//                if (!follower.isBusy()) {
-//                    follower.followPath(scorePickup1, true);
-//                    autoCommand.autoReleaseHigh().schedule(false);
-//                    setPathState(3);
-//                }
-//                break;
-//            case 3:
-//                if (!follower.isBusy()) {
-//                    follower.followPath(grabPickup2, true);
-//                    frontArm.intake(true).schedule();
-//                    frontArm.intake(true).schedule();
-//                    setPathState(4);
-//                }
-//                break;
-//            case 4:
-//                if (!follower.isBusy()) {
-//                    follower.followPath(scorePickup2, true);
-//                    frontArm.handover().schedule();
-//                    liftArm.releaseHigh().schedule();
-//                    liftArm.releaseHigh().schedule();
-//                    setPathState(5);
-//                }
-//                break;
-//            case 5:
-//                if (!follower.isBusy()) {
-//                    follower.followPath(grabPickup3, true);
-//                    frontArm.intake(true).schedule();
-//                    frontArm.intake(true).schedule();
-//                    setPathState(6);
-//                }
-//                break;
-//            case 6:
-//                if (!follower.isBusy()) {
-//                    follower.followPath(scorePickup3, true);
-//                    frontArm.handover().schedule();
-//                    liftArm.releaseHigh().schedule();
-//                    liftArm.releaseHigh().schedule();
-//                    setPathState(7);
 //                }
 //                break;
 //            case 7:
@@ -200,4 +165,11 @@ public class AutoBasket extends AutoOpModeEx {
         pathState = pState;
         pathTimer.resetTimer();
     }
+
+//    @Override
+//    public void functionalButtons(){
+//        new ButtonEx(()->true)
+//                .whenPressed(new ParallelCommandGroup(liftArm.releaseHigh(), new InstantCommand(frontArm::initPos)));
+//
+//    }
 }
