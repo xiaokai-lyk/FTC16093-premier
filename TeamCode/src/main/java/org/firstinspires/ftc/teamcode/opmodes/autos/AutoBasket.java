@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.autos;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
@@ -102,6 +103,7 @@ public class AutoBasket extends AutoOpModeEx {
         pathState = 0;
         frontArm.initPos();
         liftArm.initPos();
+        super.onStart();
     }
 
 
@@ -109,7 +111,7 @@ public class AutoBasket extends AutoOpModeEx {
     public void run() {
         CommandScheduler.getInstance().run();
         follower.update();
-        autonomousPathUpdate();
+        //autonomousPathUpdate();
         telemetry.addData("path state", pathState);
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
@@ -118,11 +120,18 @@ public class AutoBasket extends AutoOpModeEx {
         telemetry.update();
     }
 
+    @Override
+    public Command getAutonomousCommand() {
+        return new SequentialCommandGroup(
+                autoCommand.autoReleaseHigh()
+        );
+    }
+
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
-                follower.followPath(scorePreload);
-                autoCommand.autoReleaseHigh().schedule(false);
+                follower.followPath(scorePreload); //todo: 封装成Command
+                autoCommand.autoReleaseHigh().schedule();
                 setPathState(1);
                 break;
 //            case 1:
