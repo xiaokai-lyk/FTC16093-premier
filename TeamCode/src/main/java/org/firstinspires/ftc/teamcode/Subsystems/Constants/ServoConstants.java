@@ -4,10 +4,10 @@ import androidx.annotation.NonNull;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public enum ServoConstants {
-    CLAW_OPEN(0.6),
-    CLAW_CLOSE(0.15),
-    CLAW_HAS_BLOCK_MIN_DEGREE( 255),
-    CLAW_CHECK(0.08),
+    CLAW_OPEN(0.8),
+    CLAW_CLOSE(0.43),
+    CLAW_HAS_BLOCK_MIN_DEGREE( 220),
+    CLAW_CHECK(0.35),
     WRIST_PARALLEL(0.58),
     WRIST_DOWN(0.13),
     WRIST_HANDOVER(0.63),
