@@ -116,13 +116,13 @@ public class TeleOpBase extends CommandOpModeEx {
 
         new ButtonEx(()->(gamepadEx1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)>0.5
                 && liftArm.state == LiftArm.LiftArmState.FREE && mode != Tasks.ASCENT)).whenPressed(
-                frontArm.intake(true).andThen(new ConditionalCommand(new ParallelCommandGroup(frontArm.handover(),liftArm.handover()),
+                frontArm.intake(true, false).andThen(new ConditionalCommand(new ParallelCommandGroup(frontArm.handover(),liftArm.handover()),
                         new InstantCommand(),
                         ()->frontArm.state == FrontArm.State.HOLDING_BLOCK&& mode == Tasks.SAMPLE))
         );
         new ButtonEx(()->(gamepadEx1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)>0.5
                 && liftArm.state == LiftArm.LiftArmState.FREE && mode != Tasks.ASCENT)).whenPressed(
-                frontArm.intake(false).andThen(new ConditionalCommand(new ParallelCommandGroup(frontArm.handover(),liftArm.handover()),
+                frontArm.intake(false, false).andThen(new ConditionalCommand(new ParallelCommandGroup(frontArm.handover(),liftArm.handover()),
                         new InstantCommand(),
                         ()->frontArm.state==FrontArm.State.HOLDING_BLOCK && mode == Tasks.SAMPLE))
         );

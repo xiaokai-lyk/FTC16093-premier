@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 
+import com.arcrobotics.ftclib.command.InstantCommand;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
@@ -16,9 +17,9 @@ import com.pedropathing.pathgen.Point;
 
 import org.firstinspires.ftc.teamcode.Subsystems.FrontArm;
 import org.firstinspires.ftc.teamcode.Subsystems.LiftArm;
-import org.firstinspires.ftc.teamcode.Subsystems.SuperStructure;
 import org.firstinspires.ftc.teamcode.utils.PathChainList;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -29,13 +30,14 @@ import pedroPathing.constants.LConstants;
 
 @Autonomous(name = "Auto Basket", group = "Auto")
 public class AutoBasket extends AutoOpModeEx {
-    private final Follower follower;
+    private Follower follower;
     private AutoCommand autoCommand;
-    private final List<Command> actions;
-    private final FrontArm frontArm;
-    private final LiftArm liftArm;
+    private List<Command> actions;
+    private FrontArm frontArm;
+    private LiftArm liftArm;
+    private Boolean actionEnded;
 
-    private final PathChainList pathChainList;
+    private PathChainList pathChainList;
 
     private final Pose startPose = new Pose(0, 0, Math.toRadians(0));
 
@@ -47,25 +49,24 @@ public class AutoBasket extends AutoOpModeEx {
     private final Pose parkPose = new Pose(0, 0, Math.toRadians(0));
     private int currentPathId = 0;
 
-    public AutoBasket() {
+
+
+    @Override
+    public void initialize() {
         this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-        if(hardwareMap==null){
-            throw new RuntimeException("What happened???!!!");
-        }
         follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
         frontArm = new FrontArm(hardwareMap);
         liftArm = new LiftArm(hardwareMap);
         this.pathChainList = new PathChainList();
         this.actions = new ArrayList<>();
-    }
+        this.autoCommand = new AutoCommand(frontArm, liftArm);
 
-    @Override
-    public void initialize() {
         buildPaths();
         buildActions();
-        this.autoCommand = new AutoCommand(frontArm, liftArm);
-        SuperStructure.init(hardwareMap);
+
+        frontArm.initPos();
+        liftArm.initPos();
     }
 
     private void buildPaths() {
@@ -109,26 +110,29 @@ public class AutoBasket extends AutoOpModeEx {
         pathChainList.addPath(grabPickup1, scorePickup1, grabPickup2, scorePickup2, grabPickup3, scorePickup3);
     }
 
+    private Command actionEnd(){
+        return new InstantCommand(()->this.actionEnded=true);
+    }
+
     private void buildActions(){
         Command intakeCommand, releaseCommand;
-        intakeCommand = autoCommand.autoSampleIntake();
-        releaseCommand = autoCommand.autoReleaseHigh();
+        intakeCommand = autoCommand.autoSampleIntake().andThen(actionEnd());
+        releaseCommand = autoCommand.autoReleaseHigh().andThen(actionEnd());
         actions.addAll(Arrays.asList(intakeCommand, releaseCommand, intakeCommand, releaseCommand, intakeCommand,releaseCommand));
     }
 
-    @Override
-    public void onStart() {
-        frontArm.initPos();
-        liftArm.initPos();
-    }
-
-    private void periodic(){
+    private void periodic() {
         CommandScheduler.getInstance().run();
         follower.update();
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("heading", follower.getPose().getHeading());
         telemetry.addData("lift slide info", liftArm.slideInfo());
+        telemetry.addData("follower finished",!follower.isBusy());
+        telemetry.addData("action finished", this.actionEnded);
+        telemetry.addData("current path id", currentPathId);
+        telemetry.addData("front arm", frontArm.state);
+        telemetry.addData("lift arm", liftArm.state);
         telemetry.update();
     }
 
@@ -141,13 +145,18 @@ public class AutoBasket extends AutoOpModeEx {
             );
         }
         for(PathChain path:pathChainList){
+            if (!opModeIsActive())break;
             Command currentAction = actions.get(currentPathId);
-            follower.followPath(path);
-            currentAction.schedule();
-            while(follower.isBusy() || !currentAction.isFinished()){
-                periodic();
+
+            if (!currentAction.isScheduled()) {
+                currentAction.schedule();
+                follower.followPath(path);
             }
-            currentPathId++;
+            this.actionEnded = false;
+            periodic();
+            if(!follower.isBusy() && this.actionEnded){
+                currentPathId++;
+            }
         }
     }
 }

@@ -33,6 +33,12 @@ public class AutoCommand {
 
     public Command autoSampleIntake() {
         return new SequentialCommandGroup(
+                frontArm.intake(true, true),
+                frontArm.intake(true, true),
+                new ParallelCommandGroup(frontArm.handover(),liftArm.handover())
+        );
+//        return frontArm.intake(true, true).andThen(new ParallelCommandGroup(frontArm.handover(),liftArm.handover()));
+        /*return new SequentialCommandGroup(
                 new SequentialCommandGroup(
                         new InstantCommand(() -> frontArm.open_claw(true)),
                         new InstantCommand(() -> {
@@ -68,7 +74,7 @@ public class AutoCommand {
                                 new InstantCommand(()->frontArm.open_claw(true))
                         )
                 )
-        );
+        );*/
     }
 
 //    public Command autoHandover(){

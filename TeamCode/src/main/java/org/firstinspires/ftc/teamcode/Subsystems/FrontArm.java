@@ -103,7 +103,7 @@ public class FrontArm {
         }
     }
 
-    public Command intake(boolean is_far) {
+    public Command intake(boolean is_far, boolean auto_mode) {
         return new ConditionalCommand(
                 new ConditionalCommand(
                         new InstantCommand(()-> {
@@ -138,7 +138,7 @@ public class FrontArm {
                                                         ),
                                                         new InstantCommand(() -> this.state = State.DOWN)
                                                 ),
-                                                ()->getClawDeg()>ServoConstants.CLAW_HAS_BLOCK_MIN_DEGREE.value
+                                                ()->getClawDeg()>ServoConstants.CLAW_HAS_BLOCK_MIN_DEGREE.value || auto_mode
                                         )//检查有没有夹到块，
                                         //有块：夹起，没有：回intake状态
                                 ),
