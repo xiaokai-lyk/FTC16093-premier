@@ -77,6 +77,8 @@ class Lifter{
     }
     public void setPosition(int pos){
         setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        leftMotor.setPower(1);
+        rightMotor.setPower(1);
         leftMotor.setTargetPosition(pos);
         rightMotor.setTargetPosition(pos);
     }
@@ -109,7 +111,15 @@ class Lifter{
 
 
     void resetSlide(){
-        setPosition(0);
+        new SequentialCommandGroup(
+                new InstantCommand(()->setPosition(0)),
+                new WaitUntilCommand(this::isFinished),
+                new InstantCommand(()->setPower(-0.3)),
+                new WaitCommand(70),
+                new InstantCommand(()->setMode(DcMotor.RunMode.RUN_TO_POSITION)),
+                new InstantCommand(this::resetEncoder),
+                new InstantCommand(()->setPosition(0))
+        ).schedule();
     }
     void resetEncoder(){
         setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
@@ -307,22 +317,9 @@ public class LiftArm {
         );
     }
 
-    public void setPosition(int pos){
-        lifter.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        lifter.getLeftMotor().setTargetPosition(pos);
-        lifter.getRightMotor().setTargetPosition(pos);
-    }
-    public void resetSlide(){
-        setPosition(0);
-    }
-    public int getPosition(){
-        return (lifter.getLeftMotor().getCurrentPosition()+lifter.getRightMotor().getCurrentPosition())/2;
-    }
-    public boolean isFinished(int tolerance) {
-        return lifter.isFinished(tolerance);
-    }
+
     public boolean isFinished(){
-        return isFinished(15);
+        return lifter.isFinished(15);
     }
     @Deprecated
     public Command moveSlideUpTo(int targetPosition, double power, int tolerance) {
@@ -344,10 +341,6 @@ public class LiftArm {
                                 Math.abs(lifter.getRightMotor().getCurrentPosition() - targetPosition) <= tolerance
                 )
         );
-    }
-    public Command reachHighBasket(){
-//        return moveSlideUpTo(MotorConstants.LIFT_HIGH.value, 0.95, tolerance);
-        return lifter.highBasketCommand();
     }
 
 

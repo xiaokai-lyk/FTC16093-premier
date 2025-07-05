@@ -4,10 +4,8 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.CommandScheduler;
-import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 
 import com.arcrobotics.ftclib.command.InstantCommand;
-import com.arcrobotics.ftclib.command.WaitCommand;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
@@ -21,10 +19,10 @@ import org.firstinspires.ftc.teamcode.Subsystems.FrontArm;
 import org.firstinspires.ftc.teamcode.Subsystems.LiftArm;
 import org.firstinspires.ftc.teamcode.utils.PathChainList;
 
-import java.lang.reflect.Field;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
+import java.util.Iterator;
 import java.util.List;
 
 import pedroPathing.constants.FConstants;
@@ -37,8 +35,7 @@ public class AutoBasket extends AutoOpModeEx {
     private List<Command> actions;
     private FrontArm frontArm;
     private LiftArm liftArm;
-    private Boolean actionEnded;
-    private boolean pathStarted = false;
+    private Boolean actionRunning;
 
 
     private PathChainList pathChainList;
@@ -65,13 +62,15 @@ public class AutoBasket extends AutoOpModeEx {
         this.pathChainList = new PathChainList();
         this.actions = new ArrayList<>();
         this.autoCommand = new AutoCommand(frontArm, liftArm);
-        this.actionEnded = false; // Initialize actionEnded
+        this.actionRunning = false;
 
         buildPaths();
         buildActions();
 
         frontArm.initPos();
         liftArm.initPos();
+
+        while(getRuntime()<2)CommandScheduler.getInstance().run();//进入init pos需要
     }
 
     private void buildPaths() {
@@ -112,25 +111,11 @@ public class AutoBasket extends AutoOpModeEx {
         Path park = new Path(new BezierCurve(new Point(scorePose), new Point(parkControlPose), new Point(parkPose)));
         park.setLinearHeadingInterpolation(scorePose.getHeading(), parkPose.getHeading());
 
-        // Create a "stay in place" path for the initial releaseHigh action
-        PathChain stayInPlace = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(startPose), new Point(startPose))) // Same start and end point
-                .setLinearHeadingInterpolation(startPose.getHeading(), startPose.getHeading())
-                .build();
-
-        pathChainList.addPath(stayInPlace, grabPickup1, scorePickup1, grabPickup2, scorePickup2, grabPickup3, scorePickup3);
-        
-        // Debug: Log the number of paths added
-        telemetry.addData("Paths built", pathChainList.size());
-        telemetry.update();
+        pathChainList.addPath(null, grabPickup1, scorePickup1, grabPickup2, scorePickup2, grabPickup3, scorePickup3);
     }
 
     private Command actionEnd(){
-        return new InstantCommand(()->{
-            this.actionEnded = true;
-            telemetry.addData("Action Ended", "Set to true at step " + currentPathId);
-            telemetry.update();
-        });
+        return new InstantCommand(()->this.actionRunning = false);
     }
 
     private void buildActions(){
@@ -138,17 +123,13 @@ public class AutoBasket extends AutoOpModeEx {
         intakeCommand = autoCommand.autoSampleIntake().andThen(actionEnd());
 //        releaseCommand0 = new SequentialCommandGroup(autoCommand.autoReleaseHigh(), autoCommand.autoReleaseHigh()).andThen(actionEnd());
 //        releaseCommand = new SequentialCommandGroup(autoCommand.autoReleaseHigh(), autoCommand.autoReleaseHigh()).andThen(actionEnd());
-        releaseCommand0 = liftArm.releaseHigh().andThen(actionEnd());
-        releaseCommand = liftArm.releaseHigh().andThen(actionEnd());
+//        releaseCommand0 = liftArm.releaseHigh().andThen(liftArm.releaseHigh(),actionEnd());
+        releaseCommand = liftArm.releaseHigh().andThen(liftArm.releaseHigh()).andThen(actionEnd());
 
-        actions.addAll(Arrays.asList(releaseCommand0,
+        actions.addAll(Arrays.asList(releaseCommand,
                 intakeCommand, releaseCommand,
                 intakeCommand, releaseCommand,
                 intakeCommand, releaseCommand));
-        
-        // Debug: Log the number of actions added
-        telemetry.addData("Actions built", actions.size());
-        telemetry.update();
     }
 
     private void periodic() {
@@ -159,87 +140,38 @@ public class AutoBasket extends AutoOpModeEx {
         telemetry.addData("heading", follower.getPose().getHeading());
         telemetry.addData("lift slide info", liftArm.slideInfo());
         telemetry.addData("follower finished",!follower.isBusy());
-        telemetry.addData("action finished", this.actionEnded);
+        telemetry.addData("action finished", !this.actionRunning);
         telemetry.addData("current path id", currentPathId);
         telemetry.addData("front arm", frontArm.state);
         telemetry.addData("lift arm", liftArm.state);
+        telemetry.addData("Actions size", actions.size());
+        telemetry.addData("PathChainList size", pathChainList.size());
+        telemetry.addData("Current Path ID", currentPathId);
         telemetry.update();
     }
 
     @Override
     public void run() {
-        telemetry.addData("Actions size", actions.size());
-        telemetry.addData("PathChainList size", pathChainList.size());
-        telemetry.addData("Current Path ID", currentPathId);
-        telemetry.update();
-
-        if (actions.size() < pathChainList.size()) {
+        if(actions.size() != pathChainList.size()){
             throw new IllegalStateException(
-                    "Not enough actions (" + actions.size() +
-                            ") for the number of paths (" + pathChainList.size() + ")"
+                    "Actions count (" + actions.size() +
+                            ") does not match path count (" + pathChainList.size() + ")"
             );
         }
-
-        if (currentPathId > actions.size()) {
-            telemetry.addData("Error", "currentPathId (" + currentPathId + ") >= actions.size (" + actions.size() + ")");
-            telemetry.update();
-            return;
-        }
-
-        while (currentPathId < pathChainList.size() && opModeIsActive()) {
-
-            if (currentPathId >= actions.size()) {
-                telemetry.addData("Error", "currentPathId out of bounds: " + currentPathId + " >= " + actions.size());
-                telemetry.update();
-                break;
-            }
-
-            Command currentAction = actions.get(currentPathId);
-
-            PathChain currentPath = null;
-            int pathIndex = 0;
-            for (PathChain path : pathChainList) {
-                if (pathIndex == currentPathId) {
-                    currentPath = path;
-                    break;
-                }
-                pathIndex++;
-            }
-
-            if (currentPath == null) {
-                telemetry.addData("Error", "Could not find path for currentPathId: " + currentPathId);
-                telemetry.update();
-                break;
-            }
-
-            if (!currentAction.isScheduled() && !pathStarted) {
-                currentAction.schedule();
-
-                if (currentPathId != 0) { // 第一步不用启动路径
-                    follower.followPath(currentPath);
-                    pathStarted = true; // 只有路径启动后才标记为 started
-                } else {
-                    // 第一步不启动路径，直接认为路径已经结束
-                    pathStarted = true; // 为了可以进入结束判断
-                }
-
-                this.actionEnded = false;
-
-                telemetry.addData("Action Started", "Scheduled action and started path if needed");
-                telemetry.update();
-            }
-
-
+        Iterator<PathChain> it = pathChainList.iterator();
+        while (it.hasNext()){
+            if (!opModeIsActive())break;
             periodic();
-
-            // 如果路径已经开始过，并且路径结束，动作结束，才可以进入下一步
-            if (pathStarted && (!follower.isBusy() || currentPathId == 0) && (this.actionEnded || currentAction.isFinished())) {
+            if(!follower.isBusy() && !this.actionRunning){
+                PathChain path = it.next();
+                if(path!=null)follower.followPath(path);
+                Command currentAction = actions.get(currentPathId);
+                if(currentAction!=null){
+                    currentAction.schedule();
+                    this.actionRunning = true;
+                }
                 currentPathId++;
-                pathStarted = false; // 下一步重新启动路径
-                telemetry.addData("Step Complete", "Moving to next step: " + currentPathId);
-                telemetry.update();
             }
         }
     }
-
 }

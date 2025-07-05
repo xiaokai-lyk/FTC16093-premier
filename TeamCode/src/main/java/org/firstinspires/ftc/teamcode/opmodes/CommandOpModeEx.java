@@ -6,7 +6,7 @@ public abstract class CommandOpModeEx extends CommandOpMode {
     public abstract void onStart();
     public abstract void functionalButtons();
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode() {
         initialize();
 
         functionalButtons();
