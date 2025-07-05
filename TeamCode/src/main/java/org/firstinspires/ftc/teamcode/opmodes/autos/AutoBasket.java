@@ -136,8 +136,11 @@ public class AutoBasket extends AutoOpModeEx {
     private void buildActions(){
         Command intakeCommand, releaseCommand, releaseCommand0;
         intakeCommand = autoCommand.autoSampleIntake().andThen(actionEnd());
-        releaseCommand0 = autoCommand.autoReleaseHigh().andThen(actionEnd());
-        releaseCommand = autoCommand.autoReleaseHigh().andThen(actionEnd());
+//        releaseCommand0 = new SequentialCommandGroup(autoCommand.autoReleaseHigh(), autoCommand.autoReleaseHigh()).andThen(actionEnd());
+//        releaseCommand = new SequentialCommandGroup(autoCommand.autoReleaseHigh(), autoCommand.autoReleaseHigh()).andThen(actionEnd());
+        releaseCommand0 = liftArm.releaseHigh().andThen(actionEnd());
+        releaseCommand = liftArm.releaseHigh().andThen(actionEnd());
+
         actions.addAll(Arrays.asList(releaseCommand0,
                 intakeCommand, releaseCommand,
                 intakeCommand, releaseCommand,

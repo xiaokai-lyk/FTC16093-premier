@@ -139,7 +139,8 @@ public class LiftArm {
     public enum LiftArmState{
         WALL,//从墙上夹
         PRE_CHAMBER,//准备挂
-        FREE
+        FREE,
+        RELEASE_HIGH
     }
 
 
@@ -252,15 +253,16 @@ public class LiftArm {
                                         new WaitCommand(100),
                                         new InstantCommand(()->slideUp.setPosition(ServoConstants.UP_SLIDE_MAX.value))
                                 ),
+                                new InstantCommand(()->this.state = LiftArmState.RELEASE_HIGH),
                                 new WaitUntilCommand(lifter::isFinished)
                         ),
                 new SequentialCommandGroup(
                         new InstantCommand(()->clawUp.setPosition(ServoConstants.UP_CLAW_OPEN.value)),
                         new WaitCommand(100),
-                        new InstantCommand(()->armUp.setPosition(ServoConstants.UP_ARM_PARALLEL.value)),
-                        new WaitCommand(150),
                         new InstantCommand(()->slideUp.setPosition(ServoConstants.UP_SLIDE_MIN.value)),
                         new WaitCommand(100),
+                        new InstantCommand(()->armUp.setPosition(ServoConstants.UP_ARM_PARALLEL.value)),
+                        new WaitCommand(150),
                         new InstantCommand(()->{
                             clawUp.setPosition(ServoConstants.UP_CLAW_OPEN.value);
                             armUp.setPosition(ServoConstants.UP_ARM_PARALLEL.value);

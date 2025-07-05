@@ -88,7 +88,7 @@ public class AutoCommand {
 //    }
 
     public Command autoReleaseHigh() {
-        return new SequentialCommandGroup(liftArm.releaseHigh(),liftArm.releaseHigh());
+        return new SequentialCommandGroup(liftArm.releaseHigh(), new WaitCommand(2000), liftArm.releaseHigh());
 //        return new ConditionalCommand(
 //                liftArm.reachHighBasket()
 //                        .alongWith(
