@@ -343,7 +343,7 @@ public class LiftArm {
                 )
         );
     }
-    public Command reachHighBasket(int tolerance){
+    public Command reachHighBasket(){
 //        return moveSlideUpTo(MotorConstants.LIFT_HIGH.value, 0.95, tolerance);
         return lifter.highBasketCommand();
     }

@@ -122,6 +122,11 @@ public class Encoder {
    * @return corrected velocity
    */
   public double getCorrectedVelocity() {
+    // Check if we have enough velocity estimates before accessing array
+    if (velocityEstimates == null || velocityEstimates.length < 3) {
+      return getRawVelocity();
+    }
+    
     double median =
         velocityEstimates[0] > velocityEstimates[1]
             ? Math.max(velocityEstimates[1], Math.min(velocityEstimates[0], velocityEstimates[2]))

@@ -341,6 +341,16 @@ public class NewMecanumDrive extends MecanumDrive {
     Array of length 4
      */
     public void setMotorPowers(double[] powers) {
+        // Check if powers array is valid before accessing elements
+        if (powers == null || powers.length < 4) {
+            // Set all motors to 0 power if array is invalid
+            leftFront.setPower(0);
+            leftRear.setPower(0);
+            rightRear.setPower(0);
+            rightFront.setPower(0);
+            return;
+        }
+        
         leftFront.setPower(powers[0]);
         leftRear.setPower(powers[1]);
         rightRear.setPower(powers[2]);
