@@ -41,11 +41,14 @@ public class AutoChamber extends AutoOpModeEx {
     private PathChainList pathChainList;
 
     private final Pose startPose = new Pose(0, 0, Math.toRadians(0));
-
-    private final Pose scorePose = new Pose(1, 0, Math.toRadians(0));
+    private final Pose scorePose0 = new Pose(1, 0, Math.toRadians(0));
+    private final Pose scorePose1 = new Pose(1, 0, Math.toRadians(0));
+    private final Pose scorePose2 = new Pose(1, 0, Math.toRadians(0));
+    private final Pose scorePose3 = new Pose(1, 0, Math.toRadians(0));
     private final Pose pickup1Pose = new Pose(2, 0, Math.toRadians(0));
     private final Pose pickup2Pose = new Pose(9, 0, Math.toRadians(0));
     private final Pose pickup3Pose = new Pose(6, 0, Math.toRadians(0));
+    private final Pose HPPose = new Pose(2, 0, Math.toRadians(0));
     private final Pose parkControlPose = new Pose(3, 0,Math.toRadians(0));
     private final Pose parkPose = new Pose(0, 0, Math.toRadians(0));
     private int currentPathId = 0;
@@ -74,49 +77,61 @@ public class AutoChamber extends AutoOpModeEx {
     }
 
     private void buildPaths() {
-        PathChain grabPickup1, grabPickup2, grabPickup3, scorePickup0, scorePickup1, scorePickup2, scorePickup3;
-        Path scorePreload = new Path(new BezierLine(new Point(startPose), new Point(scorePose)));
-        scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading());
-
-        scorePickup0 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(startPose),new Point(scorePose)))
-                .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
+        PathChain grabPickup1, grabPickup2, grabPickup3, goToHP1, goToHP2, goToHP3, scoreChamber0, scoreChamber1, scoreChamber2, scoreChamber3;
+        scoreChamber0 = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(startPose),new Point(scorePose0)))
+                .setLinearHeadingInterpolation(startPose.getHeading(), scorePose0.getHeading())
                 .build();
 
         grabPickup1 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(scorePose), new Point(pickup1Pose)))
-                .setLinearHeadingInterpolation(scorePose.getHeading(), pickup1Pose.getHeading())
+                .addPath(new BezierLine(new Point(scorePose0), new Point(pickup1Pose)))
+                .setLinearHeadingInterpolation(scorePose0.getHeading(), pickup1Pose.getHeading())
                 .build();
 
-        scorePickup1 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(pickup1Pose), new Point(scorePose)))
-                .setLinearHeadingInterpolation(pickup1Pose.getHeading(), scorePose.getHeading())
+        goToHP1 = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(pickup1Pose), new Point(HPPose)))
+                .setLinearHeadingInterpolation(pickup1Pose.getHeading(), HPPose.getHeading())
+                .build();
+
+        scoreChamber1 = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(HPPose), new Point(scorePose1)))
+                .setLinearHeadingInterpolation(HPPose.getHeading(), scorePose1.getHeading())
                 .build();
 
         grabPickup2 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(scorePose), new Point(pickup2Pose)))
-                .setLinearHeadingInterpolation(scorePose.getHeading(), pickup2Pose.getHeading())
+                .addPath(new BezierLine(new Point(scorePose1), new Point(pickup2Pose)))
+                .setLinearHeadingInterpolation(scorePose1.getHeading(), pickup2Pose.getHeading())
                 .build();
 
-        scorePickup2 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(pickup2Pose), new Point(scorePose)))
-                .setLinearHeadingInterpolation(pickup2Pose.getHeading(), scorePose.getHeading())
+        goToHP2 = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(pickup2Pose), new Point(HPPose)))
+                .setLinearHeadingInterpolation(pickup2Pose.getHeading(), HPPose.getHeading())
+                .build();
+
+        scoreChamber2 = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(HPPose), new Point(scorePose2)))
+                .setLinearHeadingInterpolation(HPPose.getHeading(), scorePose2.getHeading())
                 .build();
 
         grabPickup3 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(scorePose), new Point(pickup3Pose)))
-                .setLinearHeadingInterpolation(scorePose.getHeading(), pickup3Pose.getHeading())
+                .addPath(new BezierLine(new Point(scorePose2), new Point(pickup3Pose)))
+                .setLinearHeadingInterpolation(scorePose2.getHeading(), pickup3Pose.getHeading())
                 .build();
 
-        scorePickup3 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(pickup3Pose), new Point(scorePose)))
-                .setLinearHeadingInterpolation(pickup3Pose.getHeading(), scorePose.getHeading())
+        goToHP3 = scoreChamber2 = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(pickup3Pose), new Point(HPPose)))
+                .setLinearHeadingInterpolation(pickup3Pose.getHeading(), HPPose.getHeading())
                 .build();
 
-        Path park = new Path(new BezierCurve(new Point(scorePose), new Point(parkControlPose), new Point(parkPose)));
-        park.setLinearHeadingInterpolation(scorePose.getHeading(), parkPose.getHeading());
+        scoreChamber3 = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(HPPose), new Point(scorePose3)))
+                .setLinearHeadingInterpolation(HPPose.getHeading(), scorePose3.getHeading())
+                .build();
 
-        pathChainList.addPath(scorePickup0, grabPickup1, scorePickup1, grabPickup2, scorePickup2, grabPickup3, scorePickup3);
+        Path park = new Path(new BezierCurve(new Point(scorePose3), new Point(parkControlPose), new Point(parkPose)));
+        park.setLinearHeadingInterpolation(scorePose3.getHeading(), parkPose.getHeading());
+
+        pathChainList.addPath(null, scoreChamber0, grabPickup1, goToHP1, scoreChamber1, grabPickup2, goToHP2, scoreChamber2, grabPickup3, goToHP3, scoreChamber3);
     }
 
     private Command actionEnd(){
@@ -124,14 +139,17 @@ public class AutoChamber extends AutoOpModeEx {
     }
 
     private void buildActions(){
-        Command intakeSpecimenCommand, scoreSpecimenCommand;
+        Command intakePreloadFromHP, intakeSpecimenCommand, SpecimenHPCommand, scoreSpecimenCommand;
+        intakePreloadFromHP = autoCommand.autointakePreloadSpecimen().andThen(actionEnd());
         intakeSpecimenCommand = autoCommand.autoIntakeSpecimen().andThen(actionEnd());
-        scoreSpecimenCommand = autoCommand.autoScoreSpecimen().andThen(liftArm.releaseHigh()).andThen(actionEnd());
+        SpecimenHPCommand = autoCommand.putSpecimenToHPCommand().andThen(autoCommand.autoIntakeSpecimen()).andThen(actionEnd());
+        scoreSpecimenCommand = autoCommand.autoScoreSpecimen().andThen(actionEnd());
 
-        actions.addAll(Arrays.asList(scoreSpecimenCommand,
-                intakeSpecimenCommand, scoreSpecimenCommand,
-                intakeSpecimenCommand, scoreSpecimenCommand,
-                intakeSpecimenCommand, scoreSpecimenCommand));
+
+        actions.addAll(Arrays.asList(intakePreloadFromHP,scoreSpecimenCommand,
+                intakeSpecimenCommand, SpecimenHPCommand, scoreSpecimenCommand,
+                intakeSpecimenCommand, SpecimenHPCommand, scoreSpecimenCommand,
+                intakeSpecimenCommand, SpecimenHPCommand, scoreSpecimenCommand));
     }
 
     private void periodic() {
