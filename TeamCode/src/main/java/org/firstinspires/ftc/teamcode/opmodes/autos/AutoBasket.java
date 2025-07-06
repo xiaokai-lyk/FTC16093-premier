@@ -119,17 +119,14 @@ public class AutoBasket extends AutoOpModeEx {
     }
 
     private void buildActions(){
-        Command intakeCommand, releaseCommand, releaseCommand0;
-        intakeCommand = autoCommand.autoSampleIntake().andThen(actionEnd());
-//        releaseCommand0 = new SequentialCommandGroup(autoCommand.autoReleaseHigh(), autoCommand.autoReleaseHigh()).andThen(actionEnd());
-//        releaseCommand = new SequentialCommandGroup(autoCommand.autoReleaseHigh(), autoCommand.autoReleaseHigh()).andThen(actionEnd());
-//        releaseCommand0 = liftArm.releaseHigh().andThen(liftArm.releaseHigh(),actionEnd());
+        Command intakeSampleCommand, releaseCommand, releaseCommand0;
+        intakeSampleCommand = autoCommand.autoIntakeSample().andThen(actionEnd());
         releaseCommand = liftArm.releaseHigh().andThen(liftArm.releaseHigh()).andThen(actionEnd());
 
         actions.addAll(Arrays.asList(releaseCommand,
-                intakeCommand, releaseCommand,
-                intakeCommand, releaseCommand,
-                intakeCommand, releaseCommand));
+                intakeSampleCommand, releaseCommand,
+                intakeSampleCommand, releaseCommand,
+                intakeSampleCommand, releaseCommand));
     }
 
     private void periodic() {

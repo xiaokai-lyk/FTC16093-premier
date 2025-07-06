@@ -32,7 +32,7 @@ public class AutoCommand {
 //        this.frontArmState = FrontArm.State.FREE;
     }
 
-    public Command autoSampleIntake() {
+    public Command autoIntakeSample() {
         return new SequentialCommandGroup(
                 frontArm.intake(true, true),
                 frontArm.intake(true, true),
@@ -123,6 +123,16 @@ public class AutoCommand {
 //        );
     }
 
+    public Command autoIntakeSpecimen(){
+        return new SequentialCommandGroup(
+                liftArm.highChamber(),
+                liftArm.highChamber()
+        );
+    }
+
+    public Command autoScoreSpecimen(){
+        return liftArm.highChamber();
+    }
 
     public Command autoDriveCommmand(PathChain pathChain, Follower follower){
         return new InstantCommand(()->follower.followPath(pathChain));

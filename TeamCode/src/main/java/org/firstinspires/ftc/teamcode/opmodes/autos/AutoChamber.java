@@ -74,9 +74,14 @@ public class AutoChamber extends AutoOpModeEx {
     }
 
     private void buildPaths() {
-        PathChain grabPickup1, grabPickup2, grabPickup3, scorePickup1, scorePickup2, scorePickup3;
+        PathChain grabPickup1, grabPickup2, grabPickup3, scorePickup0, scorePickup1, scorePickup2, scorePickup3;
         Path scorePreload = new Path(new BezierLine(new Point(startPose), new Point(scorePose)));
         scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading());
+
+        scorePickup0 = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(startPose),new Point(scorePose)))
+                .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
+                .build();
 
         grabPickup1 = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(scorePose), new Point(pickup1Pose)))
@@ -111,7 +116,7 @@ public class AutoChamber extends AutoOpModeEx {
         Path park = new Path(new BezierCurve(new Point(scorePose), new Point(parkControlPose), new Point(parkPose)));
         park.setLinearHeadingInterpolation(scorePose.getHeading(), parkPose.getHeading());
 
-        pathChainList.addPath(null, grabPickup1, scorePickup1, grabPickup2, scorePickup2, grabPickup3, scorePickup3);
+        pathChainList.addPath(scorePickup0, grabPickup1, scorePickup1, grabPickup2, scorePickup2, grabPickup3, scorePickup3);
     }
 
     private Command actionEnd(){
@@ -119,14 +124,14 @@ public class AutoChamber extends AutoOpModeEx {
     }
 
     private void buildActions(){
-        Command intakeSampleCommand, releaseSampleCommand;
-        intakeSampleCommand = autoCommand.autoSampleIntake().andThen(actionEnd());
-        releaseSampleCommand = liftArm.releaseHigh().andThen(liftArm.releaseHigh()).andThen(actionEnd());
+        Command intakeSpecimenCommand, scoreSpecimenCommand;
+        intakeSpecimenCommand = autoCommand.autoIntakeSpecimen().andThen(actionEnd());
+        scoreSpecimenCommand = autoCommand.autoScoreSpecimen().andThen(liftArm.releaseHigh()).andThen(actionEnd());
 
-        actions.addAll(Arrays.asList(releaseSampleCommand,
-                intakeSampleCommand, releaseSampleCommand,
-                intakeSampleCommand, releaseSampleCommand,
-                intakeSampleCommand, releaseSampleCommand));
+        actions.addAll(Arrays.asList(scoreSpecimenCommand,
+                intakeSpecimenCommand, scoreSpecimenCommand,
+                intakeSpecimenCommand, scoreSpecimenCommand,
+                intakeSpecimenCommand, scoreSpecimenCommand));
     }
 
     private void periodic() {
