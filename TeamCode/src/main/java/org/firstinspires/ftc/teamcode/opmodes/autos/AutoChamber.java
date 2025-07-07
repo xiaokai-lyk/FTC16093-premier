@@ -48,7 +48,7 @@ public class AutoChamber extends AutoOpModeEx {
     private final Pose pickup1Pose = new Pose(2, 0, Math.toRadians(0));
     private final Pose pickup2Pose = new Pose(9, 0, Math.toRadians(0));
     private final Pose pickup3Pose = new Pose(6, 0, Math.toRadians(0));
-    private final Pose HPPose = new Pose(2, 0, Math.toRadians(0));
+    private final Pose HPPose = new Pose(2, 2, Math.toRadians(0));
     private final Pose parkControlPose = new Pose(3, 0,Math.toRadians(0));
     private final Pose parkPose = new Pose(0, 0, Math.toRadians(0));
     private int currentPathId = 0;
@@ -71,7 +71,7 @@ public class AutoChamber extends AutoOpModeEx {
         buildActions();
 
         frontArm.initPos();
-        liftArm.initPos();
+        liftArm.autoChamberInitPos();
 
         while(getRuntime()<2)CommandScheduler.getInstance().run();//进入init pos需要
     }

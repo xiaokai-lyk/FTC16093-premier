@@ -11,7 +11,12 @@ public abstract class CommandOpModeEx extends CommandOpMode {
 
         functionalButtons();
 
+        telemetry.addLine("Ready!");
+        telemetry.update();
+
         waitForStart();
+
+        telemetry.clearAll();
 
         onStart();
 

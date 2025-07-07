@@ -119,11 +119,7 @@ public class AutoCommand {
     }
 
     public Command autoIntakeSpecimen(){
-        return new SequentialCommandGroup(
-                new WaitCommand(1000),
-                liftArm.highChamber(),
-                new WaitCommand(1000)
-        );
+        return liftArm.highChamber();
     }
 
     public Command autoScoreSpecimen(){

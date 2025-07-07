@@ -6,6 +6,7 @@ import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 
 import com.arcrobotics.ftclib.command.InstantCommand;
+import com.pedropathing.pathgen.PathBuilder;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
@@ -74,7 +75,7 @@ public class AutoBasket extends AutoOpModeEx {
     }
 
     private void buildPaths() {
-        PathChain grabPickup1, grabPickup2, grabPickup3, scorePickup1, scorePickup2, scorePickup3;
+        PathChain grabPickup1, grabPickup2, grabPickup3, scorePickup1, scorePickup2, scorePickup3, park;
         Path scorePreload = new Path(new BezierLine(new Point(startPose), new Point(scorePose)));
         scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading());
 
@@ -108,10 +109,12 @@ public class AutoBasket extends AutoOpModeEx {
                 .setLinearHeadingInterpolation(pickup3Pose.getHeading(), scorePose.getHeading())
                 .build();
 
-        Path park = new Path(new BezierCurve(new Point(scorePose), new Point(parkControlPose), new Point(parkPose)));
-        park.setLinearHeadingInterpolation(scorePose.getHeading(), parkPose.getHeading());
+        park = follower.pathBuilder()
+                .addPath(new Path(new BezierCurve(new Point(scorePose), new Point(parkControlPose), new Point(parkPose))))
+                .setLinearHeadingInterpolation(scorePose.getHeading(), parkPose.getHeading())
+                .build();
 
-        pathChainList.addPath(null, grabPickup1, scorePickup1, grabPickup2, scorePickup2, grabPickup3, scorePickup3);
+        pathChainList.addPath(null, grabPickup1, scorePickup1, grabPickup2, scorePickup2, grabPickup3, scorePickup3, null);
     }
 
     private Command actionEnd(){
@@ -119,14 +122,16 @@ public class AutoBasket extends AutoOpModeEx {
     }
 
     private void buildActions(){
-        Command intakeSampleCommand, releaseCommand, releaseCommand0;
+        Command intakeSampleCommand, releaseCommand, parkCommand;
         intakeSampleCommand = autoCommand.autoIntakeSample().andThen(actionEnd());
         releaseCommand = liftArm.releaseHigh().andThen(liftArm.releaseHigh()).andThen(actionEnd());
+        parkCommand = liftArm.parkCommand();
 
         actions.addAll(Arrays.asList(releaseCommand,
                 intakeSampleCommand, releaseCommand,
                 intakeSampleCommand, releaseCommand,
-                intakeSampleCommand, releaseCommand));
+                intakeSampleCommand, releaseCommand,
+                parkCommand));
     }
 
     private void periodic() {

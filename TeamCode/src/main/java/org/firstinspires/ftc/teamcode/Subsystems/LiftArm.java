@@ -132,6 +132,14 @@ class Lifter{
         return Math.abs((leftMotor.getCurrentPosition() + rightMotor.getCurrentPosition()) / 2
                 - ((leftMotor.getTargetPosition() + rightMotor.getTargetPosition()) / 2)) < tolerance;
     }
+    public Command parkAim(){
+        return new InstantCommand(()->setPosition(MotorConstants.LIFT_PARK_AIM.value));
+    }
+
+    public void disable(){
+        setPower(0);
+    }
+
     public boolean isFinished(){
         return isFinished(15);
     }
@@ -180,6 +188,12 @@ public class LiftArm {
                     wristUp.setPosition(ServoConstants.UP_WRIST_PARALLEL.value);
                     this.state = LiftArmState.FREE;
                 })
+        ).schedule();
+    }
+
+    public void autoChamberInitPos(){
+        this.highChamber().andThen(
+                new InstantCommand(()->this.clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE.value))
         ).schedule();
     }
 
@@ -314,6 +328,20 @@ public class LiftArm {
         }).andThen(
                 new WaitCommand(700),
                 lifter.ascent_down()
+        );
+    }
+    public Command parkCommand() {
+        return new SequentialCommandGroup(
+                lifter.parkAim().alongWith(
+                        new InstantCommand(()->{
+                            armUp.setPosition(ServoConstants.UP_ARM_PARALLEL.value);
+                            wristUp.setPosition(ServoConstants.UP_WRIST_PARALLEL.value);
+                            clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE.value);
+                        })
+                ),
+                new WaitUntilCommand(lifter::isFinished),
+                new WaitCommand(1000),
+                new InstantCommand(lifter::disable)
         );
     }
 
