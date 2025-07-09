@@ -152,7 +152,7 @@ class Lifter{
 @Getter
 public class LiftArm {
     private final Lifter lifter;
-    private final Servo clawUp, armUp, wristUp, slideUp, ascentLeft, ascentRight;
+    private final Servo clawUp, armUp, wristUp, ascentLeft, ascentRight;
     public LiftArmState state;
     public enum LiftArmState{
         WALL,//从墙上夹
@@ -167,7 +167,6 @@ public class LiftArm {
         this.clawUp = hardwareMap.get(Servo.class, "clawUp");
         this.armUp = hardwareMap.get(Servo.class, "armUp");
         this.wristUp = hardwareMap.get(Servo.class, "wristUp");
-        this.slideUp = hardwareMap.get(Servo.class, "slideUp");
         this.ascentLeft = hardwareMap.get(Servo.class, "ascentLeft");
         this.ascentRight = hardwareMap.get(Servo.class, "ascentRight");
         lifter.resetEncoder();
@@ -176,19 +175,13 @@ public class LiftArm {
 
 
     public void initPos(){
-        new SequentialCommandGroup(
-                new InstantCommand(()->slideUp.setPosition(ServoConstants.UP_SLIDE_MIN.value)),
-                new WaitCommand(70),
-                new InstantCommand(()->{
-                    ascentLeft.setPosition(ServoConstants.ASCENT_LEFT_DOWN.value);
-                    ascentRight.setPosition(ServoConstants.ASCENT_RIGHT_DOWN.value);
-                    lifter.resetSlide();
-                    clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE_CAN_SLIDE.value);
-                    armUp.setPosition(ServoConstants.UP_ARM_PARALLEL.value);
-                    wristUp.setPosition(ServoConstants.UP_WRIST_PARALLEL.value);
-                    this.state = LiftArmState.FREE;
-                })
-        ).schedule();
+        ascentLeft.setPosition(ServoConstants.ASCENT_LEFT_DOWN.value);
+        ascentRight.setPosition(ServoConstants.ASCENT_RIGHT_DOWN.value);
+        lifter.resetSlide();
+        clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE_CAN_SLIDE.value);
+        armUp.setPosition(ServoConstants.UP_ARM_PARALLEL.value);
+        wristUp.setPosition(ServoConstants.UP_WRIST_PARALLEL.value);
+        this.state = LiftArmState.FREE;
     }
 
     public void autoChamberInitPos(){
@@ -205,7 +198,6 @@ public class LiftArm {
                         new InstantCommand(()->{
                             armUp.setPosition(ServoConstants.UP_ARM_WALL.value);
                             clawUp.setPosition(ServoConstants.UP_CLAW_OPEN.value);
-                            slideUp.setPosition(ServoConstants.UP_SLIDE_MIN.value);
                             wristUp.setPosition(ServoConstants.UP_WRIST_WALL.value);
                             lifter.resetSlide();
                         }),
@@ -221,26 +213,18 @@ public class LiftArm {
                                 new InstantCommand(()->{
                                     armUp.setPosition(ServoConstants.UP_ARM_PARALLEL.value);
                                     wristUp.setPosition(ServoConstants.UP_WRIST_PARALLEL.value);
-                                }),
-                                new WaitCommand(150),
-                                new InstantCommand(()->{
-                                    slideUp.setPosition(ServoConstants.UP_SLIDE_MAX.value);
                                     this.state = LiftArmState.PRE_CHAMBER;
                                 })
                         ),
                         new SequentialCommandGroup(
                                 new InstantCommand(()->clawUp.setPosition(ServoConstants.UP_CLAW_OPEN.value)),
                                 new WaitCommand(70),
-                                new InstantCommand(()->slideUp.setPosition(ServoConstants.UP_SLIDE_MIN.value)),
                                 new SequentialCommandGroup(
-                                        new InstantCommand(()->slideUp.setPosition(ServoConstants.UP_SLIDE_MIN.value)),
-                                        new WaitCommand(70),
                                         new InstantCommand(lifter::resetSlide),
                                         new WaitUntilCommand(lifter::isFinished),
                                         new InstantCommand(()->{
                                             armUp.setPosition(ServoConstants.UP_ARM_WALL.value);
                                             clawUp.setPosition(ServoConstants.UP_CLAW_OPEN.value);
-                                            slideUp.setPosition(ServoConstants.UP_SLIDE_MIN.value);
                                             wristUp.setPosition(ServoConstants.UP_WRIST_WALL.value);
                                             this.state=LiftArmState.WALL;
                                         })
@@ -256,7 +240,6 @@ public class LiftArm {
         return new InstantCommand(()->{
             armUp.setPosition(ServoConstants.UP_ARM_HANDOVER.value);
             wristUp.setPosition(ServoConstants.UP_WRIST_HANDOVER.value);
-            slideUp.setPosition(ServoConstants.UP_SLIDE_MIN.value);
             clawUp.setPosition(ServoConstants.UP_CLAW_OPEN.value);
         }).andThen(
                 new WaitCommand(400),
@@ -273,17 +256,13 @@ public class LiftArm {
                                         new InstantCommand(()->{
                                             armUp.setPosition(ServoConstants.UP_ARM_BASKET.value);
                                             wristUp.setPosition(ServoConstants.UP_WRIST_BASKET.value);
-                                        }),
-                                        new WaitCommand(100),
-                                        new InstantCommand(()->slideUp.setPosition(ServoConstants.UP_SLIDE_MAX.value))
+                                        })
                                 ),
                                 new InstantCommand(()->this.state = LiftArmState.RELEASE_HIGH),
                                 new WaitUntilCommand(lifter::isFinished)
                         ),
                 new SequentialCommandGroup(
                         new InstantCommand(()->clawUp.setPosition(ServoConstants.UP_CLAW_OPEN.value)),
-                        new WaitCommand(100),
-                        new InstantCommand(()->slideUp.setPosition(ServoConstants.UP_SLIDE_MIN.value)),
                         new WaitCommand(100),
                         new InstantCommand(()->armUp.setPosition(ServoConstants.UP_ARM_PARALLEL.value)),
                         new WaitCommand(150),
@@ -316,9 +295,7 @@ public class LiftArm {
 
     public Command ascent_end(){
         return new SequentialCommandGroup(
-                new InstantCommand(()->armUp.setPosition(ServoConstants.UP_ARM_BACK.value)),
-                new WaitCommand(150),
-                new InstantCommand(()->slideUp.setPosition(ServoConstants.UP_SLIDE_MAX.value))
+                new InstantCommand(()->armUp.setPosition(ServoConstants.UP_ARM_BACK.value))
         );
     }
     public Command ascent_down() {
@@ -370,6 +347,4 @@ public class LiftArm {
                 )
         );
     }
-
-
 }
