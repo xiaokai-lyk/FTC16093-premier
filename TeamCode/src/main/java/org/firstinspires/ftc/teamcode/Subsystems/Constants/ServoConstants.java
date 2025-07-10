@@ -25,8 +25,6 @@ public enum ServoConstants {
     UP_CLAW_OPEN(0.25),
     UP_CLAW_CLOSE_CAN_SLIDE(0.95),
     UP_CLAW_CLOSE(0.97),
-    UP_SLIDE_MIN(0.59),
-    UP_SLIDE_MAX(0.18),
     UP_WRIST_BASKET(0.55),
     UP_WRIST_PARALLEL(0.5),
     UP_WRIST_HANDOVER(1.00),
