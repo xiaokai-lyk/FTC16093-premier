@@ -10,6 +10,11 @@
 
 [summer.hackclub.com/projects/410](https://summer.hackclub.com/projects/410)
 
+
+## Github page template
+
+[Easy Team powered by Yunkai Li](https://github.com/xiaokai-lyk/EasyTeam)
+
 ## Descriptions:
 
 Coming soon
