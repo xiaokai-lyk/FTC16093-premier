@@ -11,6 +11,7 @@ import com.arcrobotics.ftclib.command.WaitCommand;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -54,6 +55,7 @@ public class FrontArm {
         this.claw_in = hardwareMap.get(AnalogInput.class,"claw_in");
         FrontSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         FrontSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        FrontSlide.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     public double getClawDeg(){

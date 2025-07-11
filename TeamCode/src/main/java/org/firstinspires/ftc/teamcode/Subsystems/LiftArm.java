@@ -13,6 +13,7 @@ import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -41,8 +42,8 @@ class Lifter{
         rightMotor.setTargetPosition(0);
         leftMotor.setMode(this.mode);
         rightMotor.setMode(this.mode);
-        leftMotor.setDirection(DcMotorEx.Direction.REVERSE);
-        rightMotor.setDirection(DcMotorEx.Direction.REVERSE);
+        leftMotor.setDirection(DcMotorEx.Direction.FORWARD);
+        rightMotor.setDirection(DcMotorEx.Direction.FORWARD);
         leftMotor.setPower(1);
         rightMotor.setPower(1);
     }
