@@ -23,7 +23,7 @@ import lombok.Getter;
 
 @Getter
 public class FrontArm {
-    private final DcMotorEx FrontSlide;
+    private final DcMotorEx frontSlide;
 
     private final Servo claw;
     private final Servo clawSpinner;
@@ -51,11 +51,11 @@ public class FrontArm {
         this.wrist = hardwareMap.get(Servo.class, "wrist");
         this.clawSpinner = hardwareMap.get(Servo.class,"spin");
         this.armWrist = hardwareMap.get(Servo.class,"armWrist");
-        this.FrontSlide = hardwareMap.get(DcMotorEx.class, "slideFront");
+        this.frontSlide = hardwareMap.get(DcMotorEx.class, "slideFront");
         this.claw_in = hardwareMap.get(AnalogInput.class,"claw_in");
-        FrontSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        FrontSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        FrontSlide.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontSlide.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     public double getClawDeg(){
@@ -127,7 +127,7 @@ public class FrontArm {
                                                 new InstantCommand(() ->
                                                 {
                                                     open_claw(true);
-                                                    FrontSlide.setTargetPosition(is_far ? MotorConstants.FRONT_MAX.value : MotorConstants.FRONT_NEAR.value);
+                                                    frontSlide.setTargetPosition(is_far ? MotorConstants.FRONT_MAX.value : MotorConstants.FRONT_NEAR.value);
                                                     set_arm_spinner(ServoConstants.ARM_SPINNER_FRONT);
                                                     set_arm_wrist(ServoConstants.ARM_WRIST_PREINTAKE);
                                                     set_wrist(ServoConstants.WRIST_DOWN);
@@ -144,18 +144,18 @@ public class FrontArm {
                                         )//检查有没有夹到块，若是自动模式则无论如何都夹起并交接
                                         //有块：夹起，没有：回intake状态
                                 ),
-                        new InstantCommand(()->this.FrontSlide.setTargetPosition(is_far ? MotorConstants.FRONT_MAX.value : MotorConstants.FRONT_NEAR.value)),
-                        ()->(is_far && (this.FrontSlide.getCurrentPosition() >
+                        new InstantCommand(()->this.frontSlide.setTargetPosition(is_far ? MotorConstants.FRONT_MAX.value : MotorConstants.FRONT_NEAR.value)),
+                        ()->(is_far && (this.frontSlide.getCurrentPosition() >
                                 0.97*MotorConstants.FRONT_MAX.value-MotorConstants.FRONT_TOLERANCE.value))
                                 ||(
-                                !is_far && this.FrontSlide.getCurrentPosition() < MotorConstants.FRONT_NEAR.value + 10
+                                !is_far && this.frontSlide.getCurrentPosition() < MotorConstants.FRONT_NEAR.value + 10
                         )//判断is_far参数代表的滑轨位置和实际位置是否一致
                         //一致：夹起；不一致：动滑轨
                 ),
                 new InstantCommand(() ->
                 {
                     open_claw(true);
-                    FrontSlide.setTargetPosition(is_far ? MotorConstants.FRONT_MAX.value : MotorConstants.FRONT_NEAR.value);
+                    frontSlide.setTargetPosition(is_far ? MotorConstants.FRONT_MAX.value : MotorConstants.FRONT_NEAR.value);
                     set_arm_spinner(ServoConstants.ARM_SPINNER_FRONT);
                     set_arm_wrist(ServoConstants.ARM_WRIST_PREINTAKE);
                     set_wrist(ServoConstants.WRIST_DOWN);
@@ -180,7 +180,7 @@ public class FrontArm {
             set_arm_wrist(ServoConstants.ARM_WRIST_HANDOVER);
             set_arm_spinner(ServoConstants.ARM_SPINNER_FRONT);
             open_claw(false);
-            FrontSlide.setTargetPosition(0);
+            frontSlide.setTargetPosition(0);
         }).andThen(
                 new WaitCommand(500),
                 new InstantCommand(()->this.open_claw(true)),
@@ -216,13 +216,17 @@ public class FrontArm {
         set_arm_spinner(ServoConstants.ARM_SPINNER_FRONT);
         this.state = State.FREE;
 
-        FrontSlide.setTargetPosition(0);
-        FrontSlide.setPower(1);
-        FrontSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        frontSlide.setTargetPosition(0);
+        frontSlide.setPower(1);
+        frontSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     public void ascentPos(){
         initPos();
         set_arm_wrist(ServoConstants.ARM_WRIST_BACK);
+    }
+
+    public Command highChamber(){
+        return new InstantCommand(()->armWrist.setPosition(ServoConstants.ARM_WRIST_CHAMBER_INTAKE.value));
     }
 }
