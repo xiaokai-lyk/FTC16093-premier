@@ -191,9 +191,8 @@ public class LiftArm {
     }
 
     public void autoChamberInitPos(){
-        this.highChamber().andThen(
-                new InstantCommand(()->this.clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE.value))
-        ).schedule();
+        this.autoInitPos();
+        this.state = LiftArmState.WALL;
     }
 
     public String slideInfo(){return lifter.getMotorInfo();}

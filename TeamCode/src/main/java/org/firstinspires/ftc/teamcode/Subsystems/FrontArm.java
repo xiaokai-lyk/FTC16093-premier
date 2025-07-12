@@ -194,15 +194,13 @@ public class FrontArm {
         return new InstantCommand(()-> {
             this.state = State.GIVEHP;
             set_arm_spinner(ServoConstants.ARM_SPINNER_BACK);
-            set_spinner(SpinnerConstant.PARALLEL);
+            set_spinner(SpinnerConstant.GIVE_HP);
             set_wrist(ServoConstants.WRIST_PARALLEL);
             set_arm_wrist(ServoConstants.ARM_WRIST_TURN);
         }).andThen(
-                new WaitCommand(300),
-                new InstantCommand(()->{
-                    open_claw(true);
-                }),
-                new WaitCommand(300),
+                new WaitCommand(200),
+                new InstantCommand(()->open_claw(true)),
+                new WaitCommand(200),
                 new InstantCommand(this::initPos),
                 new InstantCommand(()->this.state = State.FREE)
         );

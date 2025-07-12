@@ -10,6 +10,9 @@ public enum SpinnerConstant {
     PARALLEL(0.53),
     DEG4(0.7),
     DEG5(1),
+
+
+    GIVE_HP(0.8)
     ;
     public final double value;
 

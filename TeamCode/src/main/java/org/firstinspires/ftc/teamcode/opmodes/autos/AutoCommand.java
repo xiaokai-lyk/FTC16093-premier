@@ -100,11 +100,19 @@ public class AutoCommand {
         );
     }
 
-    public Command autointakePreloadSpecimen(){
+    public Command scorePreloadSpecimen(){
         return new SequentialCommandGroup(
                 new WaitCommand(1000),
                 liftArm.highChamber(),
-                new WaitCommand(1000)
+                new WaitCommand(500)
+        );
+    }
+
+    public Command autointakePreloadSpecimen(){
+        return new SequentialCommandGroup(
+                new WaitCommand(500),
+                liftArm.highChamber(),
+                new WaitCommand(500)
         );
     }
 

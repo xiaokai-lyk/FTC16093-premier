@@ -166,19 +166,6 @@ public class NewMecanumDrive extends MecanumDrive {
         );
     }
 
-    public void followTrajectory(Trajectory trajectory) {
-        followTrajectoryAsync(trajectory);
-        waitForIdle();
-    }
-
-    public void followTrajectorySequenceAsync(TrajectorySequence trajectorySequence) {
-        trajectorySequenceRunner.followTrajectorySequenceAsync(trajectorySequence);
-    }
-
-    public void followTrajectorySequence(TrajectorySequence trajectorySequence) {
-        followTrajectorySequenceAsync(trajectorySequence);
-        waitForIdle();
-    }
 
     public void init(){
         resetHeading();
@@ -203,29 +190,8 @@ public class NewMecanumDrive extends MecanumDrive {
         } else if (signal != null) {
             setDriveSignal(signal);
         }
-
-        //THIS IS THE ORIGINAL:
-//        updatePoseEstimate();
-//        DriveSignal signal = trajectorySequenceRunner.update(getPoseEstimate(), getPoseVelocity());
-//        if (simpleMoveIsActivate) {
-//            simpleMovePeriod();
-//        } else if (signal != null) {
-//            setDriveSignal(signal);
-//        }
     }
 
-    public void waitForIdle() {
-        while (!Thread.currentThread().isInterrupted() && isBusy())
-            updateRunnable.run();
-    }
-
-    public boolean isBusy() {
-        if (simpleMoveIsActivate) {
-            Pose2d err = getSimpleMovePosition().minus(getPoseEstimate());
-            return  Math.abs(err.getX()) > simpleMove_x_Tolerance || Math.abs(err.getY()) > simpleMove_y_Tolerance || Math.abs(AngleUnit.normalizeRadians(err.getHeading())) > simpleMoveRotationTolerance;
-        }
-        return trajectorySequenceRunner.isBusy();
-    }
 
     public void setMode(DcMotor.RunMode runMode) {
         for (DcMotorEx motor : motors) {
@@ -435,64 +401,6 @@ public class NewMecanumDrive extends MecanumDrive {
         armUpTurnPID.setTargetPosition(0);
     }
 
-    //    @Deprecated
-    public boolean simpleMoveInDistress = false;
-    public void moveTo(Pose2d endPose, int correctTime_ms) {
-        long startTime = System.currentTimeMillis();
-        simpleMoveInDistress = false;
-        initSimpleMove(endPose);
-        while (isBusy()) {
-            updateRunnable.run();
-//            if(System.currentTimeMillis() - startTime > 10000){
-//                simpleMoveIsActivate = false;
-//                setMotorPowers(0, 0, 0, 0);
-//                simpleMoveInDistress = true;
-//            }
-        }
-        long endTime = System.currentTimeMillis() + correctTime_ms;
-        while (endTime > System.currentTimeMillis()) {
-            updateRunnable.run();
-        }
-        simpleMoveIsActivate = false;
-        setMotorPowers(0, 0, 0, 0);
-    }
-
-    public void moveTo(Pose2d endPose, int correctTime_ms, Runnable runWhileMoving) {
-        long startTime = System.currentTimeMillis();
-        simpleMoveInDistress = false;
-        initSimpleMove(endPose);
-        while (isBusy()) {
-            updateRunnable.run();
-            runWhileMoving.run();
-//            if(System.currentTimeMillis() - startTime > 10000){
-////                simpleMoveIsActivate = false;
-//                setMotorPowers(0, 0, 0, 0);
-//                simpleMoveInDistress = true;
-//            }
-        }
-        long endTime = System.currentTimeMillis() + correctTime_ms;
-        while (endTime > System.currentTimeMillis()) {
-            updateRunnable.run();
-            runWhileMoving.run();
-        }
-        simpleMoveIsActivate = false;
-        setMotorPowers(0, 0, 0, 0);
-    }
-
-    /*
-    startPose and endPose must have (same x && !same y) || (same y && !same x).
-    Also this only works for four directions because I am bad at geometry. --Annie
-     */
-    private double turnWheelSpeedDiff = 0;
-    private double poseDiff;
-    private double[] motorPowerStorage = new double[4];
-
-    public boolean stopSemicircling = true;
-
-    private double calculateWheelSpeedDiff(double poseDiff){
-        //Apply math
-        return 1.2;
-    }
 
     public Pose2d getSimpleMovePosition() {
         return new Pose2d(transPID_x.getTargetPosition(), transPID_y.getTargetPosition(), moveHeading);

@@ -20,17 +20,11 @@ public class Vision {
 
     public static double ledPWM = 0.5;
 
-
-    @Setter
-    private SampleColor detectionColor = SampleColor.BLUE;
     private LLResult result;
 
-    public static double CAMERA_HEIGHT = 307.0 - 16;
+    public static double CAMERA_HEIGHT = 250;
     public static double CAMERA_ANGLE = -45.0;
     public static double TARGET_HEIGHT = 19.05;
-
-    public static double strafeConversionFactor = 6.6667;
-    public static double cameraStrafeToBot = -20;
 
     public static double sampleToRobotDistance = 145;
 
@@ -38,16 +32,13 @@ public class Vision {
 
     public Vision(final HardwareMap hardwareMap, Telemetry telemetry) {
         camera = hardwareMap.get(Limelight3A.class, "limelight");
-        try {
-            led = hardwareMap.get(Servo.class, "LED");
-        } catch (Exception e) {
-            led = null;
-        }
+
+        led = hardwareMap.get(Servo.class, "LED");
         this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
     }
 
     public void setLedPWM() {
-        if(led!=null)led.setPosition(ledPWM);
+        led.setPosition(ledPWM);
     }
 
     public void initializeCamera() {
@@ -55,29 +46,7 @@ public class Vision {
         camera.start();
     }
 
-
-    public enum SampleColor {
-        RED(0.0),
-        BLUE(1.0),
-        YELLOW(2.0);
-
-        private final double colorVal;
-
-        SampleColor(double v) {
-            this.colorVal = v;
-        }
-    }
-
-
-    public boolean isTargetVisible() {
-        if (result == null) {
-            return false;
-        }
-        return !MathUtil.isNear(0, result.getTa(), 0.0001);
-    }
-
-    public double getDistance() {
-        double ty = result.getTy();
+    public double getDistance(double ty) {
         if (MathUtil.isNear(0, ty, 0.01)) {
             return 0;
         }
@@ -87,33 +56,19 @@ public class Vision {
         return Math.abs(distanceMM) - sampleToRobotDistance;
     }
 
-    // Get the strafe
-    public double getStrafeOffset() {
-        double tx = result.getTx();
-        if (tx != 0) {
-            return tx * strafeConversionFactor - cameraStrafeToBot;
-        }
-        return 0;
-    }
-
     private Double getTurnServoDegree(){
         return result.getPythonOutput()[3];
     }
 
-    public void periodic() {
-        camera.updatePythonInputs(
-                new double[]{detectionColor.colorVal, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
+
+    public void update() {
+        camera.updatePythonInputs(new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
         result = camera.getLatestResult();
-
-        if (result != null) {
-            telemetry.addData("Strafe Offset", getStrafeOffset());
-            telemetry.addData("Distance", getDistance());
-            telemetry.addData("Turn Servo Degrees", getTurnServoDegree());
-
-            telemetry.addData("Tx", result.getTx());
-            telemetry.addData("Ty", result.getTy());
-            telemetry.addData("Ta", result.getTa());
-            telemetry.update();
+        telemetry.addData("isValid", result.isValid());
+        telemetry.clearAll();
+        if(result.isValid()){
+            telemetry.addData("distance", getDistance(result.getTy()));
         }
     }
+
 }

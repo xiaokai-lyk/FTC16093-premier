@@ -135,7 +135,7 @@ public class TeleOpBase extends CommandOpModeEx {
                 new InstantCommand(liftArm::hold_slide).alongWith(liftArm.ascent_end())
         ));
 
-        //处理掉车上的块
+        //Dispose of the blocks on the robot
         new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.START)).whenPressed(new SequentialCommandGroup(
                 new InstantCommand(()->liftArm.getArmUp().setPosition(ServoConstants.UP_ARM_INSIDE.value)),
                 new InstantCommand(()->liftArm.getWristUp().setPosition(ServoConstants.UP_WRIST_INSIDE.value)),

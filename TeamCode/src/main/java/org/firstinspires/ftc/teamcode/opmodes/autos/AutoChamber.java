@@ -40,17 +40,17 @@ public class AutoChamber extends AutoOpModeEx {
 
     private PathChainList pathChainList;
 
-    private final Pose startPose = new Pose(0, 0, Math.toRadians(0));
-    private final Pose scorePose0 = new Pose(1, 0, Math.toRadians(0));
-    private final Pose scorePose1 = new Pose(1, 0, Math.toRadians(0));
-    private final Pose scorePose2 = new Pose(1, 0, Math.toRadians(0));
-    private final Pose scorePose3 = new Pose(1, 0, Math.toRadians(0));
-    private final Pose pickup1Pose = new Pose(2, 0, Math.toRadians(0));
-    private final Pose pickup2Pose = new Pose(9, 0, Math.toRadians(0));
-    private final Pose pickup3Pose = new Pose(6, 0, Math.toRadians(0));
-    private final Pose HPPose = new Pose(2, 2, Math.toRadians(0));
-    private final Pose parkControlPose = new Pose(3, 0,Math.toRadians(0));
-    private final Pose parkPose = new Pose(0, 0, Math.toRadians(0));
+    private final Pose startPose = new Pose(25, 76.2, Math.toRadians(0));
+    private final Pose scorePose0 = new Pose(57, 76.2, Math.toRadians(0));
+    private final Pose scorePose1 = new Pose(57, 73, Math.toRadians(0));
+    private final Pose scorePose2 = new Pose(57, 70, Math.toRadians(0));
+    private final Pose scorePose3 = new Pose(57, 67, Math.toRadians(0));
+    private final Pose pickup1Pose = new Pose(40, 40, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(40, 35, Math.toRadians(0));
+    private final Pose pickup3Pose = new Pose(40, 30, Math.toRadians(0));
+    private final Pose HPPose = new Pose(40, 25, Math.toRadians(0));
+    private final Pose parkControlPose = new Pose(40, 25, Math.toRadians(0));
+    private final Pose parkPose = new Pose(40, 25, Math.toRadians(0));
     private int currentPathId = 0;
 
 
@@ -137,14 +137,15 @@ public class AutoChamber extends AutoOpModeEx {
     }
 
     private void buildActions(){
-        Command intakePreloadFromHP, intakeSpecimenCommand, SpecimenHPCommand, scoreSpecimenCommand;
+        Command intakePreloadFromHP, intakeSpecimenCommand, SpecimenHPCommand, scoreSpecimenCommand, scorePreloadCommand;
         intakePreloadFromHP = autoCommand.autointakePreloadSpecimen().andThen(actionEnd());
         intakeSpecimenCommand = autoCommand.autoIntakeSpecimen().andThen(actionEnd());
         SpecimenHPCommand = autoCommand.putSpecimenToHPCommand().andThen(autoCommand.autoIntakeSpecimen()).andThen(actionEnd());
         scoreSpecimenCommand = autoCommand.autoScoreSpecimen().andThen(actionEnd());
+        scorePreloadCommand = autoCommand.scorePreloadSpecimen().andThen(actionEnd());
 
 
-        actions.addAll(Arrays.asList(intakePreloadFromHP,scoreSpecimenCommand,
+        actions.addAll(Arrays.asList(intakePreloadFromHP,scorePreloadCommand,
                 intakeSpecimenCommand, SpecimenHPCommand, scoreSpecimenCommand,
                 intakeSpecimenCommand, SpecimenHPCommand, scoreSpecimenCommand,
                 intakeSpecimenCommand, SpecimenHPCommand, scoreSpecimenCommand));
@@ -162,9 +163,8 @@ public class AutoChamber extends AutoOpModeEx {
         telemetry.addData("current path id", currentPathId);
         telemetry.addData("front arm", frontArm.state);
         telemetry.addData("lift arm", liftArm.state);
-        telemetry.addData("Actions size", actions.size());
-        telemetry.addData("PathChainList size", pathChainList.size());
-        telemetry.addData("Current Path ID", currentPathId);
+        /*telemetry.addData("Actions size", actions.size());
+        telemetry.addData("PathChainList size", pathChainList.size());*/
         telemetry.update();
     }
 
