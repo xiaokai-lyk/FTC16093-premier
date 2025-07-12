@@ -175,8 +175,8 @@ public class LiftArm {
 
 
     public void initPos(){
-        ascentLeft.setPosition(ServoConstants.ASCENT_LEFT_UP.value);
-        ascentRight.setPosition(ServoConstants.ASCENT_RIGHT_UP.value);
+        ascentLeft.setPosition(ServoConstants.ASCENT_LEFT_DOWN.value);
+        ascentRight.setPosition(ServoConstants.ASCENT_RIGHT_DOWN.value);
         lifter.resetSlide();
         clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE_CAN_SLIDE.value);
         armUp.setPosition(ServoConstants.UP_ARM_PARALLEL.value);
