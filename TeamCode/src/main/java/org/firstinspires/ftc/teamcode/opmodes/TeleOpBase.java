@@ -114,14 +114,12 @@ public class TeleOpBase extends CommandOpModeEx {
                 && frontArm.state == FrontArm.State.DOWN))
                 .whenPressed(()->frontArm.spinner_rotate(false));
 
-        new ButtonEx(()->(gamepadEx1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)>0.5
-                && liftArm.state == LiftArm.LiftArmState.FREE && mode != Tasks.ASCENT)).whenPressed(
+        new ButtonEx(()->(gamepadEx1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)>0.5 && mode != Tasks.ASCENT)).whenPressed(
                 frontArm.intake(true, false).andThen(new ConditionalCommand(new ParallelCommandGroup(frontArm.handover(),liftArm.handover()),
                         new InstantCommand(),
                         ()->frontArm.state == FrontArm.State.HOLDING_BLOCK&& mode == Tasks.SAMPLE))
         );
-        new ButtonEx(()->(gamepadEx1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)>0.5
-                && liftArm.state == LiftArm.LiftArmState.FREE && mode != Tasks.ASCENT)).whenPressed(
+        new ButtonEx(()->(gamepadEx1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)>0.5 && mode != Tasks.ASCENT)).whenPressed(
                 frontArm.intake(false, false).andThen(new ConditionalCommand(new ParallelCommandGroup(frontArm.handover(),liftArm.handover()),
                         new InstantCommand(),
                         ()->frontArm.state==FrontArm.State.HOLDING_BLOCK && mode == Tasks.SAMPLE))
@@ -137,10 +135,7 @@ public class TeleOpBase extends CommandOpModeEx {
                 new WaitUntilCommand(()->gamepadEx1.getButton(GamepadKeys.Button.A)),
                 liftArm.ascent_down(),
                 new WaitUntilCommand(()->gamepadEx1.getButton(GamepadKeys.Button.A)),
-                new InstantCommand(liftArm::hold_slide).alongWith(
-                        liftArm.ascent_end(),
-                        frontArm.ascent_end()
-                )
+                new InstantCommand(liftArm::hold_slide).alongWith(liftArm.ascent_end())
         ));
     }
 

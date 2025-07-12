@@ -113,7 +113,7 @@ public class FrontArm {
                             set_arm_wrist(ServoConstants.ARM_WRIST_DOWN);
                         })
                                 .andThen(
-                                        new WaitCommand(30),
+                                        new WaitCommand(70),
                                         new InstantCommand(()->ServoConstants.CLAW_CHECK.setToServo(claw)),
                                         new WaitCommand(70),
                                         new ConditionalCommand(
@@ -141,7 +141,7 @@ public class FrontArm {
                                                         new InstantCommand(() -> this.state = State.DOWN)
                                                 ),
                                                 ()->getClawDeg()>ServoConstants.CLAW_HAS_BLOCK_MIN_DEGREE.value || auto_mode
-                                        )//检查有没有夹到块，
+                                        )//检查有没有夹到块，若是自动模式则无论如何都夹起并交接
                                         //有块：夹起，没有：回intake状态
                                 ),
                         new InstantCommand(()->this.FrontSlide.setTargetPosition(is_far ? MotorConstants.FRONT_MAX.value : MotorConstants.FRONT_NEAR.value)),
@@ -219,10 +219,6 @@ public class FrontArm {
         FrontSlide.setTargetPosition(0);
         FrontSlide.setPower(1);
         FrontSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-    }
-
-    public Command ascent_end(){
-        return new InstantCommand(()->set_arm_wrist(ServoConstants.ARM_WRIST_BACK));
     }
 
     public void ascentPos(){

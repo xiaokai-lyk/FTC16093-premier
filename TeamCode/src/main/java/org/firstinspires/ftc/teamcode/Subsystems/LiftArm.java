@@ -13,7 +13,6 @@ import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -57,7 +56,7 @@ class Lifter{
                 new InstantCommand(()->setPower(0.5)),
                 new InstantCommand(this::toSlowMode),
                 new WaitUntilCommand(()->this.getPosition()>MotorConstants.FINAL_ASCENT_THRESHOLD.value),
-                new InstantCommand(()->setPower(0.7))
+                new InstantCommand(()->setPower(1))
         );
     }
 
@@ -176,13 +175,19 @@ public class LiftArm {
 
 
     public void initPos(){
-        ascentLeft.setPosition(ServoConstants.ASCENT_LEFT_DOWN.value);
-        ascentRight.setPosition(ServoConstants.ASCENT_RIGHT_DOWN.value);
+        ascentLeft.setPosition(ServoConstants.ASCENT_LEFT_UP.value);
+        ascentRight.setPosition(ServoConstants.ASCENT_RIGHT_UP.value);
         lifter.resetSlide();
         clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE_CAN_SLIDE.value);
         armUp.setPosition(ServoConstants.UP_ARM_PARALLEL.value);
         wristUp.setPosition(ServoConstants.UP_WRIST_PARALLEL.value);
         this.state = LiftArmState.FREE;
+    }
+
+    public void autoInitPos(){
+        this.initPos();
+        ascentLeft.setPosition(ServoConstants.ASCENT_LEFT_DOWN.value);
+        ascentRight.setPosition(ServoConstants.ASCENT_RIGHT_DOWN.value);
     }
 
     public void autoChamberInitPos(){
@@ -301,10 +306,10 @@ public class LiftArm {
     }
     public Command ascent_down() {
         return new InstantCommand(() -> {
-            ascentLeft.setPosition(ServoConstants.ASCENT_LEFT_DOWN.value);
-            ascentRight.setPosition(ServoConstants.ASCENT_RIGHT_DOWN.value);
+            ascentLeft.setPosition(ServoConstants.ASCENT_LEFT_MID.value);
+            ascentRight.setPosition(ServoConstants.ASCENT_RIGHT_MID.value);
         }).andThen(
-                new WaitCommand(700),
+                new WaitCommand(2000),
                 lifter.ascent_down()
         );
     }

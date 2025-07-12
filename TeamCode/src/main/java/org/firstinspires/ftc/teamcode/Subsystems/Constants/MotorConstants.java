@@ -10,7 +10,7 @@ public enum MotorConstants {
     LIFT_HIGH_CHAMBER(490),
 
 
-    FINAL_ASCENT_THRESHOLD(500),
+    FINAL_ASCENT_THRESHOLD(400),
     ;
 
     public final int value;

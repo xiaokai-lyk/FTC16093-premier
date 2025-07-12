@@ -72,8 +72,6 @@ public class AutoChamber extends AutoOpModeEx {
 
         frontArm.initPos();
         liftArm.autoChamberInitPos();
-
-        while(getRuntime()<2)CommandScheduler.getInstance().run();//进入init pos需要
     }
 
     private void buildPaths() {

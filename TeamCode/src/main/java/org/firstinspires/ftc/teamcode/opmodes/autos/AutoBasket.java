@@ -6,7 +6,6 @@ import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 
 import com.arcrobotics.ftclib.command.InstantCommand;
-import com.pedropathing.pathgen.PathBuilder;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
@@ -69,9 +68,7 @@ public class AutoBasket extends AutoOpModeEx {
         buildActions();
 
         frontArm.initPos();
-        liftArm.initPos();
-
-        while(getRuntime()<2)CommandScheduler.getInstance().run();//进入init pos需要
+        liftArm.autoInitPos();
     }
 
     private void buildPaths() {
