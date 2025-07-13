@@ -192,7 +192,7 @@ public class LiftArm {
 
     public void autoChamberInitPos(){
         this.autoInitPos();
-        this.state = LiftArmState.WALL;
+//        this.state = LiftArmState.WALL;
     }
 
     public String slideInfo(){return lifter.getMotorInfo();}

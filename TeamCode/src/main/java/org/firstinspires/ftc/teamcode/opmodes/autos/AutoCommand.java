@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.opmodes.autos;
 
 import static java.lang.Math.abs;
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
@@ -11,7 +13,10 @@ import com.arcrobotics.ftclib.command.WaitCommand;
 import org.firstinspires.ftc.teamcode.Subsystems.FrontArm;
 import org.firstinspires.ftc.teamcode.Subsystems.LiftArm;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.PathChain;
+import com.pedropathing.pathgen.Point;
 
 
 public class AutoCommand {
@@ -20,6 +25,7 @@ public class AutoCommand {
     FrontArm.State frontArmState;
     LiftArm liftArm;
     boolean flagRelease = true;
+    Follower follower;
 
     public AutoCommand(FrontArm frontArm, LiftArm liftArm) {
         this.frontArm = frontArm;
@@ -87,16 +93,18 @@ public class AutoCommand {
     }
 
     public Command autoIntakeSpecimen(){
-        return liftArm.highChamber();
+        return new SequentialCommandGroup(
+                new WaitCommand(100),
+                liftArm.highChamber(),
+                new WaitCommand(100)
+        );
     }
 
     public Command autoScoreSpecimen(){
         return new SequentialCommandGroup(
-                new WaitCommand(1000),
+                new WaitCommand(500),
                 liftArm.highChamber(),
-                new WaitCommand(1000),
-                liftArm.highChamber(),
-                new WaitCommand(1000)
+                new WaitCommand(100)
         );
     }
 
@@ -104,15 +112,26 @@ public class AutoCommand {
         return new SequentialCommandGroup(
                 new WaitCommand(1000),
                 liftArm.highChamber(),
-                new WaitCommand(500)
+                new WaitCommand(50)
         );
     }
 
     public Command autointakePreloadSpecimen(){
         return new SequentialCommandGroup(
-                new WaitCommand(500),
                 liftArm.highChamber(),
-                new WaitCommand(500)
+                new WaitCommand(800),
+                liftArm.highChamber(),
+                new WaitCommand(50)
+        );
+    }
+
+    public Command autoIntakeSampleToHP(){
+        return new SequentialCommandGroup(
+                new WaitCommand(1000),
+                frontArm.intake(true, true),
+                frontArm.intake(true, true),
+                new InstantCommand(()->frontArm.getFrontSlide().setTargetPosition(0)),
+                new WaitCommand(1000)
         );
     }
 
@@ -126,5 +145,43 @@ public class AutoCommand {
 
     public Command autoDriveCommmand(PathChain pathChain, Follower follower){
         return new InstantCommand(()->follower.followPath(pathChain));
+    }
+
+    public static Pose2d poseToPose2d(Pose pose) {
+        return new Pose2d(pose.getX(), pose.getY(), pose.getHeading());
+    }
+
+    public static Pose pose2dToPose(Pose2d pose2d) {
+        return new Pose(pose2d.getX(), pose2d.getY(), pose2d.getHeading());
+    }
+
+    public PathChain[] buildPathWithBrake(Pose startPose, Pose endPose) {
+        Pose2d startPose2d = poseToPose2d(startPose);
+        Pose2d endPose2d = poseToPose2d(endPose);
+
+        Vector2d bufferVec = endPose2d.vec().minus(
+                new Vector2d(2, 0).rotated(endPose.getHeading())
+        );
+        Pose2d bufferPose2d = new Pose2d(bufferVec, endPose.getHeading());
+        Pose bufferPose = pose2dToPose(bufferPose2d);
+
+        follower.setMaxPower(1);
+        PathChain main = follower.pathBuilder()
+                .addPath(new BezierLine(startPose, bufferPose))
+                .setLinearHeadingInterpolation(startPose.getHeading(), endPose.getHeading())
+                .build();
+        follower.setMaxPower(0.5);
+        PathChain brake = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(bufferPose), new Point(endPose)))
+                .setLinearHeadingInterpolation(endPose.getHeading(), endPose.getHeading())
+                .build();
+
+        return new PathChain[]{main, brake};
+    }
+
+
+    public Point midPoint(Pose start, Pose end){
+        return new Point((start.getX()+end.getX())/2,
+                (start.getY()+end.getY())/2);
     }
 }
