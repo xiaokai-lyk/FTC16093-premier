@@ -8,6 +8,7 @@ import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 
 import com.arcrobotics.ftclib.command.WaitCommand;
+import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -180,7 +181,7 @@ public class FrontArm {
             set_arm_wrist(ServoConstants.ARM_WRIST_HANDOVER);
             set_arm_spinner(ServoConstants.ARM_SPINNER_FRONT);
             open_claw(false);
-            frontSlide.setTargetPosition(0);
+            resetSlide();
         }).andThen(
                 new WaitCommand(500),
                 new InstantCommand(()->this.open_claw(true)),
@@ -213,8 +214,7 @@ public class FrontArm {
         set_wrist(ServoConstants.WRIST_PARALLEL);
         set_arm_spinner(ServoConstants.ARM_SPINNER_FRONT);
         this.state = State.FREE;
-
-        frontSlide.setTargetPosition(0);
+        resetSlide();
         frontSlide.setPower(1);
         frontSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
@@ -222,6 +222,24 @@ public class FrontArm {
     public void ascentPos(){
         initPos();
         set_arm_wrist(ServoConstants.ARM_WRIST_BACK);
+    }
+
+    public void resetSlide(){
+        new SequentialCommandGroup(
+                new InstantCommand(()->frontSlide.setTargetPosition(0)),
+                new WaitUntilCommand(()->!frontSlide.isBusy()),
+                new InstantCommand(()->frontSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)),
+                new InstantCommand(()->frontSlide.setPower(-0.5)),
+                new WaitCommand(100),
+                new InstantCommand(()->frontSlide.setPower(0)),
+                new InstantCommand(this::resetEncoder),
+                new InstantCommand(()->frontSlide.setPower(1))
+        ).schedule();
+    }
+
+    private void resetEncoder(){
+        frontSlide.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        frontSlide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
     }
 
     public Command highChamber(){

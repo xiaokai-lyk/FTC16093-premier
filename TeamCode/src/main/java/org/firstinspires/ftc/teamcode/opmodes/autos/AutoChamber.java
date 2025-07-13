@@ -38,19 +38,37 @@ public class AutoChamber extends AutoOpModeEx {
     private Boolean actionRunning;
 
 
+    /*
+    * -----------------------
+    * |                     |
+    * |                     |
+    * |      |-----|        |
+    * |      |潜水器|        |
+    * |      |-----|        |
+    * |                     |
+    * |         ↑           |
+    * |       启动点         |
+    * ---------------------零点
+    * */
+
+
+
+
+
     private PathChainList pathChainList;
 
-    private final Pose startPose = new Pose(0,  -76.7, Math.toRadians(0));
-    private final Pose scorePose0 = new Pose(17, -74, Math.toRadians(0));
-    private final Pose scorePose1 = new Pose(15, -72, Math.toRadians(0));
-    private final Pose scorePose2 = new Pose(15, -70, Math.toRadians(0));
-    private final Pose scorePose3 = new Pose(15, -67, Math.toRadians(0));
-    private final Pose pickup1Pose = new Pose(13, -90, Math.toRadians(0));
-    private final Pose pickup2Pose = new Pose(13, -95, Math.toRadians(0));
-    private final Pose pickup3Pose = new Pose(13, -100, Math.toRadians(0));
-    private final Pose HPPose = new Pose(5, -95, Math.toRadians(0));
+
+    private final Pose startPose = new Pose(0,  63, Math.toRadians(0));
+    private final Pose scorePose0 = new Pose(30, 67, Math.toRadians(0));
+    private final Pose scorePose1 = new Pose(30, 71, Math.toRadians(0));
+    private final Pose scorePose2 = new Pose(30, 75, Math.toRadians(0));
+    private final Pose scorePose3 = new Pose(30, 67, Math.toRadians(0));
+    private final Pose pickup1Pose = new Pose(10, 50, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(10, 45, Math.toRadians(0));
+    private final Pose pickup3Pose = new Pose(10, 40, Math.toRadians(0));
+    private final Pose HPPose = new Pose(5, 45, Math.toRadians(0));
     private final Pose parkControlPose = new Pose(40, 25, Math.toRadians(0));
-    private final Pose parkPose = new Pose(5, -110, Math.toRadians(0));
+    private final Pose parkPose = new Pose(5, 25, Math.toRadians(0));
     private int currentPathId = 0;
 
 
