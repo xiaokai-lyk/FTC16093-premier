@@ -11,7 +11,6 @@ public enum ServoConstants {
     WRIST_PARALLEL(0.58),
     WRIST_DOWN(0.13),
     WRIST_HANDOVER(0.9),
-    WRIST_INSIDE(0.7),
     ARM_SPINNER_FRONT(0.43),
     ARM_SPINNER_LEFT45(0.6),
     ARM_SPINNER_RIGHT45(0.27),
@@ -23,7 +22,6 @@ public enum ServoConstants {
     ARM_WRIST_BACK(0.99),
     ARM_WRIST_FREE(0.43),
     ARM_WRIST_CHAMBER_INTAKE(0.33),
-    ARM_WRIST_INSIDE(0.75),
 
     UP_CLAW_OPEN(0.25),
     UP_CLAW_CLOSE_CAN_SLIDE(0.95),
@@ -39,7 +37,6 @@ public enum ServoConstants {
     UP_ARM_WALL(0.22),
     UP_ARM_UPWARD(0.5),
     UP_ARM_BACK(0.26),
-    UP_ARM_INSIDE(0.82),
 
     SHIFTER_NORMAL(0.6),
     SHIFTER_SLOW(1),
