@@ -134,15 +134,6 @@ public class TeleOpBase extends CommandOpModeEx {
                 new WaitUntilCommand(()->gamepadEx1.getButton(GamepadKeys.Button.A)),
                 new InstantCommand(liftArm::hold_slide).alongWith(liftArm.ascent_end())
         ));
-
-        //Dispose of the blocks on the robot
-        new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.START)).whenPressed(new SequentialCommandGroup(
-                new InstantCommand(()->liftArm.getArmUp().setPosition(ServoConstants.UP_ARM_INSIDE.value)),
-                new InstantCommand(()->liftArm.getWristUp().setPosition(ServoConstants.UP_WRIST_INSIDE.value)),
-                new InstantCommand(()->frontArm.getArmWrist().setPosition(ServoConstants.ARM_WRIST_INSIDE.value)),
-                new InstantCommand(()->frontArm.getWrist().setPosition(ServoConstants.WRIST_INSIDE.value)),
-                new InstantCommand(()->frontArm.getFrontSlide().setTargetPosition(0))
-        ));
     }
 
     @Override
