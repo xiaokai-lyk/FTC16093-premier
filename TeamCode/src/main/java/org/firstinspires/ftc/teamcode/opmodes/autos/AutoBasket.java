@@ -6,6 +6,7 @@ import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 
 import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.command.WaitCommand;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
@@ -40,14 +41,14 @@ public class AutoBasket extends AutoOpModeEx {
 
     private PathChainList pathChainList;
 
-    private final Pose startPose = new Pose(0, 0, Math.toRadians(0));
+    private final Pose startPose = new Pose(0, 114, Math.toRadians(-45));
 
-    private final Pose scorePose = new Pose(1, 0, Math.toRadians(0));
-    private final Pose pickup1Pose = new Pose(2, 0, Math.toRadians(0));
-    private final Pose pickup2Pose = new Pose(9, 0, Math.toRadians(0));
-    private final Pose pickup3Pose = new Pose(6, 0, Math.toRadians(0));
-    private final Pose parkControlPose = new Pose(3, 0,Math.toRadians(0));
-    private final Pose parkPose = new Pose(0, 0, Math.toRadians(0));
+    private final Pose scorePose = new Pose(3, 127, Math.toRadians(-45));
+    private final Pose pickup1Pose = new Pose(7, 117, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(7, 126, Math.toRadians(0));
+    private final Pose pickup3Pose = new Pose(10, 124, Math.toRadians(28));
+    private final Pose parkControlPose = new Pose(40, 126,Math.toRadians(-90));
+    private final Pose parkPose = new Pose(0, 0, Math.toRadians(-90));
     private int currentPathId = 0;
 
 
@@ -69,12 +70,18 @@ public class AutoBasket extends AutoOpModeEx {
 
         frontArm.initPos();
         liftArm.autoInitPos();
+
+        follower.setMaxPower(0.6);
     }
 
     private void buildPaths() {
-        PathChain grabPickup1, grabPickup2, grabPickup3, scorePickup1, scorePickup2, scorePickup3, park;
-        Path scorePreload = new Path(new BezierLine(new Point(startPose), new Point(scorePose)));
-        scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading());
+        PathChain scorePreload, grabPickup1, grabPickup2, grabPickup3, scorePickup1, scorePickup2, scorePickup3, park;
+
+        scorePreload = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(startPose), new Point(scorePose)))
+                .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
+                .build();
+
 
         grabPickup1 = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(scorePose), new Point(pickup1Pose)))
@@ -111,7 +118,7 @@ public class AutoBasket extends AutoOpModeEx {
                 .setLinearHeadingInterpolation(scorePose.getHeading(), parkPose.getHeading())
                 .build();
 
-        pathChainList.addPath(null, grabPickup1, scorePickup1, grabPickup2, scorePickup2, grabPickup3, scorePickup3, null);
+        pathChainList.addPath(scorePreload, grabPickup1, scorePickup1, grabPickup2, scorePickup2, grabPickup3, scorePickup3, null);
     }
 
     private Command actionEnd(){
@@ -121,7 +128,11 @@ public class AutoBasket extends AutoOpModeEx {
     private void buildActions(){
         Command intakeSampleCommand, releaseCommand, parkCommand;
         intakeSampleCommand = autoCommand.autoIntakeSample().andThen(actionEnd());
-        releaseCommand = liftArm.releaseHigh().andThen(liftArm.releaseHigh()).andThen(actionEnd());
+        releaseCommand = liftArm.releaseHigh().andThen(
+                new WaitCommand(1000),
+                liftArm.releaseHigh(),
+                new WaitCommand(500)
+        ).andThen(actionEnd());
         parkCommand = liftArm.parkCommand();
 
         actions.addAll(Arrays.asList(releaseCommand,
@@ -137,6 +148,7 @@ public class AutoBasket extends AutoOpModeEx {
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("heading", follower.getPose().getHeading());
+        telemetry.addData("drive error",follower.driveError);
         telemetry.addData("lift slide info", liftArm.slideInfo());
         telemetry.addData("follower finished",!follower.isBusy());
         telemetry.addData("action finished", !this.actionRunning);
@@ -145,7 +157,6 @@ public class AutoBasket extends AutoOpModeEx {
         telemetry.addData("lift arm", liftArm.state);
         telemetry.addData("Actions size", actions.size());
         telemetry.addData("PathChainList size", pathChainList.size());
-        telemetry.addData("Current Path ID", currentPathId);
         telemetry.update();
     }
 

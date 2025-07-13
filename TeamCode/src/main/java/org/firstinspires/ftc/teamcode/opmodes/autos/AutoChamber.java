@@ -58,7 +58,7 @@ public class AutoChamber extends AutoOpModeEx {
     private PathChainList pathChainList;
 
 
-    private final Pose startPose = new Pose(0,  63, Math.toRadians(0));
+    private final Pose startPose = new Pose(0,  52.75, Math.toRadians(0));
     private final Pose scorePose0 = new Pose(30, 67, Math.toRadians(0));
     private final Pose scorePose1 = new Pose(30, 71, Math.toRadians(0));
     private final Pose scorePose2 = new Pose(30, 75, Math.toRadians(0));

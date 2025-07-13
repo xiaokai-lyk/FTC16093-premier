@@ -181,7 +181,7 @@ public class FrontArm {
             set_arm_wrist(ServoConstants.ARM_WRIST_HANDOVER);
             set_arm_spinner(ServoConstants.ARM_SPINNER_FRONT);
             open_claw(false);
-            resetSlide();
+            frontSlide.setTargetPosition(0);
         }).andThen(
                 new WaitCommand(500),
                 new InstantCommand(()->this.open_claw(true)),
