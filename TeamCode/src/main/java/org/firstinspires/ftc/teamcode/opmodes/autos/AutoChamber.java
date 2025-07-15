@@ -90,7 +90,7 @@ public class AutoChamber extends AutoOpModeEx {
 
         frontArm.initPos();
         liftArm.autoChamberInitPos();
-        follower.setMaxPower(0.5); //慢速档
+        follower.setMaxPower(1);
     }
 
     private void buildPaths() {
@@ -180,6 +180,7 @@ public class AutoChamber extends AutoOpModeEx {
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("heading", follower.getPose().getHeading());
+        telemetry.addData("drive error",follower.driveError);
         telemetry.addData("lift slide info", liftArm.slideInfo());
         telemetry.addData("follower finished",!follower.isBusy());
         telemetry.addData("action finished", !this.actionRunning);
