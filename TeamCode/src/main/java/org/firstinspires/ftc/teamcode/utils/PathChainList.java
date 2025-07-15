@@ -10,6 +10,9 @@ import java.util.NoSuchElementException;
 
 import lombok.Getter;
 import androidx.annotation.NonNull;
+
+import org.firstinspires.ftc.ftccommon.internal.manualcontrol.responses.ParentHub;
+
 import lombok.Setter;
 
 public class PathChainList implements Iterable<PathChain>{
@@ -28,6 +31,9 @@ public class PathChainList implements Iterable<PathChain>{
     }
     public void addPath(PathChain... src){
         this.list_m.addAll(Arrays.asList(src));
+    }
+    public PathChain getPath(int index){
+        return this.list_m.get(index);
     }
 
     @NonNull

@@ -63,6 +63,7 @@ public class StraightBackAndForth extends OpMode {
                 + " inches forward. The robot will go forward and backward continuously"
                 + " along the path. Make sure you have enough room.");
         telemetryA.update();
+        follower.telemetryDebug(FtcDashboard.getInstance().getTelemetry());//方便勾选图像
     }
 
     /**

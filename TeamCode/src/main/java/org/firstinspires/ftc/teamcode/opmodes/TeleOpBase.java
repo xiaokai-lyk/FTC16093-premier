@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
 
-import android.widget.Button;
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.command.CommandScheduler;
@@ -10,7 +8,6 @@ import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
-import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
@@ -103,7 +100,7 @@ public class TeleOpBase extends CommandOpModeEx {
                 .whenPressed(frontArm.giveHP());
         new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.LEFT_BUMPER)
                 && frontArm.state != FrontArm.State.DOWN&& mode == Tasks.SPECIMEN)
-                .whenPressed(liftArm.highChamber());
+                .whenPressed(new SequentialCommandGroup(frontArm.highChamber(), liftArm.highChamber()));
 
 
         //Shared
@@ -118,11 +115,25 @@ public class TeleOpBase extends CommandOpModeEx {
                 frontArm.intake(true, false).andThen(new ConditionalCommand(new ParallelCommandGroup(frontArm.handover(),liftArm.handover()),
                         new InstantCommand(),
                         ()->frontArm.state == FrontArm.State.HOLDING_BLOCK&& mode == Tasks.SAMPLE))
+                        .alongWith(
+                                new ConditionalCommand(
+                                        liftArm.highChamber(),
+                                        new InstantCommand(),
+                                        ()->liftArm.state== LiftArm.LiftArmState.PRE_CHAMBER
+                                )
+                        )
         );
         new ButtonEx(()->(gamepadEx1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)>0.5 && mode != Tasks.ASCENT)).whenPressed(
                 frontArm.intake(false, false).andThen(new ConditionalCommand(new ParallelCommandGroup(frontArm.handover(),liftArm.handover()),
                         new InstantCommand(),
                         ()->frontArm.state==FrontArm.State.HOLDING_BLOCK && mode == Tasks.SAMPLE))
+                        .alongWith(
+                                new ConditionalCommand(
+                                        liftArm.highChamber(),
+                                        new InstantCommand(),
+                                        ()->liftArm.state== LiftArm.LiftArmState.PRE_CHAMBER
+                                )
+                        )
         );
 
         //Ascent
@@ -136,15 +147,6 @@ public class TeleOpBase extends CommandOpModeEx {
                 liftArm.ascent_down(),
                 new WaitUntilCommand(()->gamepadEx1.getButton(GamepadKeys.Button.A)),
                 new InstantCommand(liftArm::hold_slide).alongWith(liftArm.ascent_end())
-        ));
-
-        //处理掉车上的块
-        new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.START)).whenPressed(new SequentialCommandGroup(
-                new InstantCommand(()->liftArm.getArmUp().setPosition(ServoConstants.UP_ARM_INSIDE.value)),
-                new InstantCommand(()->liftArm.getWristUp().setPosition(ServoConstants.UP_WRIST_INSIDE.value)),
-                new InstantCommand(()->frontArm.getArmWrist().setPosition(ServoConstants.ARM_WRIST_INSIDE.value)),
-                new InstantCommand(()->frontArm.getWrist().setPosition(ServoConstants.WRIST_INSIDE.value)),
-                new InstantCommand(()->frontArm.getFrontSlide().setTargetPosition(0))
         ));
     }
 

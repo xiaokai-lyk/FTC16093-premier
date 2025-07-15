@@ -38,19 +38,37 @@ public class AutoChamber extends AutoOpModeEx {
     private Boolean actionRunning;
 
 
+    /*
+    * -----------------------
+    * |                     |
+    * |                     |
+    * |      |-----|        |
+    * |      |潜水器|        |
+    * |      |-----|        |
+    * |                     |
+    * |         ↑           |
+    * |       启动点         |
+    * ---------------------零点
+    * */
+
+
+
+
+
     private PathChainList pathChainList;
 
-    private final Pose startPose = new Pose(0, 0, Math.toRadians(0));
-    private final Pose scorePose0 = new Pose(1, 0, Math.toRadians(0));
-    private final Pose scorePose1 = new Pose(1, 0, Math.toRadians(0));
-    private final Pose scorePose2 = new Pose(1, 0, Math.toRadians(0));
-    private final Pose scorePose3 = new Pose(1, 0, Math.toRadians(0));
-    private final Pose pickup1Pose = new Pose(2, 0, Math.toRadians(0));
-    private final Pose pickup2Pose = new Pose(9, 0, Math.toRadians(0));
-    private final Pose pickup3Pose = new Pose(6, 0, Math.toRadians(0));
-    private final Pose HPPose = new Pose(2, 2, Math.toRadians(0));
-    private final Pose parkControlPose = new Pose(3, 0,Math.toRadians(0));
-    private final Pose parkPose = new Pose(0, 0, Math.toRadians(0));
+
+    private final Pose startPose = new Pose(0,  52.75, Math.toRadians(0));
+    private final Pose scorePose0 = new Pose(30, 67, Math.toRadians(0));
+    private final Pose scorePose1 = new Pose(30, 71, Math.toRadians(0));
+    private final Pose scorePose2 = new Pose(30, 75, Math.toRadians(0));
+    private final Pose scorePose3 = new Pose(30, 67, Math.toRadians(0));
+    private final Pose pickup1Pose = new Pose(10, 50, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(10, 45, Math.toRadians(0));
+    private final Pose pickup3Pose = new Pose(10, 40, Math.toRadians(0));
+    private final Pose HPPose = new Pose(5, 45, Math.toRadians(0));
+    private final Pose parkControlPose = new Pose(40, 25, Math.toRadians(0));
+    private final Pose parkPose = new Pose(5, 25, Math.toRadians(0));
     private int currentPathId = 0;
 
 
@@ -72,17 +90,18 @@ public class AutoChamber extends AutoOpModeEx {
 
         frontArm.initPos();
         liftArm.autoChamberInitPos();
+        follower.setMaxPower(0.5); //慢速档
     }
 
     private void buildPaths() {
         PathChain grabPickup1, grabPickup2, grabPickup3, goToHP1, goToHP2, goToHP3, scoreChamber0, scoreChamber1, scoreChamber2, scoreChamber3;
         scoreChamber0 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(startPose),new Point(scorePose0)))
+                .addPath(new BezierLine(new Point(startPose), new Point(scorePose0)))
                 .setLinearHeadingInterpolation(startPose.getHeading(), scorePose0.getHeading())
                 .build();
 
         grabPickup1 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(scorePose0), new Point(pickup1Pose)))
+                .addPath(new BezierCurve(new Point(scorePose0), autoCommand.midPoint(scorePose0, pickup1Pose), new Point(pickup1Pose)))
                 .setLinearHeadingInterpolation(scorePose0.getHeading(), pickup1Pose.getHeading())
                 .build();
 
@@ -129,7 +148,10 @@ public class AutoChamber extends AutoOpModeEx {
         Path park = new Path(new BezierCurve(new Point(scorePose3), new Point(parkControlPose), new Point(parkPose)));
         park.setLinearHeadingInterpolation(scorePose3.getHeading(), parkPose.getHeading());
 
-        pathChainList.addPath(null, scoreChamber0, grabPickup1, goToHP1, scoreChamber1, grabPickup2, goToHP2, scoreChamber2, grabPickup3, goToHP3, scoreChamber3);
+        pathChainList.addPath(null, scoreChamber0,
+                grabPickup1, goToHP1, null, scoreChamber1,
+                grabPickup2, goToHP2, null, scoreChamber2,
+                grabPickup3, goToHP3, null, scoreChamber3);
     }
 
     private Command actionEnd(){
@@ -137,17 +159,19 @@ public class AutoChamber extends AutoOpModeEx {
     }
 
     private void buildActions(){
-        Command intakePreloadFromHP, intakeSpecimenCommand, SpecimenHPCommand, scoreSpecimenCommand;
+        Command intakePreloadFromHP, intakeSampleCommand, intakeSpecimenCommand, giveSpecimenToHPCommand, scoreSpecimenCommand, scorePreloadCommand;
         intakePreloadFromHP = autoCommand.autointakePreloadSpecimen().andThen(actionEnd());
+        intakeSampleCommand = autoCommand.autoIntakeSampleToHP().andThen(actionEnd());
         intakeSpecimenCommand = autoCommand.autoIntakeSpecimen().andThen(actionEnd());
-        SpecimenHPCommand = autoCommand.putSpecimenToHPCommand().andThen(autoCommand.autoIntakeSpecimen()).andThen(actionEnd());
+        giveSpecimenToHPCommand = autoCommand.putSpecimenToHPCommand().andThen(autoCommand.autoIntakeSpecimen()).andThen(actionEnd());
         scoreSpecimenCommand = autoCommand.autoScoreSpecimen().andThen(actionEnd());
+        scorePreloadCommand = autoCommand.scorePreloadSpecimen().andThen(actionEnd());
 
 
-        actions.addAll(Arrays.asList(intakePreloadFromHP,scoreSpecimenCommand,
-                intakeSpecimenCommand, SpecimenHPCommand, scoreSpecimenCommand,
-                intakeSpecimenCommand, SpecimenHPCommand, scoreSpecimenCommand,
-                intakeSpecimenCommand, SpecimenHPCommand, scoreSpecimenCommand));
+        actions.addAll(Arrays.asList(intakePreloadFromHP,scorePreloadCommand,
+                intakeSampleCommand, giveSpecimenToHPCommand, intakeSpecimenCommand, scoreSpecimenCommand,
+                intakeSampleCommand, giveSpecimenToHPCommand, intakeSpecimenCommand, scoreSpecimenCommand,
+                intakeSampleCommand, giveSpecimenToHPCommand, intakeSpecimenCommand, scoreSpecimenCommand));
     }
 
     private void periodic() {
@@ -162,9 +186,8 @@ public class AutoChamber extends AutoOpModeEx {
         telemetry.addData("current path id", currentPathId);
         telemetry.addData("front arm", frontArm.state);
         telemetry.addData("lift arm", liftArm.state);
-        telemetry.addData("Actions size", actions.size());
-        telemetry.addData("PathChainList size", pathChainList.size());
-        telemetry.addData("Current Path ID", currentPathId);
+        /*telemetry.addData("Actions size", actions.size());
+        telemetry.addData("PathChainList size", pathChainList.size());*/
         telemetry.update();
     }
 

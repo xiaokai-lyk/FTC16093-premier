@@ -185,15 +185,17 @@ public class LiftArm {
     }
 
     public void autoInitPos(){
-        this.initPos();
         ascentLeft.setPosition(ServoConstants.ASCENT_LEFT_DOWN.value);
         ascentRight.setPosition(ServoConstants.ASCENT_RIGHT_DOWN.value);
+        clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE_CAN_SLIDE.value);
+        armUp.setPosition(ServoConstants.UP_ARM_PARALLEL.value);
+        wristUp.setPosition(ServoConstants.UP_WRIST_PARALLEL.value);
+        this.state = LiftArmState.FREE;
     }
 
     public void autoChamberInitPos(){
-        this.highChamber().andThen(
-                new InstantCommand(()->this.clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE.value))
-        ).schedule();
+        this.autoInitPos();
+//        this.state = LiftArmState.WALL;
     }
 
     public String slideInfo(){return lifter.getMotorInfo();}
