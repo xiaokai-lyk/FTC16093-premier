@@ -43,14 +43,13 @@ public class AutoBasket extends AutoOpModeEx {
 
     private final Pose startPose = new Pose(0, 114, Math.toRadians(-45));
 
-    private final Pose scorePose = new Pose(3, 127, Math.toRadians(-45));
-    private final Pose pickup1Pose = new Pose(7, 117, Math.toRadians(0));
-    private final Pose pickup2Pose = new Pose(7, 126, Math.toRadians(0));
-    private final Pose pickup3Pose = new Pose(10, 124, Math.toRadians(28));
+    private final Pose scorePose = new Pose(3.5, 127.5, Math.toRadians(-45));
+    private final Pose pickup1Pose = new Pose(7, 116, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(7, 128, Math.toRadians(0));
+    private final Pose pickup3Pose = new Pose(9, 125, Math.toRadians(29));
     private final Pose parkControlPose = new Pose(40, 126,Math.toRadians(-90));
-    private final Pose parkPose = new Pose(0, 0, Math.toRadians(-90));
+    private final Pose parkPose = new Pose(65, 65, Math.toRadians(-90));
     private int currentPathId = 0;
-
 
 
     @Override
@@ -118,7 +117,7 @@ public class AutoBasket extends AutoOpModeEx {
                 .setLinearHeadingInterpolation(scorePose.getHeading(), parkPose.getHeading())
                 .build();
 
-        pathChainList.addPath(scorePreload, grabPickup1, scorePickup1, grabPickup2, scorePickup2, grabPickup3, scorePickup3, null);
+        pathChainList.addPath(scorePreload, grabPickup1, scorePickup1, grabPickup2, scorePickup2, grabPickup3, scorePickup3);
     }
 
     private Command actionEnd(){
@@ -126,20 +125,20 @@ public class AutoBasket extends AutoOpModeEx {
     }
 
     private void buildActions(){
-        Command intakeSampleCommand, releaseCommand, parkCommand;
+        Command intakeSampleCommand, releasePreloadCommand, releaseCommand, parkCommand;
         intakeSampleCommand = autoCommand.autoIntakeSample().andThen(actionEnd());
+        releasePreloadCommand = autoCommand.autoReleasePreloadSample().andThen(actionEnd());
         releaseCommand = liftArm.releaseHigh().andThen(
-                new WaitCommand(1000),
+                new WaitCommand(500),
                 liftArm.releaseHigh(),
-                new WaitCommand(500)
+                new WaitCommand(300)
         ).andThen(actionEnd());
         parkCommand = liftArm.parkCommand();
 
         actions.addAll(Arrays.asList(releaseCommand,
                 intakeSampleCommand, releaseCommand,
                 intakeSampleCommand, releaseCommand,
-                intakeSampleCommand, releaseCommand,
-                parkCommand));
+                intakeSampleCommand, releaseCommand));
     }
 
     private void periodic() {

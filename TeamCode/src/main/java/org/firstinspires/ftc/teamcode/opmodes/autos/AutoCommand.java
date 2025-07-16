@@ -33,12 +33,22 @@ public class AutoCommand {
 
     public Command autoIntakeSample() {
         return new SequentialCommandGroup(
-                new WaitCommand(2000),
+                new WaitCommand(800),
                 frontArm.intake(true, true),
                 new WaitCommand(500),
                 frontArm.intake(true, true),
-                new WaitCommand(1000),
+                new WaitCommand(500),x
                 new ParallelCommandGroup(frontArm.handover(),liftArm.handover())
+        );
+    }
+
+    public Command autoReleasePreloadSample(){
+        return new SequentialCommandGroup(
+                new WaitCommand(300),
+                liftArm.releaseHigh(),
+                new WaitCommand(300),
+                liftArm.releaseHigh(),
+                new WaitCommand(500)
         );
     }
 
