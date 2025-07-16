@@ -37,7 +37,7 @@ public class AutoCommand {
                 frontArm.intake(true, true),
                 new WaitCommand(500),
                 frontArm.intake(true, true),
-                new WaitCommand(500),x
+                new WaitCommand(500),
                 new ParallelCommandGroup(frontArm.handover(),liftArm.handover())
         );
     }
