@@ -50,7 +50,6 @@ class Lifter{
     private void toSlowMode(){
         shifter.setPosition(ServoConstants.SHIFTER_SLOW.value);
     }
-
     public Command ascent_up(){
         return new SequentialCommandGroup(
                 new InstantCommand(()->setPower(0.5)),
