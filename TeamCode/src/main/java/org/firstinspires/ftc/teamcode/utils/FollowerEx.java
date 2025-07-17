@@ -1,3 +1,8 @@
+/*
+* Author: Yunkai Li
+* Date: 2025/07/18
+* Intro: A wrapper of pedro pathing follower. Add tolerances to avoid swinging near the end point.
+* */
 package org.firstinspires.ftc.teamcode.utils;
 
 import com.pedropathing.follower.Follower;
@@ -25,7 +30,8 @@ public class FollowerEx extends Follower {
         leftRear = hardwareMap.get(DcMotorEx.class, FollowerConstants.leftRearMotorName);
         rightRear = hardwareMap.get(DcMotorEx.class, FollowerConstants.rightRearMotorName);
         rightFront = hardwareMap.get(DcMotorEx.class, FollowerConstants.rightFrontMotorName);
-        this.motors = Arrays.asList(leftFront, leftRear, rightFront, rightRear);
+        this.motors = Arrays.asList(leftFront, leftRear, rightFront, rightRear);//That is not a good solution
+        // , but it is the only solution think of.
     }
 
     public void follow(PathChain pathChain, double xTolerance, double yTolerance, double headingTolerance) {
@@ -45,7 +51,7 @@ public class FollowerEx extends Follower {
             isFinished = true;
             super.breakFollowing();
             for (DcMotorEx motor : motors){
-                motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);//Stop following and brake when nearing the end point.
             }
         }
     }

@@ -7,7 +7,6 @@ import com.arcrobotics.ftclib.command.CommandScheduler;
 
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
@@ -17,6 +16,7 @@ import com.pedropathing.pathgen.Point;
 
 import org.firstinspires.ftc.teamcode.Subsystems.FrontArm;
 import org.firstinspires.ftc.teamcode.Subsystems.LiftArm;
+import org.firstinspires.ftc.teamcode.utils.FollowerEx;
 import org.firstinspires.ftc.teamcode.utils.PathChainList;
 
 
@@ -30,7 +30,7 @@ import pedroPathing.constants.LConstants;
 
 @Autonomous(name = "Auto Chamber", group = "Auto")
 public class AutoChamber extends AutoOpModeEx {
-    private Follower follower;
+    private FollowerEx follower;
     private AutoCommand autoCommand;
     private List<Command> actions;
     private FrontArm frontArm;
@@ -76,7 +76,7 @@ public class AutoChamber extends AutoOpModeEx {
     @Override
     public void initialize() {
         this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
+        follower = new FollowerEx(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
         frontArm = new FrontArm(hardwareMap);
         liftArm = new LiftArm(hardwareMap);
@@ -206,7 +206,7 @@ public class AutoChamber extends AutoOpModeEx {
             periodic();
             if(!follower.isBusy() && !this.actionRunning){
                 PathChain path = it.next();
-                if(path!=null)follower.followPath(path);
+                if(path!=null)follower.follow(path, 3, 3, 5);
                 Command currentAction = actions.get(currentPathId);
                 if(currentAction!=null){
                     currentAction.schedule();
