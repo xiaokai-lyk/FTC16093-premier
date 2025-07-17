@@ -219,11 +219,6 @@ public class FrontArm {
         frontSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
-    public void ascentPos(){
-        initPos();
-        set_arm_wrist(ServoConstants.ARM_WRIST_BACK);
-    }
-
     public void resetSlide(){
         new SequentialCommandGroup(
                 new InstantCommand(()->frontSlide.setTargetPosition(0)),

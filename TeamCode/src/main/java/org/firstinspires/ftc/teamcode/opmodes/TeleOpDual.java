@@ -25,7 +25,7 @@ import org.firstinspires.ftc.teamcode.commands.TeleOpDriveCommand;
 import org.firstinspires.ftc.teamcode.utils.ButtonEx;
 
 
-@TeleOp(group = "0-competition", name = "16093 Solo")
+@TeleOp(group = "0-competition", name = "16093 Dual")
 public class TeleOpDual extends CommandOpModeEx {
     GamepadEx gamepadEx1, gamepadEx2;
     NewMecanumDrive driveCore;
@@ -143,7 +143,7 @@ public class TeleOpDual extends CommandOpModeEx {
         //Ascent
         new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.A)).whenPressed(new SequentialCommandGroup(
                 new InstantCommand(()->mode= Tasks.ASCENT),
-                liftArm.ascent_up().alongWith(new InstantCommand(frontArm::ascentPos))
+                liftArm.ascent_up()
         ).andThen(
                 new WaitUntilCommand(()->gamepadEx1.getButton(GamepadKeys.Button.A)),
                 new InstantCommand(liftArm::hold_slide),

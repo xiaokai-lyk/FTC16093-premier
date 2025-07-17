@@ -139,7 +139,7 @@ public class TeleOpBase extends CommandOpModeEx {
         //Ascent
         new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.A)).whenPressed(new SequentialCommandGroup(
                 new InstantCommand(()->mode=Tasks.ASCENT),
-                liftArm.ascent_up().alongWith(new InstantCommand(frontArm::ascentPos))
+                liftArm.ascent_up()
         ).andThen(
                 new WaitUntilCommand(()->gamepadEx1.getButton(GamepadKeys.Button.A)),
                 new InstantCommand(liftArm::hold_slide),
