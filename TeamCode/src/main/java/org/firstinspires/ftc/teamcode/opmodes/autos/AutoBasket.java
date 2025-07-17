@@ -18,6 +18,7 @@ import com.pedropathing.pathgen.Point;
 
 import org.firstinspires.ftc.teamcode.Subsystems.FrontArm;
 import org.firstinspires.ftc.teamcode.Subsystems.LiftArm;
+import org.firstinspires.ftc.teamcode.utils.FollowerEx;
 import org.firstinspires.ftc.teamcode.utils.PathChainList;
 
 
@@ -31,7 +32,7 @@ import pedroPathing.constants.LConstants;
 
 @Autonomous(name = "Auto Basket", group = "Auto")
 public class AutoBasket extends AutoOpModeEx {
-    private Follower follower;
+    private FollowerEx follower;
     private AutoCommand autoCommand;
     private List<Command> actions;
     private FrontArm frontArm;
@@ -55,7 +56,7 @@ public class AutoBasket extends AutoOpModeEx {
     @Override
     public void initialize() {
         this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
+        follower = new FollowerEx(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
         frontArm = new FrontArm(hardwareMap);
         liftArm = new LiftArm(hardwareMap);
@@ -144,9 +145,9 @@ public class AutoBasket extends AutoOpModeEx {
         telemetry.addData("heading", follower.getPose().getHeading());
         telemetry.addData("drive error",follower.driveError);
         telemetry.addData("lift slide info", liftArm.slideInfo());
-        telemetry.addData("follower finished",!follower.isBusy());
+        telemetry.addData("follower finished",follower.isFinished);
         telemetry.addData("action finished", !this.actionRunning);
-        telemetry.addData("current path id", currentPathId);
+        telemetry.addData("current path /id", currentPathId);
         telemetry.addData("front arm", frontArm.state);
         telemetry.addData("lift arm", liftArm.state);
         telemetry.addData("Actions size", actions.size());
@@ -166,9 +167,9 @@ public class AutoBasket extends AutoOpModeEx {
         while (it.hasNext()){
             if (!opModeIsActive())break;
             periodic();
-            if(!follower.isBusy() && !this.actionRunning){
+            if(follower.isFinished && !this.actionRunning){
                 PathChain path = it.next();
-                if(path!=null)follower.followPath(path);
+                if(path!=null)follower.follow(path, 3, 3, 5);
                 Command currentAction = actions.get(currentPathId);
                 if(currentAction!=null){
                     currentAction.schedule();

@@ -186,7 +186,7 @@ public class FrontArm {
                 new WaitCommand(500),
                 new InstantCommand(()->this.open_claw(true)),
                 new WaitCommand(200),
-                new InstantCommand(this::initPos),
+                new InstantCommand(()->this.initPos(false)),
                 new InstantCommand(()->this.state = State.FREE)
         );
     }
@@ -207,16 +207,19 @@ public class FrontArm {
         );
     }
 
-    public void initPos() {
+    public void initPos(boolean resetSlide) {
         open_claw(claw_open);
         set_spinner(SpinnerConstant.PARALLEL);
         set_arm_wrist(ServoConstants.ARM_WRIST_FREE);
         set_wrist(ServoConstants.WRIST_PARALLEL);
         set_arm_spinner(ServoConstants.ARM_SPINNER_FRONT);
         this.state = State.FREE;
-        resetSlide();
+        if(resetSlide)resetSlide(); else frontSlide.setTargetPosition(0);
         frontSlide.setPower(1);
         frontSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+    public void initPos() {
+        initPos(true);
     }
 
     public void resetSlide(){
