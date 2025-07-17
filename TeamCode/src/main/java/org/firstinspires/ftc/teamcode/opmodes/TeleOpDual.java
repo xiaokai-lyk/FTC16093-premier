@@ -47,8 +47,7 @@ public class TeleOpDual extends CommandOpModeEx {
         gamepadEx1 = new GamepadEx(gamepad1);
         gamepadEx2 = new GamepadEx(gamepad2);
 
-        this.mode = Tasks.SPECIMEN;
-
+        this.mode = Tasks.SAMPLE;
 
         driveCore = new NewMecanumDrive(hardwareMap);
         driveCore.init();
@@ -68,10 +67,6 @@ public class TeleOpDual extends CommandOpModeEx {
         driveCore.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         CommandScheduler.getInstance().schedule(driveCommand);
 
-        //timers
-        new ButtonEx(()->getRuntime()>30).whenPressed(()->gamepad1.rumble(500));
-        new ButtonEx(()->getRuntime()>60).whenPressed(()->gamepad1.rumble(500));
-        new ButtonEx(()->getRuntime()>110).whenPressed(()->gamepad1.rumble(1000));
 
 
         new ButtonEx(()->gamepad1.touchpad).whenPressed(()-> {
@@ -95,7 +90,7 @@ public class TeleOpDual extends CommandOpModeEx {
     @Override
     public void functionalButtons() {
         //Sample
-        new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.LEFT_BUMPER) && frontArm.state != FrontArm.State.DOWN&& mode == Tasks.SAMPLE)
+        new ButtonEx(()->gamepadEx2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)>0.5 && frontArm.state != FrontArm.State.DOWN&& mode == Tasks.SAMPLE)
                 .whenPressed(new ParallelCommandGroup(liftArm.releaseHigh(), new InstantCommand(frontArm::initPos)));
 
         //Specimen
@@ -108,14 +103,14 @@ public class TeleOpDual extends CommandOpModeEx {
 
 
         //Shared
-        new ButtonEx(()->(gamepadEx1.getButton(GamepadKeys.Button.RIGHT_BUMPER)
+        new ButtonEx(()->(gamepadEx2.getButton(GamepadKeys.Button.RIGHT_BUMPER)
                 && frontArm.state == FrontArm.State.DOWN))
                 .whenPressed(()->frontArm.spinner_rotate(true));
-        new ButtonEx(()->(gamepadEx1.getButton(GamepadKeys.Button.LEFT_BUMPER)
+        new ButtonEx(()->(gamepadEx2.getButton(GamepadKeys.Button.LEFT_BUMPER)
                 && frontArm.state == FrontArm.State.DOWN))
                 .whenPressed(()->frontArm.spinner_rotate(false));
 
-        new ButtonEx(()->(gamepadEx1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)>0.5 && mode != Tasks.ASCENT)).whenPressed(
+        new ButtonEx(()->(gamepadEx2.getButton(GamepadKeys.Button.B) && mode != Tasks.ASCENT)).whenPressed(
                 frontArm.intake(true, false).andThen(new ConditionalCommand(new ParallelCommandGroup(frontArm.handover(),liftArm.handover()),
                         new InstantCommand(),
                         ()->frontArm.state == FrontArm.State.HOLDING_BLOCK&& mode == Tasks.SAMPLE))
@@ -127,7 +122,7 @@ public class TeleOpDual extends CommandOpModeEx {
                                 )
                         )
         );
-        new ButtonEx(()->(gamepadEx1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)>0.5 && mode != Tasks.ASCENT)).whenPressed(
+        new ButtonEx(()->(gamepadEx1.getButton(GamepadKeys.Button.X) && mode != Tasks.ASCENT)).whenPressed(
                 frontArm.intake(false, false).andThen(new ConditionalCommand(new ParallelCommandGroup(frontArm.handover(),liftArm.handover()),
                         new InstantCommand(),
                         ()->frontArm.state==FrontArm.State.HOLDING_BLOCK && mode == Tasks.SAMPLE))
