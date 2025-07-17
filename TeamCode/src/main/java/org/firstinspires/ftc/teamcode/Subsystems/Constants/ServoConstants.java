@@ -13,7 +13,7 @@ public enum ServoConstants {
     WRIST_HANDOVER(0.9),
     // range of arm spin: [0.02, 0.98]
     // if you set a position that exceed this servo would become continuous!
-    ARM_SPINNER_FRONT(0.36),
+    ARM_SPINNER_FRONT(0.38),
     ARM_SPINNER_LEFT45(0.6),
     ARM_SPINNER_RIGHT45(0.27),
     ARM_SPINNER_BACK(0.98),

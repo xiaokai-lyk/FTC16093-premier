@@ -110,10 +110,10 @@ public class TeleOpDual extends CommandOpModeEx {
                 && frontArm.state == FrontArm.State.DOWN))
                 .whenPressed(()->frontArm.spinner_rotate(false));
 
-        new ButtonEx(()->(gamepadEx2.getButton(GamepadKeys.Button.B) && mode != Tasks.ASCENT)).whenPressed(
+        new ButtonEx(()->(gamepadEx2.getButton(GamepadKeys.Button.Y) && mode != Tasks.ASCENT && frontArm.state != FrontArm.State.DOWN)).whenPressed(
                 frontArm.intake(true, false).andThen(new ConditionalCommand(new ParallelCommandGroup(frontArm.handover(),liftArm.handover()),
-                        new InstantCommand(),
-                        ()->frontArm.state == FrontArm.State.HOLDING_BLOCK&& mode == Tasks.SAMPLE))
+                                new InstantCommand(),
+                                ()->frontArm.state == FrontArm.State.HOLDING_BLOCK&& mode == Tasks.SAMPLE))
                         .alongWith(
                                 new ConditionalCommand(
                                         liftArm.highChamber(),
@@ -122,7 +122,9 @@ public class TeleOpDual extends CommandOpModeEx {
                                 )
                         )
         );
-        new ButtonEx(()->(gamepadEx1.getButton(GamepadKeys.Button.X) && mode != Tasks.ASCENT)).whenPressed(
+
+
+        new ButtonEx(()->(gamepadEx2.getButton(GamepadKeys.Button.A) && mode != Tasks.ASCENT)).whenPressed(
                 frontArm.intake(false, false).andThen(new ConditionalCommand(new ParallelCommandGroup(frontArm.handover(),liftArm.handover()),
                         new InstantCommand(),
                         ()->frontArm.state==FrontArm.State.HOLDING_BLOCK && mode == Tasks.SAMPLE))
@@ -135,16 +137,29 @@ public class TeleOpDual extends CommandOpModeEx {
                         )
         );
 
+        new ButtonEx(()->(gamepadEx2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)>0.5 && mode != Tasks.ASCENT && frontArm.state == FrontArm.State.DOWN)).whenPressed(
+                frontArm.intake(true, false).andThen(new ConditionalCommand(new ParallelCommandGroup(frontArm.handover(),liftArm.handover()),
+                                new InstantCommand(),
+                                ()->frontArm.state == FrontArm.State.HOLDING_BLOCK&& mode == Tasks.SAMPLE))
+                        .alongWith(
+                                new ConditionalCommand(
+                                        liftArm.highChamber(),
+                                        new InstantCommand(),
+                                        ()->liftArm.state== LiftArm.LiftArmState.PRE_CHAMBER
+                                )
+                        )
+        );
+
         //Ascent
-        new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.A)).whenPressed(new SequentialCommandGroup(
+        new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.B)).whenPressed(new SequentialCommandGroup(
                 new InstantCommand(()->mode= Tasks.ASCENT),
                 liftArm.ascent_up()
         ).andThen(
-                new WaitUntilCommand(()->gamepadEx1.getButton(GamepadKeys.Button.A)),
+                new WaitUntilCommand(()->gamepadEx1.getButton(GamepadKeys.Button.B)),
                 new InstantCommand(liftArm::hold_slide),
-                new WaitUntilCommand(()->gamepadEx1.getButton(GamepadKeys.Button.A)),
+                new WaitUntilCommand(()->gamepadEx1.getButton(GamepadKeys.Button.B)),
                 liftArm.ascent_down(),
-                new WaitUntilCommand(()->gamepadEx1.getButton(GamepadKeys.Button.A)),
+                new WaitUntilCommand(()->gamepadEx1.getButton(GamepadKeys.Button.B)),
                 new InstantCommand(liftArm::hold_slide).alongWith(liftArm.ascent_end())
         ));
     }
