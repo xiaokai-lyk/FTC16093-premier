@@ -70,7 +70,7 @@ public class AutoBasket extends AutoOpModeEx {
         frontArm.initPos();
         liftArm.autoInitPos();
 
-        follower.setMaxPower(1);
+        follower.setMaxPower(0.7);
     }
 
     private void buildPaths() {
@@ -127,13 +127,8 @@ public class AutoBasket extends AutoOpModeEx {
     private void buildActions(){
         Command intakeSampleCommand, releasePreloadCommand, releaseCommand, parkCommand;
         intakeSampleCommand = autoCommand.autoIntakeSample().andThen(actionEnd());
-        releasePreloadCommand = autoCommand.autoReleasePreloadSample().andThen(actionEnd());
-        releaseCommand = liftArm.releaseHigh().andThen(
-                new WaitCommand(500),
-                liftArm.releaseHigh(),
-                new WaitCommand(300)
-        ).andThen(actionEnd());
-        parkCommand = liftArm.parkCommand();
+        releaseCommand = autoCommand.autoReleaseHigh().andThen(actionEnd());
+        parkCommand = liftArm.parkCommand().andThen(actionEnd());
 
         actions.addAll(Arrays.asList(releaseCommand,
                 intakeSampleCommand, releaseCommand,

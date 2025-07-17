@@ -19,11 +19,7 @@ import com.pedropathing.pathgen.Point;
 
 public class AutoCommand {
     FrontArm frontArm;
-    LiftArm.LiftArmState liftArmState;
-    FrontArm.State frontArmState;
     LiftArm liftArm;
-    boolean flagRelease = true;
-    Follower follower;
 
     public AutoCommand(FrontArm frontArm, LiftArm liftArm) {
         this.frontArm = frontArm;
@@ -33,9 +29,9 @@ public class AutoCommand {
 
     public Command autoIntakeSample() {
         return new SequentialCommandGroup(
-                new WaitCommand(800),
-                frontArm.intake(true, true),
-                new WaitCommand(500),
+                new WaitCommand(1000),
+                frontArm.intake(true,true),
+                new WaitCommand(300),
                 frontArm.intake(true, true),
                 new WaitCommand(500),
                 new ParallelCommandGroup(frontArm.handover(),liftArm.handover())
@@ -64,7 +60,11 @@ public class AutoCommand {
 
 
     public Command autoReleaseHigh() {
-        return new SequentialCommandGroup(liftArm.releaseHigh(), new WaitCommand(2000), liftArm.releaseHigh());
+        return liftArm.releaseHigh().andThen(
+                new WaitCommand(500),
+                liftArm.releaseHigh(),
+                new WaitCommand(300)
+        );
     }
 
     public Command autoIntakeSpecimen(){
