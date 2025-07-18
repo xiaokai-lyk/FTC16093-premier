@@ -59,7 +59,7 @@ public class AutoCommand {
 
     public Command autoReleaseHigh() {
         return liftArm.releaseHigh().andThen(
-                new WaitCommand(500),
+                new WaitCommand(100),
                 liftArm.releaseHigh(),
                 new WaitCommand(300)
         );

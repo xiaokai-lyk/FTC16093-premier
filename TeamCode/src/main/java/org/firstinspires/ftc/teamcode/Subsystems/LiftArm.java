@@ -250,7 +250,7 @@ public class LiftArm {
             clawUp.setPosition(ServoConstants.UP_CLAW_OPEN.value);
         }).andThen(
                 new WaitCommand(400),
-                new InstantCommand(()->clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE_CAN_SLIDE.value))
+                new InstantCommand(()->clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE.value))
         );
     }
 

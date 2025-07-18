@@ -45,9 +45,9 @@ public class AutoBasket extends AutoOpModeEx {
     private final Pose startPose = new Pose(0, 114, Math.toRadians(-45));
 
     private final Pose scorePose = new Pose(5.8, 124.8, Math.toRadians(-45));
-    private final Pose pickup1Pose = new Pose(7, 116, Math.toRadians(0));
-    private final Pose pickup2Pose = new Pose(7, 128, Math.toRadians(0));
-    private final Pose pickup3Pose = new Pose(9, 125, Math.toRadians(29));
+    private final Pose pickup1Pose = new Pose(8, 118, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(8, 128, Math.toRadians(0));
+    private final Pose pickup3Pose = new Pose(12, 125, Math.toRadians(29));
     private final Pose parkControlPose = new Pose(40, 126,Math.toRadians(-90));
     private final Pose parkPose = new Pose(65, 65, Math.toRadians(-90));
     private int currentPathId = 0;
@@ -72,7 +72,7 @@ public class AutoBasket extends AutoOpModeEx {
         frontArm.initPos();
         liftArm.autoInitPos();
 
-        follower.setMaxPower(0.7);
+        follower.setMaxPower(0.9);
     }
 
     private void buildPaths() {
@@ -170,7 +170,8 @@ public class AutoBasket extends AutoOpModeEx {
             periodic();
             if(follower.isFinished && !this.actionRunning){
                 PathChain path = it.next();
-                if(path!=null) follower.followWithTolerance(follower, path, 2, 2, Math.toRadians(6),0.1);
+                if(path!=null) follower.followWithTolerance(follower, path, 2, 2, Math.toRadians(6),0.2);
+                if(path!=null) follower.followPath(path);
                 Command currentAction = actions.get(currentPathId);
                 if(currentAction!=null){
                     currentAction.schedule();

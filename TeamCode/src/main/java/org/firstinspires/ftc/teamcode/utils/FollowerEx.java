@@ -84,7 +84,7 @@ public class FollowerEx extends Follower {
         }
 
         // 到达终点判断逻辑
-        if(!isFinished && Math.abs(super.getHeadingError()) < headingTolerance*0.5 && super.atPoint(lastPoint, xTolerance*0.5, yTolerance*0.5)) {
+        if(!isFinished && Math.abs(super.getHeadingError()) < headingTolerance*0.3 && super.atPoint(lastPoint, xTolerance*0.3, yTolerance*0.5)) {
             isFinished = true;
             super.breakFollowing();
             for (DcMotorEx motor : motors){
