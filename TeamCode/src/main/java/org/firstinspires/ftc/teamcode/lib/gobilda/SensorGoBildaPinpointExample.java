@@ -73,7 +73,7 @@ public class SensorGoBildaPinpointExample extends LinearOpMode {
     // Initialize the hardware variables. Note that the strings used here must correspond
     // to the names assigned during the robot configuration step on the DS or RC devices.
 
-    odo = hardwareMap.get(GoBildaPinpointDriver.class, "odo");
+    odo = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
 
     /*
     Set the odometry pod positions relative to the point that the odometry computer tracks around.

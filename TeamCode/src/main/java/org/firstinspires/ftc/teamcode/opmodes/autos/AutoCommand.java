@@ -48,13 +48,11 @@ public class AutoCommand {
         );
     }
 
-    @NonNull
-    public static Pose2d poseToPose2d(@NonNull Pose pose) {
+    public Pose2d poseToPose2d(@NonNull Pose pose) {
         return new Pose2d(pose.getX(), pose.getY(), pose.getHeading());
     }
 
-    @NonNull
-    public static Pose pose2dToPose(@NonNull Pose2d pose2d) {
+    public Pose pose2dToPose(@NonNull Pose2d pose2d) {
         return new Pose(pose2d.getX(), pose2d.getY(), pose2d.getHeading());
     }
 

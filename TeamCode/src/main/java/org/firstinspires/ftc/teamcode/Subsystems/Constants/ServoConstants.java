@@ -9,7 +9,7 @@ public enum ServoConstants {
     CLAW_HAS_BLOCK_MIN_DEGREE( 220),
     CLAW_CHECK(0.35),
     WRIST_PARALLEL(0.58),
-    WRIST_DOWN(0.13),
+    WRIST_DOWN(0.16),
     WRIST_HANDOVER(0.9),
     // range of arm spin: [0.02, 0.98]
     // if you set a position that exceed this servo would become continuous!
@@ -17,10 +17,10 @@ public enum ServoConstants {
     ARM_SPINNER_LEFT45(0.6),
     ARM_SPINNER_RIGHT45(0.27),
     ARM_SPINNER_BACK(0.98),
-    ARM_WRIST_PREINTAKE(0.32),
-    ARM_WRIST_DOWN(0.25),
+    ARM_WRIST_PREINTAKE(0.18),
+    ARM_WRIST_DOWN(0.1),
     ARM_WRIST_TURN(0.45),
-    ARM_WRIST_HANDOVER(0.7),
+    ARM_WRIST_HANDOVER(0.6),
     ARM_WRIST_FREE(0.48),
     ARM_WRIST_CHAMBER_INTAKE(0.33),
 
@@ -29,7 +29,7 @@ public enum ServoConstants {
     UP_CLAW_CLOSE(0.97),
     UP_WRIST_BASKET(0.6),
     UP_WRIST_PARALLEL(0.7),
-    UP_WRIST_HANDOVER(0.32),
+    UP_WRIST_HANDOVER(0.3),
     UP_WRIST_WALL(0.45),
     UP_ARM_BASKET(0.36),
     UP_ARM_PARALLEL(0.68),

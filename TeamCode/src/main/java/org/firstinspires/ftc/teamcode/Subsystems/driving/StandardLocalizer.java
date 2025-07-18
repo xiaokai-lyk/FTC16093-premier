@@ -42,7 +42,7 @@ public class StandardLocalizer implements Localizer {
 
     public StandardLocalizer(HardwareMap hardwareMap) {
         //this.odometry = odometry;
-        odometry = hardwareMap.get(GoBildaPinpointDriver.class,"odo");
+        odometry = hardwareMap.get(GoBildaPinpointDriver.class,"pinpoint");
         odometry.setOffsets(xOffset,yOffset); // 169
         odometry.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_SWINGARM_POD);
         odometry.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
