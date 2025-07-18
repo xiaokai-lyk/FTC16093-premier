@@ -98,15 +98,17 @@ public class TeleOpDual extends CommandOpModeEx {
     @Override
     public void functionalButtons() {
         //Sample
-        new ButtonEx(()->gamepadEx2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)>0.5 && frontArm.state != FrontArm.State.DOWN&& mode == Tasks.SAMPLE)
-                .whenPressed(new ParallelCommandGroup(liftArm.releaseHigh(), new InstantCommand(frontArm::initPos)));
+        new ButtonEx(()->gamepadEx2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)>0.5 && frontArm.state == FrontArm.State.HOLDING_BLOCK && mode ==Tasks.SAMPLE).whenPressed(
+                new ParallelCommandGroup(frontArm.handover(),liftArm.handover())
+                        .andThen(new ParallelCommandGroup(liftArm.releaseHigh(), new InstantCommand(frontArm::initPos)))
+        );
 
         //Specimen
-        new ButtonEx(()->(gamepadEx1.getButton(GamepadKeys.Button.RIGHT_BUMPER)
+        new ButtonEx(()->(gamepadEx2.getButton(GamepadKeys.Button.RIGHT_BUMPER)
                 && frontArm.state == FrontArm.State.HOLDING_BLOCK)&& mode == Tasks.SPECIMEN)
                 .whenPressed(frontArm.giveHP());
-        new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.LEFT_BUMPER)
-                && frontArm.state != FrontArm.State.DOWN&& mode == Tasks.SPECIMEN)
+        new ButtonEx(()->gamepadEx2.getButton(GamepadKeys.Button.LEFT_BUMPER)
+                && frontArm.state != FrontArm.State.DOWN && mode == Tasks.SPECIMEN)
                 .whenPressed(new SequentialCommandGroup(frontArm.highChamber(), liftArm.highChamber()));
 
 
@@ -134,15 +136,11 @@ public class TeleOpDual extends CommandOpModeEx {
                         )
         );
 
-
         new ButtonEx(()->(gamepadEx2.getButton(GamepadKeys.Button.A) && mode != Tasks.ASCENT)).whenPressed(
                 frontArm.intake(false, true)
                         .alongWith(new InstantCommand(()->this.intakeState = IntakeState.NEAR))
         );
 
-        new ButtonEx(()->gamepadEx2.getButton(GamepadKeys.Button.Y)).whenPressed(
-                new ParallelCommandGroup(frontArm.handover(),liftArm.handover())
-        );
 
         new ButtonEx(()->(gamepadEx2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)>0.5 && mode != Tasks.ASCENT && frontArm.state == FrontArm.State.DOWN && intakeState == IntakeState.FAR)).whenPressed(
                 frontArm.intake(true, false).andThen(new ConditionalCommand(new ParallelCommandGroup(frontArm.handover(),liftArm.handover()),
