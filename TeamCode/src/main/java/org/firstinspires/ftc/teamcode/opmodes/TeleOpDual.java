@@ -98,10 +98,10 @@ public class TeleOpDual extends CommandOpModeEx {
     @Override
     public void functionalButtons() {
         //Sample
-        new ButtonEx(()->gamepadEx2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)>0.5 && frontArm.state == FrontArm.State.HOLDING_BLOCK && mode ==Tasks.SAMPLE).whenPressed(
-                new ParallelCommandGroup(frontArm.handover(),liftArm.handover())
-                        .andThen(new ParallelCommandGroup(liftArm.releaseHigh(), new InstantCommand(frontArm::initPos)))
-        );
+        new ButtonEx(()->gamepadEx2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)>0.5 && frontArm.state == FrontArm.State.FREE && mode ==Tasks.SAMPLE).whenPressed(
+                (new ParallelCommandGroup(frontArm.clawHandover(),liftArm.afterHandover()))
+                .andThen(new ParallelCommandGroup(liftArm.releaseHigh(), new InstantCommand(frontArm::initPos))
+        ));
 
         //Specimen
         new ButtonEx(()->(gamepadEx2.getButton(GamepadKeys.Button.RIGHT_BUMPER)
@@ -122,7 +122,7 @@ public class TeleOpDual extends CommandOpModeEx {
 
         new ButtonEx(()->(gamepadEx2.getButton(GamepadKeys.Button.Y) && mode != Tasks.ASCENT && frontArm.state != FrontArm.State.DOWN))
                 .whenPressed(
-                frontArm.intake(true, true)
+                frontArm.intake(true, false)
                         .alongWith(new InstantCommand(()->this.intakeState = IntakeState.FAR))
                         .andThen(new ConditionalCommand(new ParallelCommandGroup(frontArm.handover(),liftArm.handover()),
                                 new InstantCommand(),
@@ -143,11 +143,10 @@ public class TeleOpDual extends CommandOpModeEx {
 
 
         new ButtonEx(()->(gamepadEx2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)>0.5 && mode != Tasks.ASCENT && frontArm.state == FrontArm.State.DOWN && intakeState == IntakeState.FAR)).whenPressed(
-                frontArm.intake(true, false).andThen(new ConditionalCommand(new ParallelCommandGroup(frontArm.handover(),liftArm.handover()),
+                frontArm.intake(true, true).andThen(new ConditionalCommand( new ParallelCommandGroup(frontArm.createHandover(),liftArm.createHandover()),
                                 new InstantCommand(),
                                 ()->frontArm.state == FrontArm.State.HOLDING_BLOCK&& mode == Tasks.SAMPLE))
-                        .alongWith(
-                                new ConditionalCommand(
+                        .alongWith(new ConditionalCommand(
                                         liftArm.highChamber(),
                                         new InstantCommand(),
                                         ()->liftArm.state== LiftArm.LiftArmState.PRE_CHAMBER
@@ -156,7 +155,10 @@ public class TeleOpDual extends CommandOpModeEx {
         );
 
         new ButtonEx(()->(gamepadEx2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)>0.5 && mode != Tasks.ASCENT && frontArm.state == FrontArm.State.DOWN && intakeState == IntakeState.NEAR)).whenPressed(
-                frontArm.intake(true, true)
+                frontArm.intake(false, true).andThen(new ConditionalCommand( new ParallelCommandGroup(frontArm.createHandover(),liftArm.createHandover()),
+                        new InstantCommand(),
+                        ()->frontArm.state == FrontArm.State.HOLDING_BLOCK&& mode == Tasks.SAMPLE))
+
         );
 
         //Ascent

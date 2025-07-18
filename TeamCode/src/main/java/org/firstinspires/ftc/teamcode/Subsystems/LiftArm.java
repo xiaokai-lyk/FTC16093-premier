@@ -254,6 +254,19 @@ public class LiftArm {
         );
     }
 
+    //Dual
+    public Command createHandover(){
+        return new InstantCommand(()->{
+            armUp.setPosition(ServoConstants.UP_ARM_HANDOVER.value);
+            wristUp.setPosition(ServoConstants.UP_WRIST_HANDOVER.value);
+            clawUp.setPosition(ServoConstants.UP_CLAW_OPEN.value);
+        });
+    }
+
+    public Command afterHandover(){
+        return new InstantCommand(()->clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE.value));
+    }
+
     public Command releaseHigh(){
         return new ConditionalCommand(
                 lifter.highBasketCommand()
@@ -270,9 +283,9 @@ public class LiftArm {
                         ),
                 new SequentialCommandGroup(
                         new InstantCommand(()->clawUp.setPosition(ServoConstants.UP_CLAW_OPEN.value)),
-                        new WaitCommand(100),
+                        //new WaitCommand(100),
                         new InstantCommand(()->armUp.setPosition(ServoConstants.UP_ARM_PARALLEL.value)),
-                        new WaitCommand(150),
+                        //new WaitCommand(150),
                         new InstantCommand(()->{
                             clawUp.setPosition(ServoConstants.UP_CLAW_OPEN.value);
                             armUp.setPosition(ServoConstants.UP_ARM_PARALLEL.value);

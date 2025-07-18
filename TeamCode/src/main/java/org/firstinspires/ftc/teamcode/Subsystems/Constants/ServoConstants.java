@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public enum ServoConstants {
     CLAW_OPEN(0.85),
-    CLAW_CLOSE(0.58),
+    CLAW_CLOSE(0.51),
     CLAW_HAS_BLOCK_MIN_DEGREE( 220),
     CLAW_CHECK(0.35),
     WRIST_PARALLEL(0.58),
@@ -17,12 +17,12 @@ public enum ServoConstants {
     ARM_SPINNER_LEFT45(0.6),
     ARM_SPINNER_RIGHT45(0.27),
     ARM_SPINNER_BACK(0.98),
-    ARM_WRIST_PREINTAKE(0.18),
-    ARM_WRIST_DOWN(0.1),
+    ARM_WRIST_PREINTAKE(0.35),
+    ARM_WRIST_DOWN(0.30),
     ARM_WRIST_TURN(0.45),
-    ARM_WRIST_HANDOVER(0.6),
-    ARM_WRIST_FREE(0.48),
-    ARM_WRIST_CHAMBER_INTAKE(0.33),
+    ARM_WRIST_HANDOVER(0.72),
+    ARM_WRIST_FREE(0.70),
+    ARM_WRIST_CHAMBER_INTAKE(0.55),
 
     UP_CLAW_OPEN(0.3),
     UP_CLAW_CLOSE_CAN_SLIDE(0.95),

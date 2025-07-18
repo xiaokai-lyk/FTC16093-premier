@@ -174,6 +174,28 @@ public class FrontArm {
         );
     }
 
+    //Dual
+    public Command createHandover(){
+        return new InstantCommand(()->{
+            set_wrist(ServoConstants.WRIST_HANDOVER);
+            set_spinner(SpinnerConstant.PARALLEL);
+            set_arm_wrist(ServoConstants.ARM_WRIST_HANDOVER);
+            set_arm_spinner(ServoConstants.ARM_SPINNER_FRONT);
+            open_claw(false);
+            frontSlide.setTargetPosition(0);
+        }).andThen(
+                new InstantCommand(()->this.state = State.FREE)
+        );
+    }
+    public Command clawHandover(){
+        return new SequentialCommandGroup(
+                new InstantCommand(()->this.open_claw(true)),
+                new InstantCommand(()->this.initPos(false)),
+                new InstantCommand(()->this.state = State.FREE)
+        );
+
+    }
+
     public Command handover(){
         return new InstantCommand(()->{
             set_wrist(ServoConstants.WRIST_HANDOVER);
@@ -241,6 +263,6 @@ public class FrontArm {
     }
 
     public Command highChamber(){
-        return new InstantCommand(()->armWrist.setPosition(ServoConstants.ARM_WRIST_CHAMBER_INTAKE.value));
+        return new InstantCommand(()->armWrist.setPosition(ServoConstants. ARM_WRIST_CHAMBER_INTAKE.value));
     }
 }
