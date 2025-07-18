@@ -79,7 +79,7 @@ public class AutoChamber extends AutoOpModeEx {
     public void initialize() {
         this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         PinpointLocalizer pinpointLocalizer = new PinpointLocalizer(hardwareMap);
-        follower = new FollowerEx(hardwareMap, FConstants.class, LConstants.class, pinpointLocalizer);
+        follower = new FollowerEx(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
         frontArm = new FrontArm(hardwareMap);
         liftArm = new LiftArm(hardwareMap);
@@ -209,7 +209,7 @@ public class AutoChamber extends AutoOpModeEx {
             periodic();
             if(!follower.isBusy() && !this.actionRunning){
                 PathChain path = it.next();
-                if(path!=null)follower.followWithTolerance(follower, path, 3, 3, Math.toRadians(5),0.3);
+                if(path!=null)follower.follow(path, 1, 1, 5, 1);
                 Command currentAction = actions.get(currentPathId);
                 if(currentAction!=null){
                     currentAction.schedule();

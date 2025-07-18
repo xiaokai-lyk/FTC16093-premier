@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.autos;
 
+import androidx.annotation.NonNull;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.command.Command;
@@ -17,7 +19,6 @@ import com.pedropathing.pathgen.Point;
 
 import org.firstinspires.ftc.teamcode.Subsystems.FrontArm;
 import org.firstinspires.ftc.teamcode.Subsystems.LiftArm;
-import org.firstinspires.ftc.teamcode.Subsystems.driving.StandardLocalizer;
 import org.firstinspires.ftc.teamcode.utils.FollowerEx;
 import org.firstinspires.ftc.teamcode.utils.PathChainList;
 
@@ -57,7 +58,7 @@ public class AutoBasket extends AutoOpModeEx {
     public void initialize() {
         this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         PinpointLocalizer localizer = new PinpointLocalizer(hardwareMap);
-        follower = new FollowerEx(hardwareMap, FConstants.class, LConstants.class, localizer);
+        follower = new FollowerEx(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
         frontArm = new FrontArm(hardwareMap);
         liftArm = new LiftArm(hardwareMap);
@@ -75,6 +76,15 @@ public class AutoBasket extends AutoOpModeEx {
         follower.setMaxPower(0.9);
     }
 
+    @NonNull
+    private Point getCurrentPoint(){
+        return new Point(follower.getPose().getX(),follower.getPose().getY());
+    }
+
+    private double getCurrentHeading(){
+        return follower.getPose().getHeading();
+    }
+
     private void buildPaths() {
         PathChain scorePreload, grabPickup1, grabPickup2, grabPickup3, scorePickup1, scorePickup2, scorePickup3, park;
 
@@ -85,43 +95,44 @@ public class AutoBasket extends AutoOpModeEx {
 
 
         grabPickup1 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(scorePose), new Point(pickup1Pose)))
-                .setLinearHeadingInterpolation(scorePose.getHeading(), pickup1Pose.getHeading())
+                .addPath(new BezierLine(getCurrentPoint(), new Point(pickup1Pose)))
+                .setLinearHeadingInterpolation(getCurrentHeading(), pickup1Pose.getHeading())
                 .build();
 
         scorePickup1 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(pickup1Pose), new Point(scorePose)))
-                .setLinearHeadingInterpolation(pickup1Pose.getHeading(), scorePose.getHeading())
+                .addPath(new BezierLine(getCurrentPoint(), new Point(scorePose)))
+                .setLinearHeadingInterpolation(getCurrentHeading(), scorePose.getHeading())
                 .build();
 
         grabPickup2 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(scorePose), new Point(pickup2Pose)))
-                .setLinearHeadingInterpolation(scorePose.getHeading(), pickup2Pose.getHeading())
+                .addPath(new BezierLine(getCurrentPoint(), new Point(pickup2Pose)))
+                .setLinearHeadingInterpolation(getCurrentHeading(), pickup2Pose.getHeading())
                 .build();
 
         scorePickup2 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(pickup2Pose), new Point(scorePose)))
-                .setLinearHeadingInterpolation(pickup2Pose.getHeading(), scorePose.getHeading())
+                .addPath(new BezierLine(getCurrentPoint(), new Point(scorePose)))
+                .setLinearHeadingInterpolation(getCurrentHeading(), scorePose.getHeading())
                 .build();
 
         grabPickup3 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(scorePose), new Point(pickup3Pose)))
-                .setLinearHeadingInterpolation(scorePose.getHeading(), pickup3Pose.getHeading())
+                .addPath(new BezierLine(getCurrentPoint(), new Point(pickup3Pose)))
+                .setLinearHeadingInterpolation(getCurrentHeading(), pickup3Pose.getHeading())
                 .build();
 
         scorePickup3 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(pickup3Pose), new Point(scorePose)))
-                .setLinearHeadingInterpolation(pickup3Pose.getHeading(), scorePose.getHeading())
+                .addPath(new BezierLine(getCurrentPoint(), new Point(scorePose)))
+                .setLinearHeadingInterpolation(getCurrentHeading(), scorePose.getHeading())
                 .build();
 
         park = follower.pathBuilder()
-                .addPath(new Path(new BezierCurve(new Point(scorePose), new Point(parkControlPose), new Point(parkPose))))
-                .setLinearHeadingInterpolation(scorePose.getHeading(), parkPose.getHeading())
+                .addPath(new Path(new BezierCurve(getCurrentPoint(), new Point(parkControlPose), new Point(parkPose))))
+                .setLinearHeadingInterpolation(getCurrentHeading(), parkPose.getHeading())
                 .build();
 
         pathChainList.addPath(scorePreload, grabPickup1, scorePickup1, grabPickup2, scorePickup2, grabPickup3, scorePickup3);
     }
 
+    @NonNull
     private Command actionEnd(){
         return new InstantCommand(()->this.actionRunning = false);
     }
@@ -170,8 +181,7 @@ public class AutoBasket extends AutoOpModeEx {
             periodic();
             if(follower.isFinished && !this.actionRunning){
                 PathChain path = it.next();
-                if(path!=null) follower.followWithTolerance(follower, path, 2, 2, Math.toRadians(6),0.2);
-                if(path!=null) follower.followPath(path);
+                if(path!=null) follower.follow(path, 1, 1, Math.toRadians(5), 1);
                 Command currentAction = actions.get(currentPathId);
                 if(currentAction!=null){
                     currentAction.schedule();
