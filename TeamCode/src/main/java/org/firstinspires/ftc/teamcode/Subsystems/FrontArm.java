@@ -205,9 +205,9 @@ public class FrontArm {
             open_claw(false);
             frontSlide.setTargetPosition(0);
         }).andThen(
-                new WaitCommand(500),
-                new InstantCommand(()->this.open_claw(true)),
                 new WaitCommand(200),
+                new InstantCommand(()->this.open_claw(true)),
+                new WaitCommand(100),
                 new InstantCommand(()->this.initPos(false)),
                 new InstantCommand(()->this.state = State.FREE)
         );

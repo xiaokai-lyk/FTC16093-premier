@@ -13,6 +13,7 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.teamcode.Subsystems.Constants.MotorConstants;
 import org.firstinspires.ftc.teamcode.Subsystems.Constants.ServoConstants;
 import org.firstinspires.ftc.teamcode.Subsystems.FrontArm;
 import org.firstinspires.ftc.teamcode.Subsystems.LiftArm;
@@ -148,6 +149,9 @@ public class TeleOpBase extends CommandOpModeEx {
                 new WaitUntilCommand(()->gamepadEx1.getButton(GamepadKeys.Button.A)),
                 new InstantCommand(liftArm::hold_slide).alongWith(liftArm.ascent_end())
         ));
+
+        //防“爬升”
+        new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.START)).whenPressed(new InstantCommand(()->liftArm.setLifterPosition(955)));
     }
 
     @Override
