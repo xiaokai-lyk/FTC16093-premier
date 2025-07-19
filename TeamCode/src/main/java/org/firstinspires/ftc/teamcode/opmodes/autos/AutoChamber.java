@@ -17,7 +17,6 @@ import com.pedropathing.pathgen.Point;
 
 import org.firstinspires.ftc.teamcode.Subsystems.FrontArm;
 import org.firstinspires.ftc.teamcode.Subsystems.LiftArm;
-import org.firstinspires.ftc.teamcode.Subsystems.driving.StandardLocalizer;
 import org.firstinspires.ftc.teamcode.utils.FollowerEx;
 import org.firstinspires.ftc.teamcode.utils.PathChainList;
 
@@ -61,14 +60,14 @@ public class AutoChamber extends AutoOpModeEx {
 
 
     private final Pose startPose = new Pose(0,  52.75, Math.toRadians(0));
-    private final Pose scorePose0 = new Pose(30, 67, Math.toRadians(0));
+    private final Pose scorePose0 = new Pose(28, 67, Math.toRadians(0));
     private final Pose scorePose1 = new Pose(30, 71, Math.toRadians(0));
     private final Pose scorePose2 = new Pose(30, 75, Math.toRadians(0));
     private final Pose scorePose3 = new Pose(30, 67, Math.toRadians(0));
-    private final Pose pickup1Pose = new Pose(10, 50, Math.toRadians(0));
-    private final Pose pickup2Pose = new Pose(10, 45, Math.toRadians(0));
-    private final Pose pickup3Pose = new Pose(10, 40, Math.toRadians(0));
-    private final Pose HPPose = new Pose(5, 45, Math.toRadians(0));
+    private final Pose pickup1Pose = new Pose(6.5, 30, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(6.5, 15, Math.toRadians(0));
+    private final Pose pickup3Pose = new Pose(6.5, 10, Math.toRadians(0));
+    private final Pose HPPose = new Pose(0, 40, Math.toRadians(0));
     private final Pose parkControlPose = new Pose(40, 25, Math.toRadians(0));
     private final Pose parkPose = new Pose(5, 25, Math.toRadians(0));
     private int currentPathId = 0;
@@ -151,7 +150,7 @@ public class AutoChamber extends AutoOpModeEx {
         Path park = new Path(new BezierCurve(new Point(scorePose3), new Point(parkControlPose), new Point(parkPose)));
         park.setLinearHeadingInterpolation(scorePose3.getHeading(), parkPose.getHeading());
 
-        pathChainList.addPath(null, scoreChamber0,
+        pathChainList.addPath(scoreChamber0,
                 grabPickup1, goToHP1, null, scoreChamber1,
                 grabPickup2, goToHP2, null, scoreChamber2,
                 grabPickup3, goToHP3, null, scoreChamber3);
@@ -163,15 +162,14 @@ public class AutoChamber extends AutoOpModeEx {
 
     private void buildActions(){
         Command intakePreloadFromHP, intakeSampleCommand, intakeSpecimenCommand, giveSpecimenToHPCommand, scoreSpecimenCommand, scorePreloadCommand;
-        intakePreloadFromHP = autoCommand.autointakePreloadSpecimen().andThen(actionEnd());
-        intakeSampleCommand = autoCommand.autoIntakeSampleToHP().andThen(actionEnd());
+        intakeSampleCommand = autoCommand.autoIntakeSampleForHP().andThen(actionEnd());
         intakeSpecimenCommand = autoCommand.autoIntakeSpecimen().andThen(actionEnd());
-        giveSpecimenToHPCommand = autoCommand.putSpecimenToHPCommand().andThen(autoCommand.autoIntakeSpecimen()).andThen(actionEnd());
+        giveSpecimenToHPCommand = autoCommand.putSampleToHPCommand().andThen(autoCommand.autoIntakeSpecimen()).andThen(actionEnd());
         scoreSpecimenCommand = autoCommand.autoScoreSpecimen().andThen(actionEnd());
         scorePreloadCommand = autoCommand.scorePreloadSpecimen().andThen(actionEnd());
 
 
-        actions.addAll(Arrays.asList(intakePreloadFromHP,scorePreloadCommand,
+        actions.addAll(Arrays.asList(scorePreloadCommand,
                 intakeSampleCommand, giveSpecimenToHPCommand, intakeSpecimenCommand, scoreSpecimenCommand,
                 intakeSampleCommand, giveSpecimenToHPCommand, intakeSpecimenCommand, scoreSpecimenCommand,
                 intakeSampleCommand, giveSpecimenToHPCommand, intakeSpecimenCommand, scoreSpecimenCommand));

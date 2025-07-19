@@ -12,7 +12,6 @@ import com.arcrobotics.ftclib.command.WaitCommand;
 import org.firstinspires.ftc.teamcode.Subsystems.FrontArm;
 import org.firstinspires.ftc.teamcode.Subsystems.LiftArm;
 
-import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.Point;
 
@@ -27,6 +26,17 @@ public class AutoCommand {
 //        this.frontArmState = FrontArm.State.FREE;
     }
 
+    /*--------------SAMPLE----------------*/
+    public Command autoReleasePreloadSample(){
+        return new SequentialCommandGroup(
+                new WaitCommand(80),
+                liftArm.releaseHigh(),
+                new WaitCommand(150),
+                liftArm.releaseHigh()
+//                new WaitCommand(80)
+        );
+    }
+
     public Command autoIntakeSample() {
         return new SequentialCommandGroup(
                 new WaitCommand(1100),
@@ -35,6 +45,14 @@ public class AutoCommand {
                 frontArm.intake(true, true),
                 new WaitCommand(50),
                 new ParallelCommandGroup(frontArm.handover(),liftArm.handover())
+        );
+    }
+
+    public Command autoReleaseHigh() {
+        return liftArm.releaseHigh().andThen(
+                new WaitCommand(180),
+                liftArm.releaseHigh()
+//                new WaitCommand(0)
         );
     }
 
@@ -49,30 +67,32 @@ public class AutoCommand {
         );
     }
 
-    public Command autoReleasePreloadSample(){
+
+    /*--------------SPECIMEN----------------*/
+    public Command scorePreloadSpecimen(){
         return new SequentialCommandGroup(
-                new WaitCommand(80),
-                liftArm.releaseHigh(),
-                new WaitCommand(150),
-                liftArm.releaseHigh()
-//                new WaitCommand(80)
+                frontArm.highChamber(),
+                liftArm.highChamber(),
+                new WaitCommand(1000),
+                liftArm.highChamber()
         );
     }
 
-    public Pose2d poseToPose2d(@NonNull Pose pose) {
-        return new Pose2d(pose.getX(), pose.getY(), pose.getHeading());
+    public Command autoIntakeSampleForHP(){
+        return new SequentialCommandGroup(
+                new WaitCommand(1000),
+                frontArm.intake(true, true),
+                frontArm.intake(true, true),
+                new InstantCommand(()->frontArm.getFrontSlide().setTargetPosition(0)),
+                new WaitCommand(1000)
+        );
     }
 
-    public Pose pose2dToPose(@NonNull Pose2d pose2d) {
-        return new Pose(pose2d.getX(), pose2d.getY(), pose2d.getHeading());
-    }
-
-
-    public Command autoReleaseHigh() {
-        return liftArm.releaseHigh().andThen(
-                new WaitCommand(180),
-                liftArm.releaseHigh()
-//                new WaitCommand(0)
+    public Command putSampleToHPCommand(){
+        return new SequentialCommandGroup(
+                new WaitCommand(1000),
+                frontArm.giveHP(),
+                new WaitCommand(1000)
         );
     }
 
@@ -92,43 +112,18 @@ public class AutoCommand {
         );
     }
 
-    public Command scorePreloadSpecimen(){
-        return new SequentialCommandGroup(
-                new WaitCommand(1000),
-                liftArm.highChamber(),
-                new WaitCommand(50)
-        );
-    }
 
-    public Command autointakePreloadSpecimen(){
-        return new SequentialCommandGroup(
-                liftArm.highChamber(),
-                new WaitCommand(800),
-                liftArm.highChamber(),
-                new WaitCommand(50)
-        );
-    }
-
-    public Command autoIntakeSampleToHP(){
-        return new SequentialCommandGroup(
-                new WaitCommand(1000),
-                frontArm.intake(true, true),
-                frontArm.intake(true, true),
-                new InstantCommand(()->frontArm.getFrontSlide().setTargetPosition(0)),
-                new WaitCommand(1000)
-        );
-    }
-
-    public Command putSpecimenToHPCommand(){
-        return new SequentialCommandGroup(
-                new WaitCommand(1000),
-                frontArm.giveHP(),
-                new WaitCommand(1000)
-        );
-    }
-
+    /*--------------OTHERS----------------*/
     public Point midPoint(Pose start, Pose end){
         return new Point((start.getX()+end.getX())/2,
                 (start.getY()+end.getY())/2);
+    }
+
+    public Pose2d poseToPose2d(@NonNull Pose pose) {
+        return new Pose2d(pose.getX(), pose.getY(), pose.getHeading());
+    }
+
+    public Pose pose2dToPose(@NonNull Pose2d pose2d) {
+        return new Pose(pose2d.getX(), pose2d.getY(), pose2d.getHeading());
     }
 }

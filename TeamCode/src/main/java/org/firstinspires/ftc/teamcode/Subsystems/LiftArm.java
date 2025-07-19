@@ -189,12 +189,11 @@ public class LiftArm {
         clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE_CAN_SLIDE.value);
         armUp.setPosition(ServoConstants.UP_ARM_PARALLEL.value);
         wristUp.setPosition(ServoConstants.UP_WRIST_PARALLEL.value);
-        this.state = LiftArmState.FREE;
     }
 
     public void autoChamberInitPos(){
         this.autoInitPos();
-//        this.state = LiftArmState.WALL;
+        this.state = LiftArmState.WALL;
     }
 
     public String slideInfo(){return lifter.getMotorInfo();}
