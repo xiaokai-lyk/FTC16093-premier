@@ -110,10 +110,10 @@ public class TeleOpDual extends CommandOpModeEx {
                         )));
 
         //Specimen
-        new ButtonEx(()->(gamepadEx2.getButton(GamepadKeys.Button.RIGHT_BUMPER)
+        new ButtonEx(()->(gamepadEx2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)>0.5
                 && frontArm.state == FrontArm.State.HOLDING_BLOCK)&& mode == Tasks.SPECIMEN)
                 .whenPressed(frontArm.giveHP());
-        new ButtonEx(()->gamepadEx2.getButton(GamepadKeys.Button.LEFT_BUMPER)
+        new ButtonEx(()->gamepadEx1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)>0.5
                 && frontArm.state != FrontArm.State.DOWN && mode == Tasks.SPECIMEN)
                 .whenPressed(new SequentialCommandGroup(frontArm.highChamber(), liftArm.highChamber()));
 
