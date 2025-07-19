@@ -26,11 +26,13 @@ public class Vision {
     public static double CAMERA_ANGLE = -45.0;
     public static double TARGET_HEIGHT = 19.05;
 
-    public static double sampleToRobotDistance = 145;
+    public static double sampleToRobotDistance = 293.6;
+
+    @Setter private double colorVal = 0.0;
 
     Telemetry telemetry;
 
-    public Vision(final HardwareMap hardwareMap, Telemetry telemetry) {
+    public Vision(@NonNull final HardwareMap hardwareMap, Telemetry telemetry) {
         camera = hardwareMap.get(Limelight3A.class, "limelight");
 
 //        led = hardwareMap.get(Servo.class, "LED");
@@ -42,7 +44,11 @@ public class Vision {
         led.setPosition(ledPWM);
     }
 
-    public void initializeCamera() {
+    public void setColor(double color){
+        /*0: red, 1:blue, 2:yellow*/
+        colorVal = color;
+    }
+    public void initialize() {
         camera.setPollRateHz(50);
         camera.start();
     }
@@ -65,19 +71,21 @@ public class Vision {
         return camera.getLatestResult();
     }
 
-    public void update() {
+    public void update(boolean debugMode){
         LLResult result;
+        camera.updatePythonInputs(new double[]{colorVal, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
         result = getResult();
-        camera.updatePythonInputs(new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
-        result = camera.getLatestResult();
-        telemetry.clearAll();
-        initializeCamera();
-        telemetry.addData("isValid", result.isValid());
-        if(result.isValid()){
+        if(debugMode && result != null){
+            telemetry.addData("isValid", result.isValid());
             telemetry.addData("distance", getDistance(result.getTy()));
             telemetry.addData("getTurnServoDegree", getTurnServoDegree(result));
             telemetry.addData("tx", result.getTx());
+            telemetry.addData("ta", result.getTa());
+            telemetry.addData("staleness",result.getStaleness());
         }
+    }
+    public void update() {
+        update(true);
     }
 
 }

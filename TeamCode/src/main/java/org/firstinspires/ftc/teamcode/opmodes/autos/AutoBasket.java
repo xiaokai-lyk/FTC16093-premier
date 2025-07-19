@@ -183,7 +183,8 @@ public class AutoBasket extends AutoOpModeEx {
             periodic();
             if(follower.isFinished && !this.actionRunning){
                 PathChain path = it.next();
-                if(path!=null) follower.follow(path, 1, 1, Math.toRadians(5), 1);
+//                if(path!=null) follower.follow(path, 1, 1, Math.toRadians(5), 1);
+                if(path!=null)follower.followPath(path);
                 Command currentAction = actions.get(currentPathId);
                 if(currentAction!=null){
                     currentAction.schedule();
