@@ -31,7 +31,7 @@ public class AutoCommand {
         return new SequentialCommandGroup(
                 new WaitCommand(1000),
                 frontArm.intake(true,true),
-                new WaitCommand(300),
+                new WaitCommand(250),
                 frontArm.intake(true, true),
                 new WaitCommand(500),
                 new ParallelCommandGroup(frontArm.handover(),liftArm.handover())
@@ -40,11 +40,11 @@ public class AutoCommand {
 
     public Command autoReleasePreloadSample(){
         return new SequentialCommandGroup(
-                new WaitCommand(300),
+                new WaitCommand(50),
                 liftArm.releaseHigh(),
-                new WaitCommand(300),
+                new WaitCommand(150),
                 liftArm.releaseHigh(),
-                new WaitCommand(500)
+                new WaitCommand(250)
         );
     }
 
@@ -59,9 +59,9 @@ public class AutoCommand {
 
     public Command autoReleaseHigh() {
         return liftArm.releaseHigh().andThen(
-                new WaitCommand(100),
+                new WaitCommand(150),
                 liftArm.releaseHigh(),
-                new WaitCommand(300)
+                new WaitCommand(150)
         );
     }
 
