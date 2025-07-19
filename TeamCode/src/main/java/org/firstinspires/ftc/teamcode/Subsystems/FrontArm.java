@@ -241,7 +241,7 @@ public class FrontArm {
         frontSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
     public void initPos() {
-        initPos(true);
+        initPos(false);
     }
 
     public void resetSlide(){

@@ -38,6 +38,17 @@ public class AutoCommand {
         );
     }
 
+    public Command autoIntakeLastSample(){
+        return new SequentialCommandGroup(
+                new WaitCommand(1000),
+                frontArm.intake(true,true),
+                new WaitCommand(350),
+                frontArm.intake(true, true),
+                new WaitCommand(500),
+                new ParallelCommandGroup(frontArm.handover(),liftArm.handover())
+        );
+    }
+
     public Command autoReleasePreloadSample(){
         return new SequentialCommandGroup(
                 new WaitCommand(50),

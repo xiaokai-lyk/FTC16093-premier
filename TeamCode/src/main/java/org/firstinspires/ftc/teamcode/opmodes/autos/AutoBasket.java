@@ -105,7 +105,7 @@ public class AutoBasket extends AutoOpModeEx {
                 .build();
 
         grabPickup2 = follower.pathBuilder()
-                .addPath(new BezierLine(getCurrentPoint(), new Point(pickup2Pose)))
+                .addPath(new BezierCurve(getCurrentPoint(), autoCommand.midPoint(scorePose, pickup2Pose), new Point(pickup2Pose)))
                 .setLinearHeadingInterpolation(getCurrentHeading(), pickup2Pose.getHeading())
                 .build();
 
@@ -138,16 +138,17 @@ public class AutoBasket extends AutoOpModeEx {
     }
 
     private void buildActions(){
-        Command intakeSampleCommand, releasePreloadCommand, releaseCommand, parkCommand;
+        Command intakeSampleCommand, releasePreloadCommand, releaseCommand, parkCommand, intakeLastSampleCommand;
         intakeSampleCommand = autoCommand.autoIntakeSample().andThen(actionEnd());
         releaseCommand = autoCommand.autoReleaseHigh().andThen(actionEnd());
         releasePreloadCommand = autoCommand.autoReleasePreloadSample().andThen(actionEnd());
         parkCommand = liftArm.parkCommand().andThen(actionEnd());
+        intakeLastSampleCommand = autoCommand.autoIntakeLastSample().andThen(actionEnd());
 
         actions.addAll(Arrays.asList(releaseCommand,
                 intakeSampleCommand, releaseCommand,
                 intakeSampleCommand, releaseCommand,
-                intakeSampleCommand, releaseCommand));
+                intakeLastSampleCommand, releaseCommand));
     }
 
     private void periodic() {
