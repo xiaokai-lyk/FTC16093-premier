@@ -47,7 +47,7 @@ public class AutoBasket extends AutoOpModeEx {
 
     private final Pose scorePose = new Pose(2.2, 126, Math.toRadians(-45));
     private final Pose pickup1Pose = new Pose(6.5, 117, Math.toRadians(0));
-    private final Pose pickup2Pose = new Pose(7, 128, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(7, 127, Math.toRadians(0));
     private final Pose pickup3Pose = new Pose(10.5, 124, Math.toRadians(29));
     private final Pose parkControlPose = new Pose(40, 126,Math.toRadians(-90));
     private final Pose parkPose = new Pose(65, 65, Math.toRadians(-90));

@@ -29,33 +29,33 @@ public class AutoCommand {
 
     public Command autoIntakeSample() {
         return new SequentialCommandGroup(
-                new WaitCommand(1000),
+                new WaitCommand(1100),
                 frontArm.intake(true,true),
-                new WaitCommand(250),
+                new WaitCommand(350),
                 frontArm.intake(true, true),
-                new WaitCommand(500),
+                new WaitCommand(50),
                 new ParallelCommandGroup(frontArm.handover(),liftArm.handover())
         );
     }
 
     public Command autoIntakeLastSample(){
         return new SequentialCommandGroup(
-                new WaitCommand(1000),
+                new WaitCommand(680),
                 frontArm.intake(true,true),
                 new WaitCommand(350),
                 frontArm.intake(true, true),
-                new WaitCommand(500),
+                new WaitCommand(50),
                 new ParallelCommandGroup(frontArm.handover(),liftArm.handover())
         );
     }
 
     public Command autoReleasePreloadSample(){
         return new SequentialCommandGroup(
-                new WaitCommand(50),
+                new WaitCommand(80),
                 liftArm.releaseHigh(),
                 new WaitCommand(150),
-                liftArm.releaseHigh(),
-                new WaitCommand(250)
+                liftArm.releaseHigh()
+//                new WaitCommand(80)
         );
     }
 
@@ -70,9 +70,9 @@ public class AutoCommand {
 
     public Command autoReleaseHigh() {
         return liftArm.releaseHigh().andThen(
-                new WaitCommand(150),
-                liftArm.releaseHigh(),
-                new WaitCommand(150)
+                new WaitCommand(180),
+                liftArm.releaseHigh()
+//                new WaitCommand(0)
         );
     }
 
