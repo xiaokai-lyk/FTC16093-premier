@@ -90,7 +90,7 @@ public class AutoChamber extends AutoOpModeEx {
         buildPaths();
         buildActions();
 
-        frontArm.initPos();
+        frontArm.autoInitPos();
         liftArm.autoChamberInitPos();
         follower.setMaxPower(1);
     }

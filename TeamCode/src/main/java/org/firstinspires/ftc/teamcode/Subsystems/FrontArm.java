@@ -232,7 +232,7 @@ public class FrontArm {
     public void initPos(boolean resetSlide) {
         open_claw(claw_open);
         set_spinner(SpinnerConstant.PARALLEL);
-        set_arm_wrist(ServoConstants.ARM_WRIST_FREE);
+        set_arm_wrist(ServoConstants.ARM_WRIST_CHAMBER_INTAKE);
         set_wrist(ServoConstants.WRIST_PARALLEL);
         set_arm_spinner(ServoConstants.ARM_SPINNER_FRONT);
         this.state = State.FREE;
@@ -242,6 +242,18 @@ public class FrontArm {
     }
     public void initPos() {
         initPos(false);
+    }
+
+    public void autoInitPos(){
+        open_claw(claw_open);
+        set_spinner(SpinnerConstant.PARALLEL);
+        set_arm_wrist(ServoConstants.ARM_WRIST_FREE);
+        set_wrist(ServoConstants.WRIST_PARALLEL);
+        set_arm_spinner(ServoConstants.ARM_SPINNER_FRONT);
+        this.state = State.FREE;
+        frontSlide.setTargetPosition(0);
+        frontSlide.setPower(1);
+        frontSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     public void resetSlide(){

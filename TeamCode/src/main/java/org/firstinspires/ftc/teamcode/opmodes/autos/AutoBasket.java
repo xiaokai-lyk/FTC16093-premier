@@ -70,7 +70,7 @@ public class AutoBasket extends AutoOpModeEx {
         buildPaths();
         buildActions();
 
-        frontArm.initPos();
+        frontArm.autoInitPos();
         liftArm.autoInitPos();
 
         follower.setMaxPower(0.9);
