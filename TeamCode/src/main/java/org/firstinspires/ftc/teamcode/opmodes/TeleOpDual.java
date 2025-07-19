@@ -14,6 +14,7 @@ import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.RunCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
+import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
@@ -48,6 +49,7 @@ public class TeleOpDual extends CommandOpModeEx {
 
     private Tasks mode;
     private IntakeState intakeState;
+    private double forwardComponentOffset = 0;
 
     @Override
     public void initialize() {
@@ -62,8 +64,8 @@ public class TeleOpDual extends CommandOpModeEx {
         driveCore = new NewMecanumDrive(hardwareMap);
         driveCore.init();
         TeleOpDriveCommand driveCommand = new TeleOpDriveCommand(driveCore,
-                ()->gamepadEx1.getLeftX(),
-                ()->gamepadEx1.getLeftY(),
+                ()->gamepadEx1.getLeftX() + forwardComponentOffset,
+                ()->gamepadEx1.getLeftY() + forwardComponentOffset,
                 ()->frontArm.state== FrontArm.State.DOWN?(gamepadEx1.getRightX()*0.45):gamepadEx1.getRightX(),
                 ()->(gamepadEx1.getButton(GamepadKeys.Button.RIGHT_STICK_BUTTON)),
                 ()->frontArm.state==FrontArm.State.DOWN?0.7:1);
@@ -86,14 +88,14 @@ public class TeleOpDual extends CommandOpModeEx {
         new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.BACK))
                 .whenPressed(()->{
                     liftArm.initPos();
-                    frontArm.initPos();
+                    frontArm.initPos(true);
                 });
     }
 
     @Override
     public void onStart() {
         liftArm.initPos();
-        frontArm.initPos();
+        frontArm.initPos(true);
         resetRuntime();
     }
 
@@ -106,7 +108,13 @@ public class TeleOpDual extends CommandOpModeEx {
                 )));
         new ButtonEx(()->gamepadEx2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)>0.5 && frontArm.state == FrontArm.State.FREE && liftArm.state == LiftArm.LiftArmState.RELEASE_HIGH && mode ==Tasks.SAMPLE).whenPressed(
                 (new ParallelCommandGroup(frontArm.clawHandover(),liftArm.afterHandover())
-                        .andThen(new ParallelCommandGroup(liftArm.releaseHigh(), new InstantCommand(frontArm::initPos))
+                        .andThen(new ParallelCommandGroup(liftArm.releaseHigh(), new InstantCommand(frontArm::initPos)))
+                        .alongWith(
+                                new SequentialCommandGroup(
+                                        new WaitCommand(200),
+                                        new InstantCommand(()->forwardComponentOffset = 1),
+                                        new WaitCommand(200),
+                                        new InstantCommand(()->forwardComponentOffset = 0))
                         )));
 
         //Specimen

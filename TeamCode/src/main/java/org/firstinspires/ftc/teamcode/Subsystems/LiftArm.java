@@ -74,14 +74,14 @@ class Lifter{
             this.mode = new_mode;
         }
     }
-    public void setPosition(int pos){
+    void setPosition(int pos){
         setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         leftMotor.setPower(1);
         rightMotor.setPower(1);
         leftMotor.setTargetPosition(pos);
         rightMotor.setTargetPosition(pos);
     }
-    private void setPower(double power){
+    void setPower(double power){
         setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         leftMotor.setPower(power);
         rightMotor.setPower(power);
@@ -366,8 +366,7 @@ public class LiftArm {
                 )
         );
     }
-
-    public void setLifterPosition(int pos){
-        lifter.setPosition(pos);
+    public void setLifterPower(double power){
+        lifter.setPower(power);
     }
 }

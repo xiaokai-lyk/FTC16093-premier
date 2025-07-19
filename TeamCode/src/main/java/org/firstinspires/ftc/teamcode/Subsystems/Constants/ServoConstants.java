@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public enum ServoConstants {
     CLAW_OPEN(0.85),
-    CLAW_CLOSE(0.51),
+    CLAW_CLOSE(0.53),
     CLAW_HAS_BLOCK_MIN_DEGREE( 220),
     CLAW_CHECK(0.35),
     WRIST_PARALLEL(0.58),

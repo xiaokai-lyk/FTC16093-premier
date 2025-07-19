@@ -131,6 +131,7 @@ public class FrontArm {
                                                     frontSlide.setTargetPosition(is_far ? MotorConstants.FRONT_MAX.value : MotorConstants.FRONT_NEAR.value);
                                                     set_arm_spinner(ServoConstants.ARM_SPINNER_FRONT);
                                                     set_arm_wrist(ServoConstants.ARM_WRIST_PREINTAKE);
+                                                    set_wrist(ServoConstants.WRIST_PARALLEL);
                                                     set_wrist(ServoConstants.WRIST_DOWN);
                                                     this.state = State.DOWN;
                                                 }).andThen(
@@ -159,9 +160,9 @@ public class FrontArm {
                     frontSlide.setTargetPosition(is_far ? MotorConstants.FRONT_MAX.value : MotorConstants.FRONT_NEAR.value);
                     set_arm_spinner(ServoConstants.ARM_SPINNER_FRONT);
                     set_arm_wrist(ServoConstants.ARM_WRIST_PREINTAKE);
-                    set_wrist(ServoConstants.WRIST_DOWN);
-                    this.state = State.DOWN;
                 }).andThen(
+                        new WaitUntilCommand(()->frontSlide.getVelocity() < MotorConstants.FRONT_FINISH_THRESHOLD.value),
+                        new InstantCommand(()->set_wrist(ServoConstants.WRIST_DOWN)),
                         new ConditionalCommand(
                                 new InstantCommand(() -> set_spinner(SpinnerConstant.PARALLEL)),
                                 new InstantCommand(),
@@ -285,5 +286,9 @@ public class FrontArm {
 
     public Command highChamber(){
         return new InstantCommand(()->armWrist.setPosition(ServoConstants. ARM_WRIST_CHAMBER_INTAKE.value));
+    }
+
+    public void setPositionOffset(int offset){
+        frontSlide.setTargetPosition(frontSlide.getTargetPosition() + offset);
     }
 }

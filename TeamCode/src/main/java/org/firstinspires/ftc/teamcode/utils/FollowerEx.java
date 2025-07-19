@@ -39,6 +39,7 @@ public class FollowerEx extends Follower {
 
     public void follow(PathChain pathChain, double xTolerance, double yTolerance, double headingTolerance, double maxPower) {
         isFinished = false;
+        super.setMaxPower(1);
         super.followPath(pathChain);
         this.xTolerance = xTolerance;
         this.yTolerance = yTolerance;
@@ -55,6 +56,8 @@ public class FollowerEx extends Follower {
         if(!isFinished && Math.abs(super.getHeadingError()) < headingTolerance && super.atPoint(endPoint, xTolerance, yTolerance)) {
             isFinished = true;
             breakFollowing();
+            holdPoint(endPoint, endHeading);
+            super.setMaxPower(0.3);
             for (DcMotorEx motor : motors){
                 motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);//Stop following and brake when nearing the end point.
             }

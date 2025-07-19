@@ -8,13 +8,12 @@ import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
+import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.teamcode.Subsystems.Constants.MotorConstants;
-import org.firstinspires.ftc.teamcode.Subsystems.Constants.ServoConstants;
 import org.firstinspires.ftc.teamcode.Subsystems.FrontArm;
 import org.firstinspires.ftc.teamcode.Subsystems.LiftArm;
 import org.firstinspires.ftc.teamcode.Subsystems.driving.NewMecanumDrive;
@@ -37,6 +36,7 @@ public class TeleOpBase extends CommandOpModeEx {
         ASCENT
     };
     private Tasks mode;
+    private double forwardComponentOffset = 0;
 
     @Override
     public void initialize() {
@@ -50,8 +50,8 @@ public class TeleOpBase extends CommandOpModeEx {
         driveCore = new NewMecanumDrive(hardwareMap);
         driveCore.init();
         TeleOpDriveCommand driveCommand = new TeleOpDriveCommand(driveCore,
-                ()->gamepadEx1.getLeftX(),
-                ()->gamepadEx1.getLeftY(),
+                ()->gamepadEx1.getLeftX() + forwardComponentOffset,
+                ()->gamepadEx1.getLeftY() + forwardComponentOffset,
                 ()->frontArm.state== FrontArm.State.DOWN?(gamepadEx1.getRightX()*0.45):gamepadEx1.getRightX(),
                 ()->(gamepadEx1.getButton(GamepadKeys.Button.RIGHT_STICK_BUTTON)),
                 ()->frontArm.state==FrontArm.State.DOWN?0.7:1);
@@ -78,14 +78,14 @@ public class TeleOpBase extends CommandOpModeEx {
         new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.BACK))
                 .whenPressed(()->{
                     liftArm.initPos();
-                    frontArm.initPos();
+                    frontArm.initPos(true);
                 });
     }
 
     @Override
     public void onStart() {
         liftArm.initPos();
-        frontArm.initPos();
+        frontArm.initPos(true);
         resetRuntime();
     }
 
@@ -93,7 +93,15 @@ public class TeleOpBase extends CommandOpModeEx {
     public void functionalButtons() {
         //Sample
         new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.LEFT_BUMPER) && frontArm.state != FrontArm.State.DOWN&& mode == Tasks.SAMPLE)
-                .whenPressed(new ParallelCommandGroup(liftArm.releaseHigh(), new InstantCommand(frontArm::initPos)));
+                .whenPressed(new ParallelCommandGroup(liftArm.releaseHigh(), new InstantCommand(frontArm::initPos))
+                        .alongWith(new ConditionalCommand(
+                                new SequentialCommandGroup(new InstantCommand(()->forwardComponentOffset = 1),
+                                        new WaitCommand(200),
+                                        new InstantCommand(()->forwardComponentOffset = 0)),
+                                new InstantCommand(),
+                                ()->liftArm.state == LiftArm.LiftArmState.RELEASE_HIGH
+                                )
+                        ));
 
         //Specimen
         new ButtonEx(()->(gamepadEx1.getButton(GamepadKeys.Button.RIGHT_BUMPER)
@@ -150,8 +158,16 @@ public class TeleOpBase extends CommandOpModeEx {
                 new InstantCommand(liftArm::hold_slide).alongWith(liftArm.ascent_end())
         ));
 
-        //防“爬升”
-        new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.START)).whenPressed(new InstantCommand(()->liftArm.setLifterPosition(955)));
+        // Open loop controlling
+        new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.DPAD_UP))
+                .whileHeld(()->liftArm.setLifterPower(0.5));
+        new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.DPAD_DOWN))
+                .whileHeld(()->liftArm.setLifterPower(-0.5));
+        new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.DPAD_LEFT))
+                .whileHeld(()->frontArm.setPositionOffset(5));
+        new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.DPAD_RIGHT))
+                .whileHeld(()->frontArm.setPositionOffset(-5));
+
     }
 
     @Override
@@ -162,6 +178,8 @@ public class TeleOpBase extends CommandOpModeEx {
         telemetry.addData("lift arm state", liftArm.state);
         telemetry.addData("lift slide info", liftArm.slideInfo());
         telemetry.addData("claw deg", frontArm.getClawDeg());
+        telemetry.addData("forwardComponentOffset", forwardComponentOffset);
+        telemetry.addData("front slide velocity", frontArm.getFrontSlide().getVelocity());
         telemetry.update();
     }
 }

@@ -4,6 +4,7 @@ public enum MotorConstants {
     FRONT_MAX(490),
     FRONT_NEAR(150),
     FRONT_TOLERANCE(10),
+    FRONT_FINISH_THRESHOLD(150),
     LIFT_HIGH(955),
     LIFT_ABOVE_BASKET_TOLERANCE(700),
     LIFT_PARK_AIM(450),
@@ -15,7 +16,7 @@ public enum MotorConstants {
 
     public final int value;
 
-    MotorConstants(int pos) {
-        value = pos;
+    MotorConstants(int value) {
+        this.value = value;
     }
 }
