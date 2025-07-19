@@ -7,10 +7,12 @@ package org.firstinspires.ftc.teamcode.opmodes;
 // Currently not working!!!
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
+import com.arcrobotics.ftclib.command.RunCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
@@ -98,10 +100,14 @@ public class TeleOpDual extends CommandOpModeEx {
     @Override
     public void functionalButtons() {
         //Sample
-        new ButtonEx(()->gamepadEx2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)>0.5 && frontArm.state == FrontArm.State.FREE && mode ==Tasks.SAMPLE).whenPressed(
-                (new ParallelCommandGroup(frontArm.clawHandover(),liftArm.afterHandover()))
-                .andThen(new ParallelCommandGroup(liftArm.releaseHigh(), new InstantCommand(frontArm::initPos))
-        ));
+        new ButtonEx(()->gamepadEx2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)>0.5 && frontArm.state == FrontArm.State.FREE && liftArm.state == LiftArm.LiftArmState.FREE && mode ==Tasks.SAMPLE).whenPressed(
+                (new ParallelCommandGroup(frontArm.waitClawHandover(),liftArm.afterHandover())
+                        .andThen(new ParallelCommandGroup(liftArm.releaseHigh(), new InstantCommand(frontArm::initPos))
+                )));
+        new ButtonEx(()->gamepadEx2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)>0.5 && frontArm.state == FrontArm.State.FREE && liftArm.state == LiftArm.LiftArmState.RELEASE_HIGH && mode ==Tasks.SAMPLE).whenPressed(
+                (new ParallelCommandGroup(frontArm.clawHandover(),liftArm.afterHandover())
+                        .andThen(new ParallelCommandGroup(liftArm.releaseHigh(), new InstantCommand(frontArm::initPos))
+                        )));
 
         //Specimen
         new ButtonEx(()->(gamepadEx2.getButton(GamepadKeys.Button.RIGHT_BUMPER)

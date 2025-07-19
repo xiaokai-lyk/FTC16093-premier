@@ -187,13 +187,22 @@ public class FrontArm {
                 new InstantCommand(()->this.state = State.FREE)
         );
     }
-    public Command clawHandover(){
+     public Command clawHandover(){
+        return new SequentialCommandGroup(
+                        new InstantCommand(()->this.open_claw(true)),
+                        new InstantCommand(()->this.initPos(false)),
+                        new InstantCommand(()->this.state = State.FREE)
+                );
+
+    }
+    public  Command waitClawHandover(){
         return new SequentialCommandGroup(
                 new InstantCommand(()->this.open_claw(true)),
+                new WaitCommand(200),
                 new InstantCommand(()->this.initPos(false)),
                 new InstantCommand(()->this.state = State.FREE)
-        );
 
+        );
     }
 
     public Command handover(){
