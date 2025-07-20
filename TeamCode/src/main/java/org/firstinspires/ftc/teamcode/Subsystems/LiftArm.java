@@ -248,7 +248,7 @@ public class LiftArm {
             wristUp.setPosition(ServoConstants.UP_WRIST_HANDOVER.value);
             clawUp.setPosition(ServoConstants.UP_CLAW_OPEN.value);
         }).andThen(
-                new WaitCommand(130),
+                new WaitCommand(200),
                 new InstantCommand(()->clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE.value))
         );
     }
