@@ -217,7 +217,7 @@ public class FrontArm {
         }).andThen(
                 new WaitCommand(200),
                 new InstantCommand(()->this.open_claw(true)),
-                new WaitCommand(100),
+                new WaitCommand(120),
                 new InstantCommand(()->this.initPos(false)),
                 new InstantCommand(()->this.state = State.FREE)
         );
