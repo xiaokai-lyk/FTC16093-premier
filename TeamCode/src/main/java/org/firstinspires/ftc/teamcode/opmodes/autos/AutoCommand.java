@@ -12,6 +12,7 @@ import com.arcrobotics.ftclib.command.WaitCommand;
 import org.firstinspires.ftc.teamcode.Subsystems.FrontArm;
 import org.firstinspires.ftc.teamcode.Subsystems.LiftArm;
 
+import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.Point;
 
@@ -19,6 +20,7 @@ import com.pedropathing.pathgen.Point;
 public class AutoCommand {
     FrontArm frontArm;
     LiftArm liftArm;
+    Follower follower;
 
     public AutoCommand(FrontArm frontArm, LiftArm liftArm) {
         this.frontArm = frontArm;
@@ -73,42 +75,45 @@ public class AutoCommand {
         return new SequentialCommandGroup(
                 frontArm.highChamber(),
                 liftArm.highChamber(),
-                new WaitCommand(1000),
-                liftArm.highChamber()
+                new WaitCommand(120),
+                liftArm.highChamber(),
+                new WaitCommand(100)
         );
     }
 
     public Command autoIntakeSampleForHP(){
         return new SequentialCommandGroup(
-                new WaitCommand(1000),
+                new WaitCommand(1200),
+                frontArm.intake(true,true),
+                new WaitCommand(280),
                 frontArm.intake(true, true),
-                frontArm.intake(true, true),
-                new InstantCommand(()->frontArm.getFrontSlide().setTargetPosition(0)),
-                new WaitCommand(1000)
+                new WaitCommand(50)
         );
     }
 
     public Command putSampleToHPCommand(){
         return new SequentialCommandGroup(
-                new WaitCommand(1000),
+                new WaitCommand(500),
                 frontArm.giveHP(),
-                new WaitCommand(1000)
+                new WaitCommand(200)
         );
     }
 
     public Command autoIntakeSpecimen(){
         return new SequentialCommandGroup(
-                new WaitCommand(100),
+                new WaitCommand(800),
                 liftArm.highChamber(),
-                new WaitCommand(100)
+                new WaitCommand(500)
         );
     }
 
     public Command autoScoreSpecimen(){
         return new SequentialCommandGroup(
+                new WaitCommand(1000),
+                frontArm.highChamber(),
                 new WaitCommand(500),
                 liftArm.highChamber(),
-                new WaitCommand(100)
+                new WaitCommand(1000)
         );
     }
 
@@ -125,5 +130,10 @@ public class AutoCommand {
 
     public Pose pose2dToPose(@NonNull Pose2d pose2d) {
         return new Pose(pose2d.getX(), pose2d.getY(), pose2d.getHeading());
+    }
+
+    @NonNull
+    public Point getCurrentPoint(){
+        return new Point(follower.getPose().getX(),follower.getPose().getY());
     }
 }

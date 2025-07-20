@@ -277,8 +277,8 @@ public class LiftArm {
                                             wristUp.setPosition(ServoConstants.UP_WRIST_BASKET.value);
                                         })
                                 ),
-                                new InstantCommand(()->this.state = LiftArmState.RELEASE_HIGH),
-                                new WaitUntilCommand(lifter::isFinished)
+                                new WaitUntilCommand(lifter::isFinished),
+                                new InstantCommand(()->this.state = LiftArmState.RELEASE_HIGH)
                         ),
                 new SequentialCommandGroup(
                         new InstantCommand(()->clawUp.setPosition(ServoConstants.UP_CLAW_OPEN.value)),
