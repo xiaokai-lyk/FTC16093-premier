@@ -10,7 +10,7 @@ public enum ServoConstants {
     CLAW_CHECK(0.35),
     WRIST_PARALLEL(0.58),
     WRIST_DOWN(0.16),
-    WRIST_HANDOVER(0.9),
+    WRIST_HANDOVER(0.98),
     // range of arm spin: [0.02, 0.98]
     // if you set a position that exceed this servo would become continuous!
     ARM_SPINNER_FRONT(0.38),
