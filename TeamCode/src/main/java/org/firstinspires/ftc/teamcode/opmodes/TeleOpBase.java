@@ -99,7 +99,7 @@ public class TeleOpBase extends CommandOpModeEx {
                                         new WaitCommand(200),
                                         new InstantCommand(()->forwardComponentOffset = 0)),
                                 new InstantCommand(),
-                                ()->liftArm.state == LiftArm.LiftArmState.RELEASE_HIGH
+                                ()->liftArm.state == LiftArm.LiftArmState.RELEASE_HIGH && liftArm.lifterIsHigh()
                                 )
                         ));
 
