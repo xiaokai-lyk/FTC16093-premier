@@ -10,11 +10,13 @@ public class LimeLightTest extends LinearOpMode {
     @Override
     public void runOpMode() {
         Vision vision = new Vision(hardwareMap, telemetry);
-        vision.initialize();
-        vision.setColor(2);
         waitForStart();
+        vision.initialize();
+        vision.setColorVal(2);
         while (opModeIsActive()){
-            vision.update();
+            if(gamepad1.a)vision.setLed(true);
+            if(gamepad1.b)vision.setLed(false);
+            vision.update(true);
             telemetry.update();
         }
     }

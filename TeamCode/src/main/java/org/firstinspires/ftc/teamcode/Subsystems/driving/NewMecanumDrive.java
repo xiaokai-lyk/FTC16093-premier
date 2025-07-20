@@ -40,7 +40,6 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.lib.gobilda.GoBildaPinpointDriver;
-import org.firstinspires.ftc.teamcode.lib.roadrunner.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.lib.roadrunner.trajectorysequence.TrajectorySequenceBuilder;
 import org.firstinspires.ftc.teamcode.lib.roadrunner.trajectorysequence.TrajectorySequenceRunner;
 import org.firstinspires.ftc.teamcode.utils.LynxModuleUtil;
@@ -78,7 +77,6 @@ public class NewMecanumDrive extends MecanumDrive {
 
     private final List<Integer> lastEncPositions = new ArrayList<>();
     private final List<Integer> lastEncVels = new ArrayList<>();
-    private Runnable updateRunnable;
     SlewRateLimiter driveLimiter;
     SlewRateLimiter turnLimiter;
     SlewRateLimiter slideUpDriveLimiter;
@@ -90,6 +88,7 @@ public class NewMecanumDrive extends MecanumDrive {
 
     private final BooleanSupplier switchDrivePIDCondition = ()->false;
     private boolean switchDrive = false;
+
 
     public NewMecanumDrive(HardwareMap hardwareMap) {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
