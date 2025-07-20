@@ -73,9 +73,10 @@ public class AutoCommand {
     /*--------------SPECIMEN----------------*/
     public Command scorePreloadSpecimen(){
         return new SequentialCommandGroup(
+                //new WaitCommand(2000),
                 frontArm.highChamber(),
                 liftArm.highChamber(),
-                new WaitCommand(120),
+                new WaitCommand(1000),
                 liftArm.highChamber(),
                 new WaitCommand(100)
         );
@@ -101,7 +102,7 @@ public class AutoCommand {
 
     public Command autoIntakeSpecimen(){
         return new SequentialCommandGroup(
-                new WaitCommand(800),
+                new WaitCommand(2000),
                 liftArm.highChamber(),
                 new WaitCommand(500)
         );
@@ -109,11 +110,11 @@ public class AutoCommand {
 
     public Command autoScoreSpecimen(){
         return new SequentialCommandGroup(
-                new WaitCommand(1000),
-                frontArm.highChamber(),
                 new WaitCommand(500),
+                frontArm.highChamber(),
+                new WaitCommand(2000),
                 liftArm.highChamber(),
-                new WaitCommand(1000)
+                new WaitCommand(200)
         );
     }
 
