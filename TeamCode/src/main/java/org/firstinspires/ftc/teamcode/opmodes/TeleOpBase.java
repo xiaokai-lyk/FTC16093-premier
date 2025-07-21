@@ -44,7 +44,7 @@ public class TeleOpBase extends CommandOpModeEx {
         this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         gamepadEx1 = new GamepadEx(gamepad1);
 
-        this.mode = Tasks.SPECIMEN;
+        this.mode = Tasks.SAMPLE;
 
 
         driveCore = new NewMecanumDrive(hardwareMap);

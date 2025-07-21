@@ -56,7 +56,7 @@ public class TeleOpDual extends CommandOpModeEx {
         gamepadEx1 = new GamepadEx(gamepad1);
         gamepadEx2 = new GamepadEx(gamepad2);
 
-        this.mode = Tasks.SAMPLE;
+        this.mode = Tasks.SPECIMEN;
         this.intakeState = IntakeState.FAR;
 
         driveCore = new NewMecanumDrive(hardwareMap);

@@ -100,7 +100,7 @@ public class AutoCommand {
 
     public Command autoIntakeSpecimen(){
         return new SequentialCommandGroup(
-                new WaitCommand(900),
+                new WaitCommand(500),
                 liftArm.highChamber(),
                 new WaitCommand(50)
         );

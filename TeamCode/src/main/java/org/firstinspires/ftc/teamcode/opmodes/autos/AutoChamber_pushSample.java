@@ -8,7 +8,6 @@ import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 
 import com.arcrobotics.ftclib.command.InstantCommand;
-import com.pedropathing.localization.localizers.PinpointLocalizer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
@@ -71,7 +70,7 @@ public class AutoChamber_pushSample extends AutoOpModeEx {
     private final Pose endPush1 = new Pose(12, 24, Math.toRadians(0));
     private final Pose endPush2 = new Pose(12, 12, Math.toRadians(0));
     private final Pose endPush3 = new Pose(12, 6.5, Math.toRadians(0));
-//    private final Pose HPPoseForEndPush = new Pose(0,11,Math.toRadians(0));
+    private final Pose endPushToHPControlPose = new Pose(30,20,Math.toRadians(0));
 
     private final Pose scorePose0 = new Pose(27, 61, Math.toRadians(0));
     private final Pose scorePose1 = new Pose(29, 64, Math.toRadians(0));
@@ -85,7 +84,6 @@ public class AutoChamber_pushSample extends AutoOpModeEx {
     @Override
     public void initialize() {
         this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-        PinpointLocalizer pinpointLocalizer = new PinpointLocalizer(hardwareMap);
         follower = new FollowerEx(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
         frontArm = new FrontArm(hardwareMap);
@@ -157,7 +155,7 @@ public class AutoChamber_pushSample extends AutoOpModeEx {
                 .build();
 
         goToHP = follower.pathBuilder()
-                .addPath(new BezierCurve(getCurrentPoint(), autoCommand.midPoint(follower.getPose(), HPPose), new Point(HPPose)))
+                .addPath(new BezierCurve(getCurrentPoint(), new Point(endPushToHPControlPose), new Point(HPPose)))
                 .setLinearHeadingInterpolation(endPush3.getHeading(), HPPose.getHeading())
                 .build();
 

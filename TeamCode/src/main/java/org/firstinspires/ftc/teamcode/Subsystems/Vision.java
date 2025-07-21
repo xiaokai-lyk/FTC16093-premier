@@ -11,10 +11,10 @@ import com.qualcomm.robotcore.hardware.Servo;
 import lombok.Setter;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Subsystems.Constants.MotorConstants;
 
 public class Vision {
     private final Limelight3A camera;
-
     private final Servo led;
 
     @Setter private double colorVal = 0.0;
@@ -40,34 +40,50 @@ public class Vision {
         camera.start();
     }
 
-    public double getDistance(double rawDistanceMM) {
-        double cameraToRobotOffset = -22;
-
-        return Math.abs(rawDistanceMM) - cameraToRobotOffset;
-    }
-
     private Double getTurnServoDegree(@NonNull LLResult result_m){
         return result_m.getPythonOutput()[3];
     }
 
-    private double rawVerticalDistance(double ty){
+    private double getDistanceMM(double ty){
         double CAMERA_HEIGHT = 250;
         double CAMERA_ANGLE = -45.0;
         double TARGET_HEIGHT = 19.05;
+        double offset = 22;
 
         double angleToGoalDegrees = CAMERA_ANGLE + ty;
         double angleToGoalRadians = Math.toRadians(angleToGoalDegrees);
-        return (TARGET_HEIGHT - CAMERA_HEIGHT) / Math.tan(angleToGoalRadians);
+        return (TARGET_HEIGHT - CAMERA_HEIGHT) / Math.tan(angleToGoalRadians) + offset;
     }
 
-    private double getHorizontalDistance(double ty, double tx){
-        double offset = 1;
-
-        return rawVerticalDistance(ty) * Math.tan(Math.toRadians(tx));
+    public double getSpinnerPos(@NonNull LLResult result) {
+        double tx = result.getTx();
+        double pos = -0.00000213149 * Math.pow(tx, 4) + 0.0000395987 * Math.pow(tx, 3)
+                + -0.0000261975 * Math.pow(tx, 2) + 0.010841 * tx + 0.213606;
+        return Math.min(Math.max(pos, 0.03), 0.98);
     }
 
-    private LLResult getResult() {
+    private double servoPos2Angle(double servoPos){
+        return -218.01505 * servoPos + 84.32738;
+    }
+
+    public int getSlideTarget(@NonNull LLResult result) {
+        double armLengthMM = 146.121;
+        double servoPos = getSpinnerPos(result);
+        double servoAngle = servoPos2Angle(servoPos);
+        double armVerticalLength = Math.cos(Math.toRadians(servoAngle)) * armLengthMM;
+        double slideTargetDistanceMM = getDistanceMM(result.getTy()) - armVerticalLength;
+
+        int target = (int) (1.39244 * slideTargetDistanceMM - 2.35489);
+
+        return Math.min(Math.max(0, target), MotorConstants.FRONT_FAR.value);
+    }
+
+    public LLResult getResult() {
         return camera.getLatestResult();
+    }
+
+    public boolean resultValid(@NonNull LLResult result){
+        return result.getTa() != 0 && result.getStaleness() < 30;
     }
 
     public void update(boolean debugMode){
@@ -75,13 +91,14 @@ public class Vision {
         camera.updatePythonInputs(new double[]{colorVal, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
         result = getResult();
         if(debugMode && result != null){
-            telemetry.addData("isValid", result.isValid());
-            telemetry.addData("distance", getDistance(result.getTy()));
+            telemetry.addData("isValid", resultValid(result));
+            telemetry.addData("distance (mm)", (getDistanceMM(result.getTy())));
             telemetry.addData("getTurnServoDegree", getTurnServoDegree(result));
             telemetry.addData("tx", result.getTx());
             telemetry.addData("ta", result.getTa());
             telemetry.addData("staleness",result.getStaleness());
-            telemetry.addData("horizontal distance",getHorizontalDistance(getDistance(result.getTy()), result.getTx()));
+            telemetry.addData("spinner pos", getSpinnerPos(result));
+            telemetry.addData("slide target", getSlideTarget(result));
         }
     }
 }

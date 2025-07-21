@@ -9,6 +9,7 @@ package org.firstinspires.ftc.teamcode.utils;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.FollowerConstants;
+import com.pedropathing.pathgen.BezierPoint;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -56,7 +57,7 @@ public class FollowerEx extends Follower {
         if(!isFinished && Math.abs(super.getHeadingError()) < headingTolerance && super.atPoint(endPoint, xTolerance, yTolerance)) {
             isFinished = true;
             breakFollowing();
-            holdPoint(endPoint, endHeading);
+            holdPoint(new BezierPoint(endPoint), endHeading);
             super.setMaxPower(0.3);
             for (DcMotorEx motor : motors){
                 motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);//Stop following and brake when nearing the end point.

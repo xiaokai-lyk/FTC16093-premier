@@ -217,7 +217,7 @@ public class LiftArm {
                 new ConditionalCommand(
                         new SequentialCommandGroup(
                                 new InstantCommand(()->clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE.value)),
-                                new WaitCommand(50),
+                                new WaitCommand(100),
                                 lifter.getFromWallCommand(),
                                 new WaitUntilCommand(lifter::isFinished),
                                 new InstantCommand(()->{
