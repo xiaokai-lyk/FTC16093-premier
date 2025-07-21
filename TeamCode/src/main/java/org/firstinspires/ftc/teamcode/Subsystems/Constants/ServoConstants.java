@@ -30,7 +30,7 @@ public enum ServoConstants {
     UP_WRIST_BASKET(0.53),
     UP_WRIST_PARALLEL(0.63),
     UP_WRIST_HANDOVER(0.3),
-    UP_WRIST_WALL(0.38),
+    UP_WRIST_WALL(0.42),
     UP_ARM_BASKET(0.42),
     UP_ARM_PARALLEL(0.68),
     UP_ARM_HANDOVER(0.8),

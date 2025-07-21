@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.arcrobotics.ftclib.command.Command;
-import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
@@ -73,10 +72,9 @@ public class AutoCommand {
     /*--------------SPECIMEN----------------*/
     public Command scorePreloadSpecimen(){
         return new SequentialCommandGroup(
-                //new WaitCommand(2000),
                 frontArm.highChamber(),
                 liftArm.highChamber(),
-                new WaitCommand(1000),
+                new WaitCommand(800),
                 liftArm.highChamber(),
                 new WaitCommand(100)
         );
@@ -102,19 +100,19 @@ public class AutoCommand {
 
     public Command autoIntakeSpecimen(){
         return new SequentialCommandGroup(
-                new WaitCommand(2000),
+                new WaitCommand(900),
                 liftArm.highChamber(),
-                new WaitCommand(500)
+                new WaitCommand(50)
         );
     }
 
     public Command autoScoreSpecimen(){
         return new SequentialCommandGroup(
-                new WaitCommand(500),
+//                new WaitCommand(80),
                 frontArm.highChamber(),
-                new WaitCommand(2000),
+                new WaitCommand(400),
                 liftArm.highChamber(),
-                new WaitCommand(200)
+                new WaitCommand(50)
         );
     }
 
