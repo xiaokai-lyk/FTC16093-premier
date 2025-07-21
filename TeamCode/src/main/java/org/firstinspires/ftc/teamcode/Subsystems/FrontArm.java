@@ -156,6 +156,7 @@ public class FrontArm {
                 ),
                 new InstantCommand(() ->
                 {
+                    this.state = State.DOWN;
                     open_claw(true);
                     frontSlide.setTargetPosition(is_far ? MotorConstants.FRONT_MAX.value : MotorConstants.FRONT_NEAR.value);
                     set_arm_spinner(ServoConstants.ARM_SPINNER_FRONT);
@@ -167,8 +168,7 @@ public class FrontArm {
                                 new InstantCommand(() -> set_spinner(SpinnerConstant.PARALLEL)),
                                 new InstantCommand(),
                                 () -> this.state != State.DOWN
-                        ),
-                        new InstantCommand(() -> this.state = State.DOWN)
+                        )
                 ),
                 () -> (this.state == State.DOWN)//判断是不是已经放下小臂了
                 //若没放下则放下小臂

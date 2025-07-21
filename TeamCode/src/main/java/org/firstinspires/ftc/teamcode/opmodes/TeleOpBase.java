@@ -92,7 +92,7 @@ public class TeleOpBase extends CommandOpModeEx {
     @Override
     public void functionalButtons() {
         //Sample
-        new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.LEFT_BUMPER) && frontArm.state != FrontArm.State.DOWN&& mode == Tasks.SAMPLE)
+        new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.LEFT_BUMPER) && frontArm.state == FrontArm.State.FREE&& mode == Tasks.SAMPLE)
                 .whenPressed(new ParallelCommandGroup(liftArm.releaseHigh(), new InstantCommand(frontArm::initPos))
                         .alongWith(new ConditionalCommand(
                                 new SequentialCommandGroup(new InstantCommand(()->forwardComponentOffset = 1),
