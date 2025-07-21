@@ -38,8 +38,8 @@ public enum ServoConstants {
     UP_ARM_UPWARD(0.5),
     UP_ARM_BACK(0.26),
 
-    SHIFTER_NORMAL(0.6),
-    SHIFTER_SLOW(1),
+    SHIFTER_NORMAL(0.5),
+    SHIFTER_SLOW(0.85),
 
     ASCENT_LEFT_UP(0.32),
     ASCENT_LEFT_MID(0.65),
