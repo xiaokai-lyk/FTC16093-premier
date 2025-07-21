@@ -61,7 +61,7 @@ public class AutoChamber_pushSample extends AutoOpModeEx {
 
 
     private final Pose startPose = new Pose(0,  52.75, Math.toRadians(0));
-    
+
     private final Pose midPoint = new Pose(21, 35, Math.toRadians(0));
     private final Pose push1Pose = new Pose(51, 24, Math.toRadians(0));
     private final Pose push2Pose = new Pose(51, 12, Math.toRadians(0));
@@ -157,7 +157,7 @@ public class AutoChamber_pushSample extends AutoOpModeEx {
                 .build();
 
         goToHP = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(endPush3), autoCommand.midPoint(endPush3, HPPose), new Point(HPPose)))
+                .addPath(new BezierCurve(getCurrentPoint(), autoCommand.midPoint(follower.getPose(), HPPose), new Point(HPPose)))
                 .setLinearHeadingInterpolation(endPush3.getHeading(), HPPose.getHeading())
                 .build();
 

@@ -31,8 +31,8 @@ import java.util.List;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@Autonomous(name = "Auto Basket", group = "Auto")
-public class AutoBasket extends AutoOpModeEx {
+@Autonomous(name = "Auto Basket version2", group = "Auto")
+public class AutoBasket_v2 extends AutoOpModeEx {
     private FollowerEx follower;
     private AutoCommand autoCommand;
     private List<Command> actions;
@@ -129,7 +129,10 @@ public class AutoBasket extends AutoOpModeEx {
                 .setLinearHeadingInterpolation(getCurrentHeading(), parkPose.getHeading())
                 .build();
 
-        pathChainList.addPath(scorePreload, grabPickup1, scorePickup1, grabPickup2, scorePickup2, grabPickup3, scorePickup3);
+        pathChainList.addPath(scorePreload, null,
+                grabPickup1, null, scorePickup1, null,
+                grabPickup2, null, scorePickup2, null,
+                grabPickup3, null, scorePickup3, null);
     }
 
     @NonNull
@@ -139,16 +142,16 @@ public class AutoBasket extends AutoOpModeEx {
 
     private void buildActions(){
         Command intakeSampleCommand, releasePreloadCommand, releaseCommand, parkCommand, intakeLastSampleCommand;
-        intakeSampleCommand = autoCommand.autoIntakeSample().andThen(actionEnd());
-        releaseCommand = autoCommand.autoReleaseHigh().andThen(actionEnd());
-        releasePreloadCommand = autoCommand.autoReleasePreloadSample().andThen(actionEnd());
+        intakeSampleCommand = autoCommand.autoIntakeSample_v2().andThen(actionEnd());
+        releaseCommand = autoCommand.autoReleaseHigh_v2().andThen(actionEnd());
+        releasePreloadCommand = autoCommand.autoReleasePreloadSample_v2().andThen(actionEnd());
         parkCommand = liftArm.parkCommand().andThen(actionEnd());
-        intakeLastSampleCommand = autoCommand.autoIntakeLastSample().andThen(actionEnd());
+        intakeLastSampleCommand = autoCommand.autoIntakeLastSample_v2().andThen(actionEnd());
 
-        actions.addAll(Arrays.asList(releaseCommand,
-                intakeSampleCommand, releaseCommand,
-                intakeSampleCommand, releaseCommand,
-                intakeLastSampleCommand, releaseCommand));
+        actions.addAll(Arrays.asList(null, releaseCommand,
+                null, intakeSampleCommand, null, releaseCommand,
+                null, intakeSampleCommand, null, releaseCommand,
+                null, intakeLastSampleCommand, null, releaseCommand));
     }
 
     private void periodic() {

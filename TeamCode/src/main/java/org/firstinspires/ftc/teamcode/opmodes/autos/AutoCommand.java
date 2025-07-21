@@ -74,7 +74,7 @@ public class AutoCommand {
         return new SequentialCommandGroup(
                 frontArm.highChamber(),
                 liftArm.highChamber(),
-                new WaitCommand(800),
+                new WaitCommand(400),
                 liftArm.highChamber(),
                 new WaitCommand(100)
         );
@@ -113,6 +113,49 @@ public class AutoCommand {
                 new WaitCommand(400),
                 liftArm.highChamber(),
                 new WaitCommand(50)
+        );
+    }
+
+
+
+    /*--------------SAMPLE VERSION2----------------*/
+    public Command autoReleasePreloadSample_v2(){
+        return new SequentialCommandGroup(
+                new WaitCommand(80),
+                liftArm.releaseHigh(),
+                new WaitCommand(150),
+                liftArm.releaseHigh()
+//                new WaitCommand(80)
+        );
+    }
+
+    public Command autoIntakeSample_v2() {
+        return new SequentialCommandGroup(
+                new WaitCommand(50),
+                frontArm.intake(true,true),
+                new WaitCommand(350),
+                frontArm.intake(true, true),
+                new WaitCommand(50),
+                new ParallelCommandGroup(frontArm.handover(),liftArm.handover())
+        );
+    }
+
+    public Command autoReleaseHigh_v2() {
+        return liftArm.releaseHigh().andThen(
+                new WaitCommand(180),
+                liftArm.releaseHigh()
+//                new WaitCommand(0)
+        );
+    }
+
+    public Command autoIntakeLastSample_v2(){
+        return new SequentialCommandGroup(
+                new WaitCommand(80),
+                frontArm.intake(true,true),
+                new WaitCommand(350),
+                frontArm.intake(true, true),
+                new WaitCommand(50),
+                new ParallelCommandGroup(frontArm.handover(),liftArm.handover())
         );
     }
 

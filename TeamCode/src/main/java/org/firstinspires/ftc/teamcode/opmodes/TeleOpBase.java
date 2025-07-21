@@ -95,11 +95,22 @@ public class TeleOpBase extends CommandOpModeEx {
         new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.LEFT_BUMPER) && frontArm.state == FrontArm.State.FREE&& mode == Tasks.SAMPLE)
                 .whenPressed(new ParallelCommandGroup(liftArm.releaseHigh(), new InstantCommand(frontArm::initPos))
                         .alongWith(new ConditionalCommand(
-                                new SequentialCommandGroup(new InstantCommand(()->forwardComponentOffset = 1),
-                                        new WaitCommand(200),
-                                        new InstantCommand(()->forwardComponentOffset = 0)),
-                                new InstantCommand(),
-                                ()->liftArm.state == LiftArm.LiftArmState.RELEASE_HIGH && liftArm.lifterIsHigh()
+                                        new SequentialCommandGroup(new InstantCommand(()->forwardComponentOffset = 1),
+                                                new WaitCommand(200),
+                                                new InstantCommand(()->forwardComponentOffset = 0)),
+                                        new InstantCommand(),
+                                        ()->liftArm.state == LiftArm.LiftArmState.RELEASE && liftArm.lifterIsHigh()
+                                )
+                        ));
+
+        new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.LEFT_BUMPER) && frontArm.state == FrontArm.State.FREE&& mode == Tasks.SAMPLE)
+                .whenPressed(new ParallelCommandGroup(liftArm.releaseLow(), new InstantCommand(frontArm::initPos))
+                        .alongWith(new ConditionalCommand(
+                                        new SequentialCommandGroup(new InstantCommand(()->forwardComponentOffset = 1),
+                                                new WaitCommand(200),
+                                                new InstantCommand(()->forwardComponentOffset = 0)),
+                                        new InstantCommand(),
+                                        ()->liftArm.state == LiftArm.LiftArmState.RELEASE && liftArm.lifterIsHigh()
                                 )
                         ));
 
@@ -164,9 +175,9 @@ public class TeleOpBase extends CommandOpModeEx {
         new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.DPAD_DOWN))
                 .whileHeld(()->liftArm.setLifterPower(-0.5));
         new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.DPAD_LEFT))
-                .whileHeld(()->frontArm.setPositionOffset(5));
+                .whileHeld(()->frontArm.setPositionOffset(15));
         new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.DPAD_RIGHT))
-                .whileHeld(()->frontArm.setPositionOffset(-5));
+                .whileHeld(()->frontArm.setPositionOffset(-15));
 
     }
 

@@ -104,6 +104,10 @@ class Lifter{
         return new InstantCommand(()->setPosition(MotorConstants.LIFT_HIGH.value));
     }
 
+    public Command lowBasketCommand(){
+        return new InstantCommand(()->setPosition(MotorConstants.LIFT_LOW.value));
+    }
+
     Command getFromWallCommand(){
         return new InstantCommand(()->setPosition(MotorConstants.LIFT_HIGH_CHAMBER.value));
     }
@@ -157,7 +161,7 @@ public class LiftArm {
         WALL,//从墙上夹
         PRE_CHAMBER,//准备挂
         FREE,
-        RELEASE_HIGH
+        RELEASE
     }
 
 
@@ -278,7 +282,7 @@ public class LiftArm {
                                         })
                                 ),
                                 new WaitUntilCommand(lifter::isFinished),
-                                new InstantCommand(()->this.state = LiftArmState.RELEASE_HIGH)
+                                new InstantCommand(()->this.state = LiftArmState.RELEASE)
                         ),
                 new SequentialCommandGroup(
                         new InstantCommand(()->clawUp.setPosition(ServoConstants.UP_CLAW_OPEN.value)),
@@ -297,6 +301,39 @@ public class LiftArm {
                 ()->this.lifter.getPosition()<0.95*MotorConstants.LIFT_HIGH.value
         );
     }
+
+    public Command releaseLow(){
+        return new ConditionalCommand(
+                lifter.lowBasketCommand()
+                        .alongWith(
+                                new SequentialCommandGroup(
+                                        new WaitUntilCommand(()->lifter.isFinished(MotorConstants.LIFT_ABOVE_BASKET_TOLERANCE.value)),
+                                        new InstantCommand(()->{
+                                            armUp.setPosition(ServoConstants.UP_ARM_BASKET.value);
+                                            wristUp.setPosition(ServoConstants.UP_WRIST_BASKET.value);
+                                        })
+                                ),
+                                new WaitUntilCommand(lifter::isFinished),
+                                new InstantCommand(()->this.state = LiftArmState.RELEASE)
+                        ),
+                new SequentialCommandGroup(
+                        new InstantCommand(()->clawUp.setPosition(ServoConstants.UP_CLAW_OPEN.value)),
+                        //new WaitCommand(100),
+                        new InstantCommand(()->armUp.setPosition(ServoConstants.UP_ARM_PARALLEL.value)),
+                        //new WaitCommand(150),
+                        new InstantCommand(()->{
+                            clawUp.setPosition(ServoConstants.UP_CLAW_OPEN.value);
+                            armUp.setPosition(ServoConstants.UP_ARM_PARALLEL.value);
+                            wristUp.setPosition(ServoConstants.UP_WRIST_PARALLEL.value);
+                        }),
+                        new InstantCommand(lifter::resetSlide),
+                        new WaitUntilCommand(lifter::isFinished),
+                        new InstantCommand(()->this.state = LiftArmState.FREE)
+                ),
+                ()->this.lifter.getPosition()<0.95*MotorConstants.LIFT_HIGH.value
+        );
+    }
+
 
     public Command ascent_up(){
         return lifter.ascent_up().alongWith(
@@ -368,7 +405,7 @@ public class LiftArm {
     }
 
     public boolean lifterIsHigh(){
-        return lifter.getPosition() > 0.5 * MotorConstants.LIFT_HIGH.value;
+        return lifter.getPosition() > 0.3 * MotorConstants.LIFT_HIGH.value;
     }
 
     public void setLifterPower(double power){
