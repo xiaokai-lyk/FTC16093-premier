@@ -159,7 +159,7 @@ class Lifter{
         return isFinished(15);
     }
     public boolean isFinishedForSpecimen(){
-        return isFinished(100);
+        return isFinished(80);
     }
 }
 
