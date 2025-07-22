@@ -124,6 +124,18 @@ class Lifter{
                 new InstantCommand(()->setPosition(0))
         ).schedule();
     }
+    void resetSlideForChamber(){
+        new SequentialCommandGroup(
+                new InstantCommand(()->setPosition(0)),
+                new WaitUntilCommand(this::isFinishedForSpecimen),
+                new InstantCommand(()->setPower(-0.3)),
+                new WaitCommand(50),
+                new InstantCommand(()->setMode(DcMotor.RunMode.RUN_TO_POSITION)),
+                new InstantCommand(this::resetEncoder),
+                new InstantCommand(()->setPosition(0))
+        ).schedule();
+    }
+
     void resetEncoder(){
         setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
@@ -144,7 +156,10 @@ class Lifter{
     }
 
     public boolean isFinished(){
-        return isFinished(40);
+        return isFinished(15);
+    }
+    public boolean isFinishedForSpecimen(){
+        return isFinished(100);
     }
 }
 
@@ -209,17 +224,17 @@ public class LiftArm {
                             armUp.setPosition(ServoConstants.UP_ARM_WALL.value);
                             clawUp.setPosition(ServoConstants.UP_CLAW_OPEN.value);
                             wristUp.setPosition(ServoConstants.UP_WRIST_WALL.value);
-                            lifter.resetSlide();
+                            lifter.resetSlideForChamber();
                         }),
-                        new WaitUntilCommand(lifter::isFinished),
+                        new WaitUntilCommand(lifter::isFinishedForSpecimen),
                         new InstantCommand(()->this.state=LiftArmState.WALL)
                 ),
                 new ConditionalCommand(
                         new SequentialCommandGroup(
                                 new InstantCommand(()->clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE.value)),
-                                new WaitCommand(50),
+                                new WaitCommand(30),
                                 lifter.getFromWallCommand(),
-                                new WaitUntilCommand(lifter::isFinished),
+                                new WaitUntilCommand(lifter::isFinishedForSpecimen),
                                 new InstantCommand(()->{
                                     armUp.setPosition(ServoConstants.UP_ARM_PARALLEL.value);
                                     wristUp.setPosition(ServoConstants.UP_WRIST_PARALLEL.value);
@@ -228,10 +243,10 @@ public class LiftArm {
                         ),
                         new SequentialCommandGroup(
                                 new InstantCommand(()->clawUp.setPosition(ServoConstants.UP_CLAW_OPEN.value)),
-                                new WaitCommand(30),
+                                new WaitCommand(20),
                                 new SequentialCommandGroup(
-                                        new InstantCommand(lifter::resetSlide),
-                                        new WaitUntilCommand(lifter::isFinished),
+                                        new InstantCommand(lifter::resetSlideForChamber),
+                                        new WaitUntilCommand(lifter::isFinishedForSpecimen),
                                         new InstantCommand(()->{
                                             armUp.setPosition(ServoConstants.UP_ARM_WALL.value);
                                             clawUp.setPosition(ServoConstants.UP_CLAW_OPEN.value);
@@ -255,6 +270,16 @@ public class LiftArm {
                 new WaitCommand(400),
                 new InstantCommand(()->clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE.value))
         );
+    }
+    public Command handover_1(){
+        return new InstantCommand(()->{
+            armUp.setPosition(ServoConstants.UP_ARM_HANDOVER.value);
+            wristUp.setPosition(ServoConstants.UP_WRIST_HANDOVER.value);
+            clawUp.setPosition(ServoConstants.UP_CLAW_OPEN.value);
+        });
+    }
+    public Command handover_2(){
+        return new InstantCommand(()->clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE.value));
     }
 
     //Dual
@@ -330,7 +355,7 @@ public class LiftArm {
                         new WaitUntilCommand(lifter::isFinished),
                         new InstantCommand(()->this.state = LiftArmState.FREE)
                 ),
-                ()->this.lifter.getPosition()<0.95*MotorConstants.LIFT_HIGH.value
+                ()->this.lifter.getPosition()<0.95*MotorConstants.LIFT_LOW.value
         );
     }
 
@@ -405,6 +430,10 @@ public class LiftArm {
     }
 
     public boolean lifterIsHigh(){
+        return lifter.getPosition() > 0.5 * MotorConstants.LIFT_HIGH.value;
+    }
+
+    public boolean lifterIsLow(){
         return lifter.getPosition() > 0.3 * MotorConstants.LIFT_HIGH.value;
     }
 

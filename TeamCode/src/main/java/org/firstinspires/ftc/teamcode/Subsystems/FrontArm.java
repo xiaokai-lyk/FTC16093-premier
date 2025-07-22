@@ -224,6 +224,25 @@ public class FrontArm {
                 new InstantCommand(()->this.state = State.FREE)
         );
     }
+    public Command handover_1(){
+        return new InstantCommand(()->{
+            set_wrist(ServoConstants.WRIST_HANDOVER);
+            set_spinner(SpinnerConstant.PARALLEL);
+            set_arm_wrist(ServoConstants.ARM_WRIST_HANDOVER);
+            set_arm_spinner(ServoConstants.ARM_SPINNER_FRONT);
+            open_claw(false);
+            frontSlide.setTargetPosition(0);
+        });
+    }
+    public Command handover_2(){
+        return new SequentialCommandGroup(
+                new WaitCommand(50),
+                new InstantCommand(()->this.open_claw(true)),
+                new WaitCommand(150),
+                new InstantCommand(()->this.initPos(false)),
+                new InstantCommand(()->this.state = State.FREE)
+        );
+    }
 
     public Command giveHP(){
         return new InstantCommand(()-> {

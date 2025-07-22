@@ -34,7 +34,6 @@ public class AutoCommand {
                 liftArm.releaseHigh(),
                 new WaitCommand(150),
                 liftArm.releaseHigh()
-//                new WaitCommand(80)
         );
     }
 
@@ -72,47 +71,22 @@ public class AutoCommand {
     /*--------------SPECIMEN----------------*/
     public Command scorePreloadSpecimen(){
         return new SequentialCommandGroup(
-                frontArm.highChamber(),
                 liftArm.highChamber(),
-                new WaitCommand(400),
-                liftArm.highChamber(),
-                new WaitCommand(100)
-        );
-    }
-
-    public Command autoIntakeSampleForHP(){
-        return new SequentialCommandGroup(
-                new WaitCommand(1200),
-                frontArm.intake(true,true),
-                new WaitCommand(280),
-                frontArm.intake(true, true),
-                new WaitCommand(50)
-        );
-    }
-
-    public Command putSampleToHPCommand(){
-        return new SequentialCommandGroup(
-                new WaitCommand(500),
-                frontArm.giveHP(),
-                new WaitCommand(200)
+                new WaitCommand(300),
+                liftArm.highChamber()
         );
     }
 
     public Command autoIntakeSpecimen(){
         return new SequentialCommandGroup(
-                new WaitCommand(500),
-                liftArm.highChamber(),
-                new WaitCommand(50)
+                liftArm.highChamber()
         );
     }
 
     public Command autoScoreSpecimen(){
         return new SequentialCommandGroup(
-//                new WaitCommand(80),
-                frontArm.highChamber(),
-                new WaitCommand(400),
-                liftArm.highChamber(),
-                new WaitCommand(50)
+                new WaitCommand(80),
+                liftArm.highChamber()
         );
     }
 

@@ -61,21 +61,27 @@ public class AutoChamber_pushSample extends AutoOpModeEx {
 
     private final Pose startPose = new Pose(0,  52.75, Math.toRadians(0));
 
-    private final Pose midPoint = new Pose(21, 35, Math.toRadians(0));
-    private final Pose push1Pose = new Pose(51, 24, Math.toRadians(0));
-    private final Pose push2Pose = new Pose(51, 12, Math.toRadians(0));
-    private final Pose push3Pose = new Pose(51, 6.5, Math.toRadians(0));
+    private final Pose midPose = new Pose(22, 30, Math.toRadians(0));
+    private final Pose controlPoseForPush1 = new Pose(50, 30, Math.toRadians(0));
+    private final Pose push1Pose = new Pose(50, 26, Math.toRadians(0));
+    private final Pose endPush1 = new Pose(13, 26, Math.toRadians(0));
 
+    private final Pose controlPoseForPush2 = new Pose(47, 26, Math.toRadians(0));
+    private final Pose push2Pose = new Pose(47, 12, Math.toRadians(0));
+    private final Pose endPush2 = new Pose(13, 12, Math.toRadians(0));
+
+    private final Pose controlPoseForPush3 = new Pose(47, 11, Math.toRadians(0));
+    private final Pose push3Pose = new Pose(47, 6, Math.toRadians(0));
+    private final Pose endPush3 = new Pose(13, 6, Math.toRadians(0));
+
+    private final Pose endPushToHPControlPose = new Pose(28,20,Math.toRadians(0));
     private final Pose HPPose = new Pose(0, 29, Math.toRadians(0));
-    private final Pose endPush1 = new Pose(12, 24, Math.toRadians(0));
-    private final Pose endPush2 = new Pose(12, 12, Math.toRadians(0));
-    private final Pose endPush3 = new Pose(12, 6.5, Math.toRadians(0));
-    private final Pose endPushToHPControlPose = new Pose(30,20,Math.toRadians(0));
 
-    private final Pose scorePose0 = new Pose(27, 61, Math.toRadians(0));
-    private final Pose scorePose1 = new Pose(29, 64, Math.toRadians(0));
-    private final Pose scorePose2 = new Pose(29, 67, Math.toRadians(0));
-    private final Pose scorePose3 = new Pose(29, 70, Math.toRadians(0));
+    private final Pose scorePose0 = new Pose(27, 60, Math.toRadians(0));
+    private final Pose scorePose1 = new Pose(29, 61, Math.toRadians(0));
+    private final Pose scorePose2 = new Pose(29, 62, Math.toRadians(0));
+    private final Pose scorePose3 = new Pose(29, 63, Math.toRadians(0));
+    private final Pose scorePose4 = new Pose(29, 64, Math.toRadians(0));
 
 //    private final Pose parkControlPose = new Pose(, 25, Math.toRadians(0));
     private final Pose parkPose = new Pose(8, 28, Math.toRadians(0));
@@ -111,22 +117,22 @@ public class AutoChamber_pushSample extends AutoOpModeEx {
     }
 
     private void buildPaths() {
-        PathChain toMidPoint, toPush1, toPush2, toPush3,
+        PathChain toControlPoseForPush, toPush1, toPush2, toPush3,
                 pushEnd1, pushEnd2, pushEnd3, goToHP,
-                scoreChamber0, scoreChamber1, scoreChamber2, scoreChamber3, park;
+                scoreChamber0, scoreChamber1, scoreChamber2, scoreChamber3, scoreChamber4, park;
         scoreChamber0 = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(startPose), new Point(scorePose0)))
                 .setLinearHeadingInterpolation(startPose.getHeading(), scorePose0.getHeading())
                 .build();
 
-        toMidPoint = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(scorePose0), autoCommand.midPoint(scorePose0, midPoint), new Point(midPoint)))
-                .setLinearHeadingInterpolation(scorePose0.getHeading(), midPoint.getHeading())
+        toControlPoseForPush = follower.pathBuilder()
+                .addPath(new BezierCurve(new Point(scorePose0), new Point(midPose), new Point(controlPoseForPush1)))
+                .setLinearHeadingInterpolation(scorePose0.getHeading(), midPose.getHeading())
                 .build();
 
         toPush1 = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(midPoint), autoCommand.midPoint(midPoint, push1Pose), new Point(push1Pose)))
-                .setLinearHeadingInterpolation(midPoint.getHeading(), push1Pose.getHeading())
+                .addPath(new BezierLine(new Point(controlPoseForPush1), new Point(push1Pose)))
+                .setLinearHeadingInterpolation(controlPoseForPush1.getHeading(), push1Pose.getHeading())
                 .build();
 
         pushEnd1 = follower.pathBuilder()
@@ -135,7 +141,7 @@ public class AutoChamber_pushSample extends AutoOpModeEx {
                 .build();
 
         toPush2 = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(endPush1), autoCommand.midPoint(scorePose0, push2Pose), new Point(push2Pose)))
+                .addPath(new BezierCurve(new Point(endPush1), new Point(controlPoseForPush2), new Point(push2Pose)))
                 .setLinearHeadingInterpolation(endPush1.getHeading(), push2Pose.getHeading())
                 .build();
 
@@ -145,7 +151,7 @@ public class AutoChamber_pushSample extends AutoOpModeEx {
                 .build();
 
         toPush3 = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(endPush2), autoCommand.midPoint(endPush2, push3Pose), new Point(push3Pose)))
+                .addPath(new BezierCurve(new Point(endPush2), new Point(controlPoseForPush3), new Point(push3Pose)))
                 .setLinearHeadingInterpolation(endPush2.getHeading(), push3Pose.getHeading())
                 .build();
 
@@ -174,19 +180,25 @@ public class AutoChamber_pushSample extends AutoOpModeEx {
                 .setLinearHeadingInterpolation(HPPose.getHeading(), scorePose3.getHeading())
                 .build();
 
+        scoreChamber4 = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(HPPose), new Point(scorePose4)))
+                .setLinearHeadingInterpolation(HPPose.getHeading(), scorePose4.getHeading())
+                .build();
+
         park = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(scorePose3), new Point(parkPose)))
                 .setLinearHeadingInterpolation(scorePose3.getHeading(), parkPose.getHeading())
                 .build();
 
         pathChainList.addPath(scoreChamber0,
-                toMidPoint, toPush1,
+                toControlPoseForPush, toPush1,
                 pushEnd1, toPush2,
                 pushEnd2, toPush3,
                 pushEnd3, goToHP,
                 null, scoreChamber1, null, goToHP,
                 null, scoreChamber2, null, goToHP,
-                null, scoreChamber3, null, park);
+                null, scoreChamber3, null, goToHP,
+                null, scoreChamber4, null, park);
     }
 
     private Command actionEnd(){
@@ -205,6 +217,7 @@ public class AutoChamber_pushSample extends AutoOpModeEx {
                 null, null,
                 null, null,
                 null, null,
+                intakeSpecimenCommand, null, scoreSpecimenCommand, null,
                 intakeSpecimenCommand, null, scoreSpecimenCommand, null,
                 intakeSpecimenCommand, null, scoreSpecimenCommand, null,
                 intakeSpecimenCommand, null, scoreSpecimenCommand, null));
@@ -242,7 +255,8 @@ public class AutoChamber_pushSample extends AutoOpModeEx {
             periodic();
             if(!follower.isBusy() && follower.driveError < 1.0 && !this.actionRunning){
                 PathChain path = it.next();
-                if(path!=null)follower.follow(path,1.2,1.8, Math.toRadians(10),1);
+//                if(path!=null)follower.follow(path,1,1.5, Math.toRadians(0),1);
+                if(path!=null) follower.followPath(path);
                 Command currentAction = actions.get(currentPathId);
                 if(currentAction!=null){
                     currentAction.schedule();
