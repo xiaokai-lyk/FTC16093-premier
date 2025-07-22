@@ -45,9 +45,9 @@ public class AutoBasket extends AutoOpModeEx {
 
     private final Pose startPose = new Pose(0, 114, Math.toRadians(-45));
 
-    private final Pose scorePose = new Pose(2.7, 124, Math.toRadians(-45));
+    private final Pose scorePose = new Pose(2.7, 125, Math.toRadians(-45));
     private final Pose pickup1Pose = new Pose(6.5, 117, Math.toRadians(0));
-    private final Pose pickup2Pose = new Pose(7, 127, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(7, 127.5, Math.toRadians(0));
     private final Pose pickup3Pose = new Pose(10.5, 124, Math.toRadians(30));
     private final Pose parkControlPose = new Pose(40, 126,Math.toRadians(-90));
     private final Pose parkPose = new Pose(65, 65, Math.toRadians(-90));
@@ -73,7 +73,7 @@ public class AutoBasket extends AutoOpModeEx {
         frontArm.autoInitPos();
         liftArm.autoInitPos();
 
-        follower.setMaxPower(0.9);
+        follower.setMaxPower(0.8);
     }
 
     @NonNull
@@ -145,7 +145,7 @@ public class AutoBasket extends AutoOpModeEx {
         parkCommand = liftArm.parkCommand().andThen(actionEnd());
         intakeLastSampleCommand = autoCommand.autoIntakeLastSample().andThen(actionEnd());
 
-        actions.addAll(Arrays.asList(releaseCommand,
+        actions.addAll(Arrays.asList(releasePreloadCommand,
                 intakeSampleCommand, releaseCommand,
                 intakeSampleCommand, releaseCommand,
                 intakeLastSampleCommand, releaseCommand));

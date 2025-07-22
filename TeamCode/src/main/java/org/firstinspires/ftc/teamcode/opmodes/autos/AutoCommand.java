@@ -30,21 +30,24 @@ public class AutoCommand {
     /*--------------SAMPLE----------------*/
     public Command autoReleasePreloadSample(){
         return new SequentialCommandGroup(
-                new WaitCommand(80),
+                new WaitCommand(100),
                 liftArm.releaseHigh(),
-                new WaitCommand(150),
+                new WaitCommand(180),
                 liftArm.releaseHigh()
         );
     }
 
     public Command autoIntakeSample() {
         return new SequentialCommandGroup(
-                new WaitCommand(1100),
+                new WaitCommand(700),
                 frontArm.intake(true,true),
-                new WaitCommand(350),
+                new WaitCommand(180),
                 frontArm.intake(true, true),
                 new WaitCommand(50),
-                new ParallelCommandGroup(frontArm.handover(),liftArm.handover())
+                new SequentialCommandGroup(
+                        new ParallelCommandGroup(frontArm.handover_1(),liftArm.handover_1()),
+                        new SequentialCommandGroup(liftArm.handover_2(), frontArm.handover_2())
+                )
         );
     }
 
