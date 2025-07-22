@@ -47,8 +47,8 @@ public class TeleOpDual extends CommandOpModeEx {
 
     private Tasks mode;
     private IntakeState intakeState;
-    private double forwardComponentOffset = 0;
-
+    double XOffset = 0;
+    private double YOffset = 0;
     @Override
     public void initialize() {
         CommandScheduler.getInstance().cancelAll();
@@ -62,8 +62,8 @@ public class TeleOpDual extends CommandOpModeEx {
         driveCore = new NewMecanumDrive(hardwareMap);
         driveCore.init();
         TeleOpDriveCommand driveCommand = new TeleOpDriveCommand(driveCore,
-                ()->gamepadEx1.getLeftX() + forwardComponentOffset,
-                ()->gamepadEx1.getLeftY() + forwardComponentOffset,
+                ()->gamepadEx1.getLeftX() + XOffset,
+                ()->gamepadEx1.getLeftY() + YOffset,
                 ()->frontArm.state== FrontArm.State.DOWN?(gamepadEx1.getRightX()*0.45):gamepadEx1.getRightX(),
                 ()->(gamepadEx1.getButton(GamepadKeys.Button.RIGHT_STICK_BUTTON)),
                 ()->frontArm.state==FrontArm.State.DOWN?0.7:1);
@@ -110,10 +110,16 @@ public class TeleOpDual extends CommandOpModeEx {
                         .alongWith(
                                 new SequentialCommandGroup(
                                         new WaitCommand(200),
-                                        new InstantCommand(()->forwardComponentOffset = 1),
+                                        new InstantCommand(() -> {
+                                            XOffset = 1;
+                                            YOffset = 1;
+                                        }),
                                         new WaitCommand(200),
-                                        new InstantCommand(()->forwardComponentOffset = 0))
-                        )));
+                                        new InstantCommand(() -> {
+                                            XOffset = 0;
+                                            YOffset = 0;
+                                        })
+                        ))));
 
         //Specimen
         new ButtonEx(()->(gamepadEx2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)>0.5
@@ -122,6 +128,23 @@ public class TeleOpDual extends CommandOpModeEx {
         new ButtonEx(()->gamepadEx1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)>0.5
                 && frontArm.state != FrontArm.State.DOWN && mode == Tasks.SPECIMEN)
                 .whenPressed(new SequentialCommandGroup(frontArm.highChamber(), liftArm.highChamber()));
+
+        new ButtonEx(()->gamepadEx1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)>0.5
+                && frontArm.state != FrontArm.State.DOWN && liftArm.state == LiftArm.LiftArmState.PRE_CHAMBER && mode == Tasks.SPECIMEN)
+                .whenPressed(new SequentialCommandGroup(frontArm.highChamber(), liftArm.highChamber())
+                        .alongWith(
+                                new SequentialCommandGroup(
+                                        new WaitCommand(200),
+                                        new InstantCommand(() -> {
+                                            XOffset = 1;
+                                            YOffset = -0.5;
+                                        }),
+                                        new WaitCommand(400),
+                                        new InstantCommand(() -> {
+                                            XOffset = 0;
+                                            YOffset = 0;
+                                        })
+                                )));
 
 
         //Shared
