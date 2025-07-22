@@ -25,7 +25,8 @@ public class Vision {
     public Vision(@NonNull final HardwareMap hardwareMap, Telemetry telemetry) {
         camera = hardwareMap.get(Limelight3A.class, "limelight");
         led = hardwareMap.get(Servo.class, "LED");
-        this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+        if(telemetry != null)this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+        else this.telemetry = FtcDashboard.getInstance().getTelemetry();
     }
 
     public void setLed(boolean enable){
@@ -55,7 +56,7 @@ public class Vision {
         return (TARGET_HEIGHT - CAMERA_HEIGHT) / Math.tan(angleToGoalRadians) + offset;
     }
 
-    public double getSpinnerPos(@NonNull LLResult result) {
+    public double getArmSpinnerPos(@NonNull LLResult result) {
         double tx = result.getTx();
         double pos = -0.00000213149 * Math.pow(tx, 4) + 0.0000395987 * Math.pow(tx, 3)
                 + -0.0000261975 * Math.pow(tx, 2) + 0.010841 * tx + 0.213606;
@@ -68,7 +69,7 @@ public class Vision {
 
     public int getSlideTarget(@NonNull LLResult result) {
         double armLengthMM = 146.121;
-        double servoPos = getSpinnerPos(result);
+        double servoPos = getArmSpinnerPos(result);
         double servoAngle = servoPos2Angle(servoPos);
         double armVerticalLength = Math.cos(Math.toRadians(servoAngle)) * armLengthMM;
         double slideTargetDistanceMM = getDistanceMM(result.getTy()) - armVerticalLength;
@@ -97,7 +98,7 @@ public class Vision {
             telemetry.addData("tx", result.getTx());
             telemetry.addData("ta", result.getTa());
             telemetry.addData("staleness",result.getStaleness());
-            telemetry.addData("spinner pos", getSpinnerPos(result));
+            telemetry.addData("spinner pos", getArmSpinnerPos(result));
             telemetry.addData("slide target", getSlideTarget(result));
         }
     }

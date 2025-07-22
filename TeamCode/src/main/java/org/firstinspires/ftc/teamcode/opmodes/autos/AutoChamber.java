@@ -237,7 +237,7 @@ public class AutoChamber extends AutoOpModeEx {
             periodic();
             if(!follower.isBusy() && !this.actionRunning){
                 PathChain path = it.next();
-                if(path!=null)follower.follow(path,2,1.5, Math.toRadians(0),1);
+                if(path!=null)follower.follow(path,2,1.5, Math.toRadians(0));
                 Command currentAction = actions.get(currentPathId);
                 if(currentAction!=null){
                     currentAction.schedule();

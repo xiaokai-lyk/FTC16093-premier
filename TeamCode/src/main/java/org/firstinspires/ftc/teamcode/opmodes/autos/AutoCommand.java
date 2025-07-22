@@ -3,7 +3,10 @@ package org.firstinspires.ftc.teamcode.opmodes.autos;
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+
 import com.arcrobotics.ftclib.command.Command;
+import com.arcrobotics.ftclib.command.ConditionalCommand;
+import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
@@ -20,11 +23,11 @@ public class AutoCommand {
     FrontArm frontArm;
     LiftArm liftArm;
     Follower follower;
-
+    boolean visionSucceed = false;
+    int failedTime = 0;
     public AutoCommand(FrontArm frontArm, LiftArm liftArm) {
         this.frontArm = frontArm;
         this.liftArm = liftArm;
-//        this.frontArmState = FrontArm.State.FREE;
     }
 
     /*--------------SAMPLE----------------*/
@@ -39,11 +42,15 @@ public class AutoCommand {
 
     public Command autoIntakeSample() {
         return new SequentialCommandGroup(
-                new WaitCommand(700),
-                frontArm.intake(true,true),
-                new WaitCommand(180),
-                frontArm.intake(true, true),
+                new WaitCommand(1000),
+                new InstantCommand(()->this.visionSucceed = frontArm.updateVision()),
                 new WaitCommand(50),
+                new ConditionalCommand(
+                        new ParallelCommandGroup(frontArm.intakeWithVision()),
+                        new InstantCommand(),
+                        ()->visionSucceed
+                ),
+                new WaitCommand(180),
                 new SequentialCommandGroup(
                         new ParallelCommandGroup(frontArm.handover_1(),liftArm.handover_1()),
                         new SequentialCommandGroup(liftArm.handover_2(), frontArm.handover_2())

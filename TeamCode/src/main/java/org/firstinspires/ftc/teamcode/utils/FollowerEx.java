@@ -38,14 +38,13 @@ public class FollowerEx extends Follower {
         // , but it is the only solution think of.
     }
 
-    public void follow(PathChain pathChain, double xTolerance, double yTolerance, double headingTolerance, double maxPower) {
+    public void follow(PathChain pathChain, double xTolerance, double yTolerance, double headingTolerance) {
         isFinished = false;
         super.setMaxPower(1);
         super.followPath(pathChain);
         this.xTolerance = xTolerance;
         this.yTolerance = yTolerance;
         this.headingTolerance = headingTolerance;
-        super.setMaxPower(maxPower);
         Path lastPath = pathChain.getPath(pathChain.size()-1);
         endHeading = lastPath.getHeadingGoal(pathChain.size()-1);
         endPoint = lastPath.getPoint(lastPath.length());
@@ -62,6 +61,13 @@ public class FollowerEx extends Follower {
             for (DcMotorEx motor : motors){
                 motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);//Stop following and brake when nearing the end point.
             }
+        }
+    }
+
+    public void forceStop(){
+        super.breakFollowing();
+        for (DcMotorEx motor : motors){
+            motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);//Stop following and brake when nearing the end point.
         }
     }
 }

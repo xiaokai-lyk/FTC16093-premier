@@ -9,6 +9,7 @@ import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
+import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -24,6 +25,9 @@ import lombok.Getter;
 
 @Getter
 public class FrontArm {
+    private Vision vision;
+    private LLResult llResult;
+
     private final DcMotorEx frontSlide;
 
     private final Servo claw;
@@ -47,6 +51,7 @@ public class FrontArm {
 
 
     public FrontArm(@NonNull HardwareMap hardwareMap){
+        vision = new Vision(hardwareMap, null);
         this.armSpinner = hardwareMap.get(Servo.class, "armSpin");
         this.claw = hardwareMap.get(Servo.class, "claw");
         this.wrist = hardwareMap.get(Servo.class, "wrist");
@@ -72,6 +77,10 @@ public class FrontArm {
         }
     }
 
+    private boolean frontSlideFinished(){
+        return frontSlide.getVelocity() < MotorConstants.FRONT_FINISH_THRESHOLD.value;
+    }
+
     public void set_spinner(@NonNull SpinnerConstant pos){
         pos.setToServo(this.clawSpinner);
         this.currentSpinnerPos = pos;
@@ -84,6 +93,38 @@ public class FrontArm {
     }
     public void set_arm_spinner(@NonNull ServoConstants pos){
         pos.setToServo(this.armSpinner);
+    }
+    public void set_arm_spinner(double servoPos){
+        armSpinner.setPosition(servoPos);
+    }
+
+    public void setLED(boolean enable){
+        vision.setLed(enable);
+    }
+
+    public boolean updateVision(){
+        LLResult res = vision.getResult();
+        if(vision.resultValid(res)){
+            llResult = res;
+            return true;
+        }
+        else return false;
+    }
+
+    public Command intakeWithVision(){
+        return new SequentialCommandGroup(
+                new InstantCommand(()->frontSlide.setTargetPosition(vision.getSlideTarget(llResult))),
+                new WaitUntilCommand(this::frontSlideFinished),
+                new InstantCommand(()->set_arm_spinner(vision.getArmSpinnerPos(llResult))),
+                new WaitCommand(70),
+                new InstantCommand(()->{
+                    set_wrist(ServoConstants.WRIST_DOWN);
+                    set_arm_wrist(ServoConstants.ARM_WRIST_DOWN);
+                }),
+                new WaitCommand(100),
+                new InstantCommand(()-> open_claw(false)),
+                new WaitCommand(50)
+        );
     }
 
     public void spinner_rotate(boolean to_right){
@@ -163,7 +204,7 @@ public class FrontArm {
                     set_arm_spinner(ServoConstants.ARM_SPINNER_FRONT);
                     set_arm_wrist(ServoConstants.ARM_WRIST_PREINTAKE);
                 }).andThen(
-                        new WaitUntilCommand(()->frontSlide.getVelocity() < MotorConstants.FRONT_FINISH_THRESHOLD.value),
+                        new WaitUntilCommand(this::frontSlideFinished),
                         new InstantCommand(()->set_wrist(ServoConstants.WRIST_DOWN)),
                         new ConditionalCommand(
                                 new InstantCommand(() -> set_spinner(SpinnerConstant.PARALLEL)),

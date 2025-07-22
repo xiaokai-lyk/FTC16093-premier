@@ -254,7 +254,7 @@ public class AutoChamber_pushSample extends AutoOpModeEx {
             periodic();
             if(!follower.isBusy() && follower.driveError < 1.0 && !this.actionRunning){
                 PathChain path = it.next();
-                if(path!=null)follower.follow(path,1.2,1.8, Math.toRadians(10),1);
+                if(path!=null)follower.follow(path,1.2,1.8, Math.toRadians(10));
                 if(path!=null) follower.followPath(path);
                 Command currentAction = actions.get(currentPathId);
                 if(currentAction!=null){

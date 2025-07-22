@@ -10,8 +10,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Vision;
 
-import edu.wpi.first.math.system.plant.DCMotor;
-
 @TeleOp(group = "tests", name = "Lime Light Test")
 public class LimeLightTest extends LinearOpMode {
     @Override
@@ -31,7 +29,7 @@ public class LimeLightTest extends LinearOpMode {
             if(gamepad1.b)vision.setLed(false);
             if(gamepad1.touchpad){
                 LLResult res = vision.getResult();
-                if(vision.resultValid(res))spinner.setPosition(vision.getSpinnerPos(res));
+                if(vision.resultValid(res))spinner.setPosition(vision.getArmSpinnerPos(res));
             }
             if(gamepad1.dpad_up){
                 slide.setPower(1);
