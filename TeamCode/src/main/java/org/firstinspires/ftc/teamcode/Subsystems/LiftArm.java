@@ -144,7 +144,7 @@ class Lifter{
     }
 
     public boolean isFinished(){
-        return isFinished(15);
+        return isFinished(40);
     }
 }
 
@@ -217,7 +217,7 @@ public class LiftArm {
                 new ConditionalCommand(
                         new SequentialCommandGroup(
                                 new InstantCommand(()->clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE.value)),
-                                new WaitCommand(100),
+                                new WaitCommand(50),
                                 lifter.getFromWallCommand(),
                                 new WaitUntilCommand(lifter::isFinished),
                                 new InstantCommand(()->{
@@ -228,7 +228,7 @@ public class LiftArm {
                         ),
                         new SequentialCommandGroup(
                                 new InstantCommand(()->clawUp.setPosition(ServoConstants.UP_CLAW_OPEN.value)),
-                                new WaitCommand(70),
+                                new WaitCommand(30),
                                 new SequentialCommandGroup(
                                         new InstantCommand(lifter::resetSlide),
                                         new WaitUntilCommand(lifter::isFinished),

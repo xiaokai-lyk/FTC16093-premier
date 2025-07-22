@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Subsystems.Constants;
 public enum MotorConstants {
     FRONT_FAR(490),
     FRONT_NEAR(150),
+    FRONT_AUTO(300),
     FRONT_TOLERANCE(10),
     FRONT_FINISH_THRESHOLD(150),
     LIFT_HIGH(955),

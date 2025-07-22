@@ -22,6 +22,7 @@ public enum ServoConstants {
     ARM_WRIST_TURN(0.4),
     ARM_WRIST_HANDOVER(0.7),
     ARM_WRIST_FREE(0.65),
+    ARM_WRIST_AUTO_FREE(0.8),
     ARM_WRIST_CHAMBER_INTAKE(0.5),
 
     UP_CLAW_OPEN(0.3),

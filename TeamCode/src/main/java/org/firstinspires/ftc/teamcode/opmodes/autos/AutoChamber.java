@@ -63,22 +63,22 @@ public class AutoChamber extends AutoOpModeEx {
 
     private final Pose startPose = new Pose(0,  52.75, Math.toRadians(0));
 
-    private final Pose pickup1Pose = new Pose(9, 23, Math.toRadians(0));
-    private final Pose pickup2Pose = new Pose(9, 13, Math.toRadians(0));
-    private final Pose pickup3Pose = new Pose(8, 11, Math.toRadians(-29));
+    private final Pose pickup1Pose = new Pose(15, 23, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(15, 13, Math.toRadians(0));
+    private final Pose pickup3Pose = new Pose(18, 11, Math.toRadians(-29));
 
     private final Pose HPPose = new Pose(0, 29, Math.toRadians(0));
-    private final Pose HPPose1 = new Pose(1, 29, Math.toRadians(0));
-    private final Pose HPPose2 = new Pose(1, 15, Math.toRadians(0));
-    private final Pose HPPose3 = new Pose(1, 10, Math.toRadians(0));
+    private final Pose HPPose1 = new Pose(2, 23, Math.toRadians(0));
+    private final Pose HPPose2 = new Pose(2, 13, Math.toRadians(0));
+    private final Pose HPPose3 = new Pose(0, 15, Math.toRadians(0));
 
-    private final Pose scorePose0 = new Pose(26.5, 60, Math.toRadians(0));
-    private final Pose scorePose1 = new Pose(27.5, 63, Math.toRadians(0));
-    private final Pose scorePose2 = new Pose(27.5, 66, Math.toRadians(0));
-    private final Pose scorePose3 = new Pose(27.5, 69, Math.toRadians(0));
+    private final Pose scorePose0 = new Pose(27, 58, Math.toRadians(0));
+    private final Pose scorePose1 = new Pose(28, 60, Math.toRadians(0));
+    private final Pose scorePose2 = new Pose(28, 62, Math.toRadians(0));
+    private final Pose scorePose3 = new Pose(28, 64, Math.toRadians(0));
 
-    private final Pose parkControlPose = new Pose(40, 25, Math.toRadians(0));
-    private final Pose parkPose = new Pose(5, 25, Math.toRadians(0));
+    private final Pose parkControlPose = new Pose(14, 22, Math.toRadians(0));
+    private final Pose parkPose = new Pose(5, 22, Math.toRadians(0));
     private int currentPathId = 0;
 
     @Override
@@ -99,7 +99,7 @@ public class AutoChamber extends AutoOpModeEx {
 
         frontArm.autoInitPos();
         liftArm.autoChamberInitPos();
-        follower.setMaxPower(0.8);
+        follower.setMaxPower(1);
     }
 
     @NonNull
@@ -112,7 +112,9 @@ public class AutoChamber extends AutoOpModeEx {
     }
 
     private void buildPaths() {
-        PathChain grabPickup1, grabPickup2, grabPickup3, goToHP, goToHPAfterSample1, goToHPAfterSample2, goToHPAfterSample3, scoreChamber0, scoreChamber1, scoreChamber2, scoreChamber3;
+        PathChain grabPickup1, grabPickup2, grabPickup3,
+                goToHP, goToHPAfterSample1, goToHPAfterSample2, goToHPAfterSample3,
+                scoreChamber0, scoreChamber1, scoreChamber2, scoreChamber3, park;
         scoreChamber0 = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(startPose), new Point(scorePose0)))
                 .setLinearHeadingInterpolation(startPose.getHeading(), scorePose0.getHeading())
@@ -166,16 +168,18 @@ public class AutoChamber extends AutoOpModeEx {
                 .setLinearHeadingInterpolation(HPPose.getHeading(), scorePose3.getHeading())
                 .build();
 
-        Path park = new Path(new BezierCurve(new Point(scorePose3), new Point(parkControlPose), new Point(parkPose)));
-        park.setLinearHeadingInterpolation(scorePose3.getHeading(), parkPose.getHeading());
+        park = follower.pathBuilder()
+                .addPath(new BezierCurve(new Point(scorePose3), new Point(parkControlPose), new Point(parkPose)))
+                .setLinearHeadingInterpolation(scorePose3.getHeading(), parkPose.getHeading())
+                .build();
 
         pathChainList.addPath(scoreChamber0,
                 grabPickup1, goToHPAfterSample1,
                 grabPickup2, goToHPAfterSample2,
                 grabPickup3, goToHPAfterSample3,
-                null, scoreChamber1,
-                goToHP, scoreChamber2,
-                goToHP, scoreChamber3);
+                null, scoreChamber1, null, goToHP,
+                null, scoreChamber2, null, goToHP,
+                null, scoreChamber3, null, park);
     }
 
     private Command actionEnd(){
@@ -183,21 +187,22 @@ public class AutoChamber extends AutoOpModeEx {
     }
 
     private void buildActions(){
-        Command intakeSampleCommand, intakeSpecimenCommand, giveSpecimenToHPCommand, scoreSpecimenCommand, scorePreloadCommand;
-        scorePreloadCommand = autoCommand.scorePreloadSpecimen().andThen(actionEnd());
-        intakeSampleCommand = autoCommand.autoIntakeSampleForHP().andThen(actionEnd());
-        giveSpecimenToHPCommand = autoCommand.putSampleToHPCommand().andThen(actionEnd());
-        intakeSpecimenCommand = autoCommand.autoIntakeSpecimen().andThen(actionEnd());
-        scoreSpecimenCommand = autoCommand.autoScoreSpecimen().andThen(actionEnd());
+        Command intakeSampleCommand, intakeFirstSpecimenCommand, intakeSpecimenCommand, giveSpecimenToHPCommand, scoreSpecimenCommand, scorePreloadCommand;
+        scorePreloadCommand = autoCommand.scorePreloadSpecimen_v2().andThen(actionEnd());
+        intakeSampleCommand = autoCommand.autoIntakeSampleForHP_v2().andThen(actionEnd());
+        giveSpecimenToHPCommand = autoCommand.putSampleToHPCommand_v2().andThen(actionEnd());
+        intakeFirstSpecimenCommand = autoCommand.autoIntakeFirstSpecimen_v2().andThen(actionEnd());
+        intakeSpecimenCommand = autoCommand.autoIntakeSpecimen_v2().andThen(actionEnd());
+        scoreSpecimenCommand = autoCommand.autoScoreSpecimen_v2().andThen(actionEnd());
 
 
         actions.addAll(Arrays.asList(scorePreloadCommand,
                 intakeSampleCommand, giveSpecimenToHPCommand,
                 intakeSampleCommand, giveSpecimenToHPCommand,
                 intakeSampleCommand, giveSpecimenToHPCommand,
-                intakeSpecimenCommand, scoreSpecimenCommand,
-                intakeSpecimenCommand, scoreSpecimenCommand,
-                intakeSpecimenCommand, scoreSpecimenCommand));
+                intakeFirstSpecimenCommand, null, scoreSpecimenCommand, null,
+                intakeSpecimenCommand, null, scoreSpecimenCommand, null,
+                intakeSpecimenCommand, null, scoreSpecimenCommand, null));
     }
 
     private void periodic() {
@@ -232,7 +237,7 @@ public class AutoChamber extends AutoOpModeEx {
             periodic();
             if(!follower.isBusy() && !this.actionRunning){
                 PathChain path = it.next();
-                if(path!=null)follower.follow(path,1,0.5, Math.toRadians(3),0.8);
+                if(path!=null)follower.follow(path,2,1.5, Math.toRadians(0),1);
                 Command currentAction = actions.get(currentPathId);
                 if(currentAction!=null){
                     currentAction.schedule();

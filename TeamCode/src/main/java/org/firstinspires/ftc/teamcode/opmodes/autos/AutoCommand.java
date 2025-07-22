@@ -160,6 +160,70 @@ public class AutoCommand {
     }
 
 
+    /*--------------SPECIMEN INTAKE VERSION----------------*/
+    public Command scorePreloadSpecimen_v2(){
+        return new SequentialCommandGroup(
+                frontArm.highChamber(),
+                liftArm.highChamber(),
+                new WaitCommand(200),
+                liftArm.highChamber()
+        );
+    }
+
+    public Command autoIntakeFirstSampleForHP_v2(){
+        return new SequentialCommandGroup(
+                new WaitCommand(1000),
+                frontArm.intake(true,true),
+                new WaitCommand(100),
+                frontArm.intake(true, true),
+                new WaitCommand(50)
+        );
+    }
+
+    public Command autoIntakeSampleForHP_v2(){
+        return new SequentialCommandGroup(
+                new WaitCommand(600),
+                frontArm.intake(true,true),
+                new WaitCommand(100),
+                frontArm.intake(true, true),
+                new WaitCommand(50)
+        );
+    }
+
+    public Command putSampleToHPCommand_v2(){
+        return new SequentialCommandGroup(
+                new WaitCommand(300),
+                frontArm.giveHP(),
+                new WaitCommand(100)
+        );
+    }
+
+    public Command autoIntakeFirstSpecimen_v2(){
+        return new SequentialCommandGroup(
+                new WaitCommand(50),
+                liftArm.highChamber(),
+                new WaitCommand(50)
+        );
+    }
+
+    public Command autoIntakeSpecimen_v2(){
+        return new SequentialCommandGroup(
+                new WaitCommand(700),
+                liftArm.highChamber(),
+                new WaitCommand(50)
+        );
+    }
+
+    public Command autoScoreSpecimen_v2(){
+        return new SequentialCommandGroup(
+//                new WaitCommand(80),
+                frontArm.highChamber(),
+                new WaitCommand(180),
+                liftArm.highChamber()
+        );
+    }
+
+
     /*--------------OTHERS----------------*/
     public Point midPoint(Pose start, Pose end){
         return new Point((start.getX()+end.getX())/2,

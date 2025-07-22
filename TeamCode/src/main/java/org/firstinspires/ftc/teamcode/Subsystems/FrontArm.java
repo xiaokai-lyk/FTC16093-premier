@@ -128,7 +128,7 @@ public class FrontArm {
                                                 new InstantCommand(() ->
                                                 {
                                                     open_claw(true);
-                                                    frontSlide.setTargetPosition(is_far ? MotorConstants.FRONT_FAR.value : MotorConstants.FRONT_NEAR.value);
+                                                    frontSlide.setTargetPosition(auto_mode? MotorConstants.FRONT_AUTO.value: (is_far ? MotorConstants.FRONT_FAR.value : MotorConstants.FRONT_NEAR.value));
                                                     set_arm_spinner(ServoConstants.ARM_SPINNER_FRONT);
                                                     set_arm_wrist(ServoConstants.ARM_WRIST_PREINTAKE);
                                                     set_wrist(ServoConstants.WRIST_PARALLEL);
@@ -146,19 +146,21 @@ public class FrontArm {
                                         )//检查有没有夹到块，若是自动模式则无论如何都夹起并交接
                                         //有块：夹起，没有：回intake状态
                                 ),
-                        new InstantCommand(()->this.frontSlide.setTargetPosition(is_far ? MotorConstants.FRONT_FAR.value : MotorConstants.FRONT_NEAR.value)),
-                        ()->(is_far && (this.frontSlide.getCurrentPosition() >
+                        new InstantCommand(()->this.frontSlide.setTargetPosition(auto_mode? MotorConstants.FRONT_AUTO.value : (is_far ? MotorConstants.FRONT_FAR.value : MotorConstants.FRONT_NEAR.value))),
+                        ()->(is_far && !auto_mode && (this.frontSlide.getCurrentPosition() >
                                 0.97*MotorConstants.FRONT_FAR.value-MotorConstants.FRONT_TOLERANCE.value))
                                 ||(
-                                !is_far && this.frontSlide.getCurrentPosition() < MotorConstants.FRONT_NEAR.value + 10
-                        )//判断is_far参数代表的滑轨位置和实际位置是否一致
+                                !is_far && this.frontSlide.getCurrentPosition() < MotorConstants.FRONT_NEAR.value + 10)
+                                ||(auto_mode && this.frontSlide.getCurrentPosition() > 0.97* MotorConstants.FRONT_AUTO.value - MotorConstants.FRONT_TOLERANCE.value)
+                        //判断is_far参数代表的滑轨位置和实际位置是否一致
                         //一致：夹起；不一致：动滑轨
                 ),
                 new InstantCommand(() ->
+
                 {
                     this.state = State.DOWN;
                     open_claw(true);
-                    frontSlide.setTargetPosition(is_far ? MotorConstants.FRONT_FAR.value : MotorConstants.FRONT_NEAR.value);
+                    frontSlide.setTargetPosition(auto_mode? MotorConstants.FRONT_AUTO.value : (is_far ? MotorConstants.FRONT_FAR.value : MotorConstants.FRONT_NEAR.value));
                     set_arm_spinner(ServoConstants.ARM_SPINNER_FRONT);
                     set_arm_wrist(ServoConstants.ARM_WRIST_PREINTAKE);
                 }).andThen(
@@ -257,7 +259,7 @@ public class FrontArm {
     public void autoInitPos(){
         open_claw(claw_open);
         set_spinner(SpinnerConstant.PARALLEL);
-        set_arm_wrist(ServoConstants.ARM_WRIST_FREE);
+        set_arm_wrist(ServoConstants.ARM_WRIST_AUTO_FREE);
         set_wrist(ServoConstants.WRIST_PARALLEL);
         set_arm_spinner(ServoConstants.ARM_SPINNER_FRONT);
         this.state = State.FREE;
