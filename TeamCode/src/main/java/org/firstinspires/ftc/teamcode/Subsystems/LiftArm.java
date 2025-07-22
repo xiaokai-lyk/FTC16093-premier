@@ -279,7 +279,10 @@ public class LiftArm {
         });
     }
     public Command handover_2(){
-        return new InstantCommand(()->clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE.value));
+        return new SequentialCommandGroup(
+                new WaitCommand(100),
+                new InstantCommand(()->clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE.value))
+        );
     }
 
     //Dual

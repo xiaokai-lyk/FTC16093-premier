@@ -103,14 +103,14 @@ public class TeleOpBase extends CommandOpModeEx {
                                 )
                         ));
 
-        new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.LEFT_BUMPER) && frontArm.state == FrontArm.State.FREE&& mode == Tasks.SAMPLE)
+        new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.RIGHT_BUMPER) && frontArm.state == FrontArm.State.FREE&& mode == Tasks.SAMPLE)
                 .whenPressed(new ParallelCommandGroup(liftArm.releaseLow(), new InstantCommand(frontArm::initPos))
                         .alongWith(new ConditionalCommand(
                                         new SequentialCommandGroup(new InstantCommand(()->forwardComponentOffset = 1),
                                                 new WaitCommand(200),
                                                 new InstantCommand(()->forwardComponentOffset = 0)),
                                         new InstantCommand(),
-                                        ()->liftArm.state == LiftArm.LiftArmState.RELEASE && liftArm.lifterIsHigh()
+                                        ()->liftArm.state == LiftArm.LiftArmState.RELEASE && liftArm.lifterIsLow()
                                 )
                         ));
 
@@ -132,7 +132,9 @@ public class TeleOpBase extends CommandOpModeEx {
                 .whenPressed(()->frontArm.spinner_rotate(false));
 
         new ButtonEx(()->(gamepadEx1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)>0.5 && mode != Tasks.ASCENT)).whenPressed(
-                frontArm.intake(true, false).andThen(new ConditionalCommand(new ParallelCommandGroup(frontArm.handover(),liftArm.handover()),
+                frontArm.intake(true, false).andThen(new ConditionalCommand(new SequentialCommandGroup(
+                        new ParallelCommandGroup(frontArm.handover_1(),liftArm.handover_1()),
+                                new SequentialCommandGroup(liftArm.handover_2(), frontArm.handover_2())),
                         new InstantCommand(),
                         ()->frontArm.state == FrontArm.State.HOLDING_BLOCK&& mode == Tasks.SAMPLE))
                         .alongWith(
