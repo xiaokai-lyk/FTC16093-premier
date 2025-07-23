@@ -38,7 +38,7 @@ import pedroPathing.constants.*;
  * @version 1.0, 5/6/2024
  */
 @Config
-@TeleOp(group = "Teleop Test", name = "Localization Test")
+//@TeleOp(group = "Teleop Test", name = "Localization Test")
 public class LocalizationTest extends OpMode {
     private PoseUpdater poseUpdater;
     private DashboardPoseTracker dashboardPoseTracker;

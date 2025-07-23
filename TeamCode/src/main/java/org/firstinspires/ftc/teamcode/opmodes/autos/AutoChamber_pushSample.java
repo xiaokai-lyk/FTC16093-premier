@@ -29,7 +29,7 @@ import java.util.List;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@Autonomous(name = "Auto Chamber pushSample", group = "Auto")
+@Autonomous(name = "Auto Chamber", group = "Competition")
 public class AutoChamber_pushSample extends AutoOpModeEx {
     private FollowerEx follower;
     private AutoCommand autoCommand;

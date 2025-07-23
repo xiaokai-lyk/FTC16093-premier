@@ -31,7 +31,7 @@ import java.util.List;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@Autonomous(name = "Auto Basket vision", group = "Auto")
+//@Autonomous(name = "Auto Basket vision", group = "Auto")
 public class AutoBasket_v2 extends AutoOpModeEx {
     private FollowerEx follower;
     private AutoCommand autoCommand;

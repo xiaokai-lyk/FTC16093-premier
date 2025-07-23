@@ -41,7 +41,7 @@ public class AutoCommand {
     }
     public Command autoIntakeSample() {
         return new SequentialCommandGroup(
-                new WaitCommand(1800),
+                new WaitCommand(2000),
                 frontArm.intake(true,true),
                 new WaitCommand(180),
                 frontArm.intake(true, true),
@@ -53,26 +53,8 @@ public class AutoCommand {
         );
     }
 
-    public Command autoIntakeSampleWithVision() {
-        return new SequentialCommandGroup(
-                new WaitCommand(1000),
-                new InstantCommand(()->this.visionSucceed = frontArm.updateVision()),
-                new WaitCommand(50),
-                new ConditionalCommand(
-                        new ParallelCommandGroup(frontArm.intakeWithVision()),
-                        new InstantCommand(),
-                        ()->visionSucceed
-                ),
-                new WaitCommand(180),
-                new SequentialCommandGroup(
-                        new ParallelCommandGroup(frontArm.handover_1(),liftArm.handover_1()),
-                        new SequentialCommandGroup(liftArm.handover_2(), frontArm.handover_2())
-                )
-        );
-    }
-
     public Command autoReleaseHigh() {
-        return new WaitCommand(500)
+        return new WaitCommand(300)
                 .andThen(liftArm.releaseHigh())
                 .andThen(
                 new WaitCommand(350),
@@ -83,9 +65,9 @@ public class AutoCommand {
 
     public Command autoIntakeLastSample(){
         return new SequentialCommandGroup(
-                new WaitCommand(680),
+                new WaitCommand(800),
                 frontArm.intake(true,true),
-                new WaitCommand(350),
+                new WaitCommand(180),
                 frontArm.intake(true, true),
                 new WaitCommand(50),
                 new ParallelCommandGroup(frontArm.handover(),liftArm.handover())

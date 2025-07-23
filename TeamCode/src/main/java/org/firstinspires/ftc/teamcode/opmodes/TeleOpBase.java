@@ -22,7 +22,7 @@ import org.firstinspires.ftc.teamcode.utils.ButtonEx;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 
-@TeleOp(group = "0-competition", name = "16093 Solo")
+@TeleOp(group = "0-competition", name = "00-Basket 16093 Solo")
 public class TeleOpBase extends CommandOpModeEx {
     GamepadEx gamepadEx1;
     NewMecanumDrive driveCore;
