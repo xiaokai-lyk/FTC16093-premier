@@ -26,7 +26,7 @@ import java.util.List;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@TeleOp(name = "Motor Directions", group = "Teleop Test")
+//@TeleOp(name = "Motor Directions", group = "Teleop Test")
 public class MotorDirections extends OpMode {
     private Telemetry telemetryA;
 

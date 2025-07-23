@@ -31,7 +31,7 @@ import java.util.List;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@Autonomous(name = "Auto Chamber", group = "Auto")
+//@Autonomous(name = "Auto Chamber", group = "Auto")
 public class AutoChamber extends AutoOpModeEx {
     private FollowerEx follower;
     private AutoCommand autoCommand;

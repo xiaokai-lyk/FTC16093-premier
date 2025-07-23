@@ -30,7 +30,7 @@ import pedroPathing.constants.LConstants;
  * @version 1.0, 3/12/2024
  */
 @Config
-@Autonomous (name = "Straight Left And Right", group = "PIDF Tuning")
+//@Autonomous (name = "Straight Left And Right", group = "PIDF Tuning")
 public class StraightLeftAndRight extends OpMode {
     private Telemetry telemetryA;
 

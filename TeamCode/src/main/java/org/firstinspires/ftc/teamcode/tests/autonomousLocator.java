@@ -20,7 +20,7 @@ import pedroPathing.constants.LConstants;
  * @version 2.0, 12/30/2024
  */
 
-@TeleOp(name = "Locator", group = "tests")
+//@TeleOp(name = "Locator", group = "tests")
 @Config
 public class autonomousLocator extends OpMode {
     public double startX = 0, startY = 114, startHeading = Math.toRadians(-45);

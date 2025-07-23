@@ -26,7 +26,7 @@ import org.firstinspires.ftc.teamcode.commands.TeleOpDriveCommand;
 import org.firstinspires.ftc.teamcode.utils.ButtonEx;
 
 
-@TeleOp(group = "0-competition", name = "16093 Dual")
+@TeleOp(group = "0-competition", name = "99-Chamber 16093 Dual")
 public class TeleOpDual extends CommandOpModeEx {
     GamepadEx gamepadEx1, gamepadEx2;
     NewMecanumDrive driveCore;
