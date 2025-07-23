@@ -52,6 +52,7 @@ public class FrontArm {
 
     public FrontArm(@NonNull HardwareMap hardwareMap){
         vision = new Vision(hardwareMap, null);
+        vision.initialize();
         this.armSpinner = hardwareMap.get(Servo.class, "armSpin");
         this.claw = hardwareMap.get(Servo.class, "claw");
         this.wrist = hardwareMap.get(Servo.class, "wrist");

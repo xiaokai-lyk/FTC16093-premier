@@ -31,7 +31,7 @@ import java.util.List;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@Autonomous(name = "Auto Basket version2", group = "Auto")
+@Autonomous(name = "Auto Basket vision", group = "Auto")
 public class AutoBasket_v2 extends AutoOpModeEx {
     private FollowerEx follower;
     private AutoCommand autoCommand;
@@ -45,12 +45,12 @@ public class AutoBasket_v2 extends AutoOpModeEx {
 
     private final Pose startPose = new Pose(0, 114, Math.toRadians(-45));
 
-    private final Pose scorePose = new Pose(2.3, 125, Math.toRadians(-45));
-    private final Pose pickup1Pose = new Pose(6.5, 117, Math.toRadians(0));
-    private final Pose pickup2Pose = new Pose(7, 127, Math.toRadians(0));
+    private final Pose scorePose = new Pose(2.7, 125, Math.toRadians(0));
+    private final Pose pickup1Pose = new Pose(10, 117, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(10, 120.5, Math.toRadians(-5));
     private final Pose pickup3Pose = new Pose(10.5, 124, Math.toRadians(30));
-    private final Pose parkControlPose = new Pose(40, 126,Math.toRadians(-90));
-    private final Pose parkPose = new Pose(65, 65, Math.toRadians(-90));
+    private final Pose parkControlPose = new Pose(50, 126,Math.toRadians(-90));
+    private final Pose parkPose = new Pose(50, 80, Math.toRadians(-90));
     private int currentPathId = 0;
 
 
@@ -73,7 +73,8 @@ public class AutoBasket_v2 extends AutoOpModeEx {
         frontArm.autoInitPos();
         liftArm.autoInitPos();
 
-        follower.setMaxPower(0.9);
+        frontArm.setLED(true);
+        follower.setMaxPower(0.8);
     }
 
     @NonNull
@@ -86,7 +87,7 @@ public class AutoBasket_v2 extends AutoOpModeEx {
     }
 
     private void buildPaths() {
-        PathChain scorePreload, grabPickup1, grabPickup2, grabPickup3, scorePickup1, scorePickup2, scorePickup3, park;
+        PathChain scorePreload, grabPickup1, grabPickup2, grabPickup3, scorePickup1, scorePickup2, scorePickup3, park1, park2;
 
         scorePreload = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(startPose), new Point(scorePose)))
@@ -124,15 +125,17 @@ public class AutoBasket_v2 extends AutoOpModeEx {
                 .setLinearHeadingInterpolation(getCurrentHeading(), scorePose.getHeading())
                 .build();
 
-        park = follower.pathBuilder()
-                .addPath(new Path(new BezierCurve(getCurrentPoint(), new Point(parkControlPose), new Point(parkPose))))
-                .setLinearHeadingInterpolation(getCurrentHeading(), parkPose.getHeading())
+        park1 = follower.pathBuilder()
+                .addPath(new Path(new BezierLine(new Point(scorePose), new Point(parkControlPose))))
+                .setLinearHeadingInterpolation(scorePose.getHeading(), parkControlPose.getHeading())
                 .build();
 
-        pathChainList.addPath(scorePreload, null,
-                grabPickup1, null, scorePickup1, null,
-                grabPickup2, null, scorePickup2, null,
-                grabPickup3, null, scorePickup3, null);
+        park2 = follower.pathBuilder()
+                .addPath(new Path(new BezierLine(new Point(parkControlPose), new Point(parkPose))))
+                .setLinearHeadingInterpolation(parkControlPose.getHeading(), parkPose.getHeading())
+                .build();
+
+        pathChainList.addPath(scorePreload, grabPickup1, null, scorePickup1, grabPickup2, null, scorePickup2, grabPickup3, scorePickup3);
     }
 
     @NonNull
@@ -142,16 +145,18 @@ public class AutoBasket_v2 extends AutoOpModeEx {
 
     private void buildActions(){
         Command intakeSampleCommand, releasePreloadCommand, releaseCommand, parkCommand, intakeLastSampleCommand;
-        intakeSampleCommand = autoCommand.autoIntakeSample_v2().andThen(actionEnd());
-        releaseCommand = autoCommand.autoReleaseHigh_v2().andThen(actionEnd());
-        releasePreloadCommand = autoCommand.autoReleasePreloadSample_v2().andThen(actionEnd());
+        intakeSampleCommand = autoCommand.autoIntakeSample().andThen(actionEnd());
+        releaseCommand = autoCommand.autoReleaseHigh().andThen(actionEnd());
+        releasePreloadCommand = autoCommand.autoReleasePreloadSample().andThen(actionEnd());
         parkCommand = liftArm.parkCommand().andThen(actionEnd());
-        intakeLastSampleCommand = autoCommand.autoIntakeLastSample_v2().andThen(actionEnd());
+        intakeLastSampleCommand = autoCommand.autoIntakeLastSample().andThen(actionEnd());
 
-        actions.addAll(Arrays.asList(null, releasePreloadCommand,
-                null, intakeSampleCommand, null, releaseCommand,
-                null, intakeSampleCommand, null, releaseCommand,
-                null, intakeLastSampleCommand, null, releaseCommand));
+        actions.addAll(Arrays.asList(releasePreloadCommand,
+                actionEnd(),
+                null, releaseCommand,
+                actionEnd(),
+                null, releaseCommand,
+                intakeLastSampleCommand, releaseCommand));
     }
 
     private void periodic() {
@@ -184,13 +189,17 @@ public class AutoBasket_v2 extends AutoOpModeEx {
         while (it.hasNext()){
             if (!opModeIsActive())break;
             periodic();
-            if(follower.isFinished && !this.actionRunning){
+            if(!follower.isBusy() && !this.actionRunning){
                 PathChain path = it.next();
-                if(path!=null) follower.follow(path, 0, 0, Math.toRadians(0), 0.8);
-//                if(path!=null)follower.followPath(path);
+//                if(path!=null) follower.follow(path, 1, 0.5, Math.toRadians(0));
+                if(path!=null)follower.followPath(path);
                 Command currentAction = actions.get(currentPathId);
                 if(currentAction!=null){
+                    this.actionRunning = true;
                     currentAction.schedule();
+                }else{
+                    follower.forceStop();
+                    autoCommand.autoIntakeSample().andThen(actionEnd()).schedule();
                     this.actionRunning = true;
                 }
                 currentPathId++;

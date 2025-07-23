@@ -39,8 +39,21 @@ public class AutoCommand {
                 liftArm.releaseHigh()
         );
     }
-
     public Command autoIntakeSample() {
+        return new SequentialCommandGroup(
+                new WaitCommand(1800),
+                frontArm.intake(true,true),
+                new WaitCommand(180),
+                frontArm.intake(true, true),
+                new WaitCommand(50),
+                new SequentialCommandGroup(
+                        new ParallelCommandGroup(frontArm.handover_1(),liftArm.handover_1()),
+                        new SequentialCommandGroup(liftArm.handover_2(), frontArm.handover_2())
+                )
+        );
+    }
+
+    public Command autoIntakeSampleWithVision() {
         return new SequentialCommandGroup(
                 new WaitCommand(1000),
                 new InstantCommand(()->this.visionSucceed = frontArm.updateVision()),

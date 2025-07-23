@@ -45,9 +45,9 @@ public class AutoBasket extends AutoOpModeEx {
 
     private final Pose startPose = new Pose(0, 114, Math.toRadians(-45));
 
-    private final Pose scorePose = new Pose(2.7, 125, Math.toRadians(-45));
-    private final Pose pickup1Pose = new Pose(10, 117, Math.toRadians(0));
-    private final Pose pickup2Pose = new Pose(10, 127.5, Math.toRadians(0));
+    private final Pose scorePose = new Pose(2.2, 126, Math.toRadians(-45));
+    private final Pose pickup1Pose = new Pose(6.5, 116, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(7, 126, Math.toRadians(0));
     private final Pose pickup3Pose = new Pose(10.5, 124, Math.toRadians(30));
     private final Pose parkControlPose = new Pose(50, 126,Math.toRadians(-90));
     private final Pose parkPose = new Pose(50, 80, Math.toRadians(-90));
@@ -73,8 +73,7 @@ public class AutoBasket extends AutoOpModeEx {
         frontArm.autoInitPos();
         liftArm.autoInitPos();
 
-        frontArm.setLED(true);
-        follower.setMaxPower(0.8);
+        follower.setMaxPower(1);
     }
 
     @NonNull
@@ -140,7 +139,6 @@ public class AutoBasket extends AutoOpModeEx {
                 grabPickup2, scorePickup2,
                 grabPickup3, scorePickup3,
                 park1, park2);
-        pathChainList.addPath(scorePreload, grabPickup1, null, scorePickup1, grabPickup2, null, scorePickup2, grabPickup3, scorePickup3);
     }
 
     @NonNull
@@ -157,11 +155,10 @@ public class AutoBasket extends AutoOpModeEx {
         intakeLastSampleCommand = autoCommand.autoIntakeLastSample().andThen(actionEnd());
 
         actions.addAll(Arrays.asList(releasePreloadCommand,
-                actionEnd(),
-                null, releaseCommand,
-                actionEnd(),
-                null, releaseCommand,
-                intakeLastSampleCommand, releaseCommand));
+                intakeSampleCommand, releaseCommand,
+                intakeSampleCommand, releaseCommand,
+                intakeSampleCommand, releaseCommand,
+                null, parkCommand));
     }
 
     private void periodic() {
@@ -196,15 +193,11 @@ public class AutoBasket extends AutoOpModeEx {
             periodic();
             if(!follower.isBusy() && !this.actionRunning){
                 PathChain path = it.next();
-//                if(path!=null) follower.follow(path, 1, 0.5, Math.toRadians(0));
+//                if(path!=null) follower.follow(path, 1, 0.5, Math.toRadians(0), 1);
                 if(path!=null)follower.followPath(path);
                 Command currentAction = actions.get(currentPathId);
                 if(currentAction!=null){
-                    this.actionRunning = true;
                     currentAction.schedule();
-                }else{
-                    follower.forceStop();
-                    autoCommand.autoIntakeSample().andThen(actionEnd()).schedule();
                     this.actionRunning = true;
                 }
                 currentPathId++;

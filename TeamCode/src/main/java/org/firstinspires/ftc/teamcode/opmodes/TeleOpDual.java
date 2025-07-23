@@ -69,6 +69,7 @@ public class TeleOpDual extends CommandOpModeEx {
                 ()->frontArm.state==FrontArm.State.DOWN?0.7:1);
 
         frontArm = new FrontArm(hardwareMap);
+        frontArm.setLED(false);
         liftArm = new LiftArm(hardwareMap);
 
 

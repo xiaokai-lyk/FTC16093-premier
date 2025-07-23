@@ -56,11 +56,13 @@ public class TeleOpBase extends CommandOpModeEx {
                 ()->frontArm.state==FrontArm.State.DOWN?0.7:1);
 
         frontArm = new FrontArm(hardwareMap);
+        frontArm.setLED(false);
         liftArm = new LiftArm(hardwareMap);
 
 
         driveCore.resetHeading();
-        driveCore.yawHeading = -90;
+        driveCore.yawHeading += 90;
+        driveCore.yawHeading %= 360;
         driveCore.resetOdo();
         driveCore.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         CommandScheduler.getInstance().schedule(driveCommand);
