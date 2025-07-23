@@ -84,7 +84,7 @@ public class NewMecanumDrive extends MecanumDrive {
     boolean manualSwitchDrive = false;
     BooleanSupplier opModeActive = ()->true;
 
-    private double yawHeading = 0;
+    public double yawHeading = 0;
 
     private final BooleanSupplier switchDrivePIDCondition = ()->false;
     private boolean switchDrive = false;

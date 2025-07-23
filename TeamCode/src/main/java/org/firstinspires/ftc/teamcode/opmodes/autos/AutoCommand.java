@@ -30,16 +30,16 @@ public class AutoCommand {
     /*--------------SAMPLE----------------*/
     public Command autoReleasePreloadSample(){
         return new SequentialCommandGroup(
-                new WaitCommand(100),
+                new WaitCommand(800),
                 liftArm.releaseHigh(),
-                new WaitCommand(180),
+                new WaitCommand(350),
                 liftArm.releaseHigh()
         );
     }
 
     public Command autoIntakeSample() {
         return new SequentialCommandGroup(
-                new WaitCommand(700),
+                new WaitCommand(1800),
                 frontArm.intake(true,true),
                 new WaitCommand(180),
                 frontArm.intake(true, true),
@@ -52,8 +52,10 @@ public class AutoCommand {
     }
 
     public Command autoReleaseHigh() {
-        return liftArm.releaseHigh().andThen(
-                new WaitCommand(180),
+        return new WaitCommand(500)
+                .andThen(liftArm.releaseHigh())
+                .andThen(
+                new WaitCommand(350),
                 liftArm.releaseHigh()
 //                new WaitCommand(0)
         );
@@ -98,9 +100,9 @@ public class AutoCommand {
     /*--------------SAMPLE VERSION2----------------*/
     public Command autoReleasePreloadSample_v2(){
         return new SequentialCommandGroup(
-                new WaitCommand(80),
+                new WaitCommand(100),
                 liftArm.releaseHigh(),
-                new WaitCommand(150),
+                new WaitCommand(180),
                 liftArm.releaseHigh()
 //                new WaitCommand(80)
         );
