@@ -443,4 +443,8 @@ public class LiftArm {
     public void setLifterPower(double power){
         lifter.setPower(power);
     }
+
+    public void resetLifterEncoder(){
+        lifter.resetEncoder();
+    }
 }

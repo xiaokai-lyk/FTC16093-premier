@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class FollowerEx extends Follower {
+
     private double xTolerance, yTolerance, headingTolerance;
     private final List<DcMotorEx> motors;
     private Point endPoint;
@@ -40,6 +41,7 @@ public class FollowerEx extends Follower {
 
     public void follow(PathChain pathChain, double xTolerance, double yTolerance, double headingTolerance) {
         isFinished = false;
+
         super.setMaxPower(1);
         super.followPath(pathChain);
         this.xTolerance = xTolerance;

@@ -9,7 +9,7 @@ public enum MotorConstants {
     LIFT_HIGH(955),
     LIFT_LOW(400),
     LIFT_ABOVE_BASKET_TOLERANCE(700),
-    LIFT_PARK_AIM(450),
+    LIFT_PARK_AIM(400),
     LIFT_HIGH_CHAMBER(440),
 
 

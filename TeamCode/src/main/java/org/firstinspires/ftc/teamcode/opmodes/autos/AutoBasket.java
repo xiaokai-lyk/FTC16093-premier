@@ -49,8 +49,8 @@ public class AutoBasket extends AutoOpModeEx {
     private final Pose pickup1Pose = new Pose(10, 117, Math.toRadians(0));
     private final Pose pickup2Pose = new Pose(10, 127.5, Math.toRadians(0));
     private final Pose pickup3Pose = new Pose(10.5, 124, Math.toRadians(30));
-    private final Pose parkControlPose = new Pose(40, 126,Math.toRadians(-90));
-    private final Pose parkPose = new Pose(65, 65, Math.toRadians(-90));
+    private final Pose parkControlPose = new Pose(50, 126,Math.toRadians(-90));
+    private final Pose parkPose = new Pose(50, 80, Math.toRadians(-90));
     private int currentPathId = 0;
 
 
@@ -73,10 +73,8 @@ public class AutoBasket extends AutoOpModeEx {
         frontArm.autoInitPos();
         liftArm.autoInitPos();
 
-        follower.setMaxPower(0.8);
-
-
         frontArm.setLED(true);
+        follower.setMaxPower(0.8);
     }
 
     @NonNull
@@ -89,7 +87,7 @@ public class AutoBasket extends AutoOpModeEx {
     }
 
     private void buildPaths() {
-        PathChain scorePreload, grabPickup1, grabPickup2, grabPickup3, scorePickup1, scorePickup2, scorePickup3, park;
+        PathChain scorePreload, grabPickup1, grabPickup2, grabPickup3, scorePickup1, scorePickup2, scorePickup3, park1, park2;
 
         scorePreload = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(startPose), new Point(scorePose)))
@@ -127,11 +125,21 @@ public class AutoBasket extends AutoOpModeEx {
                 .setLinearHeadingInterpolation(getCurrentHeading(), scorePose.getHeading())
                 .build();
 
-        park = follower.pathBuilder()
-                .addPath(new Path(new BezierCurve(getCurrentPoint(), new Point(parkControlPose), new Point(parkPose))))
-                .setLinearHeadingInterpolation(getCurrentHeading(), parkPose.getHeading())
+        park1 = follower.pathBuilder()
+                .addPath(new Path(new BezierLine(new Point(scorePose), new Point(parkControlPose))))
+                .setLinearHeadingInterpolation(scorePose.getHeading(), parkControlPose.getHeading())
                 .build();
 
+        park2 = follower.pathBuilder()
+                .addPath(new Path(new BezierLine(new Point(parkControlPose), new Point(parkPose))))
+                .setLinearHeadingInterpolation(parkControlPose.getHeading(), parkPose.getHeading())
+                .build();
+
+        pathChainList.addPath(scorePreload,
+                grabPickup1, scorePickup1,
+                grabPickup2, scorePickup2,
+                grabPickup3, scorePickup3,
+                park1, park2);
         pathChainList.addPath(scorePreload, grabPickup1, null, scorePickup1, grabPickup2, null, scorePickup2, grabPickup3, scorePickup3);
     }
 
@@ -142,7 +150,7 @@ public class AutoBasket extends AutoOpModeEx {
 
     private void buildActions(){
         Command intakeSampleCommand, releasePreloadCommand, releaseCommand, parkCommand, intakeLastSampleCommand;
-//        intakeSampleCommand = autoCommand.autoIntakeSample().andThen(actionEnd());
+        intakeSampleCommand = autoCommand.autoIntakeSample().andThen(actionEnd());
         releaseCommand = autoCommand.autoReleaseHigh().andThen(actionEnd());
         releasePreloadCommand = autoCommand.autoReleasePreloadSample().andThen(actionEnd());
         parkCommand = liftArm.parkCommand().andThen(actionEnd());

@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.opmodes.autos;
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
@@ -28,6 +27,7 @@ public class AutoCommand {
     public AutoCommand(FrontArm frontArm, LiftArm liftArm) {
         this.frontArm = frontArm;
         this.liftArm = liftArm;
+//        this.frontArmState = FrontArm.State.FREE;
     }
 
     /*--------------SAMPLE----------------*/
@@ -59,8 +59,10 @@ public class AutoCommand {
     }
 
     public Command autoReleaseHigh() {
-        return liftArm.releaseHigh().andThen(
-                new WaitCommand(180),
+        return new WaitCommand(500)
+                .andThen(liftArm.releaseHigh())
+                .andThen(
+                new WaitCommand(350),
                 liftArm.releaseHigh()
 //                new WaitCommand(0)
         );

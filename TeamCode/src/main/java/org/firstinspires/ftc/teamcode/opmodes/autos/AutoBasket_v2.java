@@ -148,7 +148,7 @@ public class AutoBasket_v2 extends AutoOpModeEx {
         parkCommand = liftArm.parkCommand().andThen(actionEnd());
         intakeLastSampleCommand = autoCommand.autoIntakeLastSample_v2().andThen(actionEnd());
 
-        actions.addAll(Arrays.asList(null, releaseCommand,
+        actions.addAll(Arrays.asList(null, releasePreloadCommand,
                 null, intakeSampleCommand, null, releaseCommand,
                 null, intakeSampleCommand, null, releaseCommand,
                 null, intakeLastSampleCommand, null, releaseCommand));
@@ -186,8 +186,8 @@ public class AutoBasket_v2 extends AutoOpModeEx {
             periodic();
             if(follower.isFinished && !this.actionRunning){
                 PathChain path = it.next();
-//                if(path!=null) follower.follow(path, 1, 0.5, Math.toRadians(0), 1);
-                if(path!=null)follower.followPath(path);
+                if(path!=null) follower.follow(path, 0, 0, Math.toRadians(0), 0.8);
+//                if(path!=null)follower.followPath(path);
                 Command currentAction = actions.get(currentPathId);
                 if(currentAction!=null){
                     currentAction.schedule();
