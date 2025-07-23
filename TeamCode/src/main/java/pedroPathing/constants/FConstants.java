@@ -4,6 +4,8 @@ import com.pedropathing.localization.Localizers;
 import com.pedropathing.follower.FollowerConstants;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+
+
 public class FConstants {
     static {
         FollowerConstants.localizers = Localizers.PINPOINT;
@@ -47,6 +49,7 @@ public class FConstants {
         FollowerConstants.secondaryDrivePIDFCoefficients.setCoefficients(0.01,0,0.0008,0,0);
 
         FollowerConstants.zeroPowerAccelerationMultiplier = 4;
+
         FollowerConstants.centripetalScaling = 0.00045;
 
         FollowerConstants.pathEndTimeoutConstraint = 500;
