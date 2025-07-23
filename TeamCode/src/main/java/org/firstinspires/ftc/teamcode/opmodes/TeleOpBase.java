@@ -56,7 +56,7 @@ public class TeleOpBase extends CommandOpModeEx {
                 ()->frontArm.state==FrontArm.State.DOWN?0.7:1);
 
         frontArm = new FrontArm(hardwareMap);
-        frontArm.setLED(false);
+        frontArm.setLED(true);
         liftArm = new LiftArm(hardwareMap);
 
 
