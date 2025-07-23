@@ -8,7 +8,7 @@ import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 
 import com.arcrobotics.ftclib.command.InstantCommand;
-import com.pedropathing.localization.localizers.PinpointLocalizer;
+import com.arcrobotics.ftclib.command.WaitCommand;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
@@ -45,19 +45,18 @@ public class AutoBasket extends AutoOpModeEx {
 
     private final Pose startPose = new Pose(0, 114, Math.toRadians(-45));
 
-    private final Pose scorePose = new Pose(2.2, 126, Math.toRadians(-45));
+    private final Pose scorePose = new Pose(2.7, 126, Math.toRadians(-45));
     private final Pose pickup1Pose = new Pose(6.5, 116, Math.toRadians(0));
-    private final Pose pickup2Pose = new Pose(7, 126, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(7, 126.3, Math.toRadians(0));
     private final Pose pickup3Pose = new Pose(10.5, 124, Math.toRadians(30));
-    private final Pose parkControlPose = new Pose(50, 126,Math.toRadians(-90));
-    private final Pose parkPose = new Pose(50, 80, Math.toRadians(-90));
+    private final Pose parkControlPose = new Pose(46, 126,Math.toRadians(-90));
+    private final Pose parkPose = new Pose(50, 85, Math.toRadians(-90));
     private int currentPathId = 0;
 
 
     @Override
     public void initialize() {
         this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-        PinpointLocalizer localizer = new PinpointLocalizer(hardwareMap);
         follower = new FollowerEx(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
         frontArm = new FrontArm(hardwareMap);
@@ -70,6 +69,7 @@ public class AutoBasket extends AutoOpModeEx {
         buildPaths();
         buildActions();
 
+        frontArm.setLED(false);
         frontArm.autoInitPos();
         liftArm.autoInitPos();
 
@@ -138,7 +138,7 @@ public class AutoBasket extends AutoOpModeEx {
                 grabPickup1, scorePickup1,
                 grabPickup2, scorePickup2,
                 grabPickup3, scorePickup3,
-                park1, park2);
+                park1, park2, null);
     }
 
     @NonNull
@@ -158,7 +158,7 @@ public class AutoBasket extends AutoOpModeEx {
                 intakeSampleCommand, releaseCommand,
                 intakeSampleCommand, releaseCommand,
                 intakeSampleCommand, releaseCommand,
-                null, parkCommand));
+                null, parkCommand, new WaitCommand(999999)));
     }
 
     private void periodic() {
