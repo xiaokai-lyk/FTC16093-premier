@@ -165,7 +165,6 @@ public class NewMecanumDrive extends MecanumDrive {
         );
     }
 
-
     public void init(){
         resetHeading();
         resetOdo();

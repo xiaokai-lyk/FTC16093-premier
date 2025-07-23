@@ -5,8 +5,12 @@ package org.firstinspires.ftc.teamcode.opmodes;
 // Currently not working!!!
 // Currently not working!!!
 // Currently not working!!!
+import android.widget.Button;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
@@ -18,6 +22,7 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
 
 import org.firstinspires.ftc.teamcode.Subsystems.FrontArm;
 import org.firstinspires.ftc.teamcode.Subsystems.LiftArm;
@@ -49,6 +54,7 @@ public class TeleOpDual extends CommandOpModeEx {
     private IntakeState intakeState;
     double XOffset = 0;
     private double YOffset = 0;
+
     @Override
     public void initialize() {
         CommandScheduler.getInstance().cancelAll();
@@ -86,14 +92,14 @@ public class TeleOpDual extends CommandOpModeEx {
         });
         new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.BACK))
                 .whenPressed(()->{
-                    liftArm.initPos();
+                    liftArm.initPosSpecimen();
                     frontArm.initPos(true);
                 });
     }
 
     @Override
     public void onStart() {
-        liftArm.initPos();
+        liftArm.initPosSpecimen();
         frontArm.initPos(true);
         resetRuntime();
     }
@@ -133,20 +139,21 @@ public class TeleOpDual extends CommandOpModeEx {
         new ButtonEx(()->gamepadEx1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)>0.5
                 && frontArm.state != FrontArm.State.DOWN && liftArm.state == LiftArm.LiftArmState.PRE_CHAMBER && mode == Tasks.SPECIMEN)
                 .whenPressed(new SequentialCommandGroup(frontArm.highChamber(), liftArm.highChamber())
-                        .alongWith(
-                                new SequentialCommandGroup(
-                                        new WaitCommand(200),
-                                        new InstantCommand(() -> {
-                                            XOffset = 1;
-                                            YOffset = -0.5;
-                                        }),
-                                        new WaitCommand(400),
-                                        new InstantCommand(() -> {
-                                            XOffset = 0;
-                                            YOffset = 0;
-                                        })
-                                )));
+                        );
 
+        new ButtonEx(()->gamepadEx2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)>0.5
+                && frontArm.state != FrontArm.State.DOWN && liftArm.state == LiftArm.LiftArmState.FREE && mode == Tasks.SPECIMEN)
+                .whenPressed(new SequentialCommandGroup(
+                        new WaitCommand(200),
+                        new InstantCommand(() -> {
+                            XOffset = 1;
+                            YOffset = -0.4;
+                        }),
+                        new WaitCommand(500),
+                        new InstantCommand(() -> {
+                            XOffset = 0;
+                            YOffset = 0;
+                        })));
 
         //Shared
         new ButtonEx(()->(gamepadEx2.getButton(GamepadKeys.Button.RIGHT_BUMPER)

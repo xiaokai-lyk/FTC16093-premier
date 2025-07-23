@@ -201,6 +201,15 @@ public class LiftArm {
         wristUp.setPosition(ServoConstants.UP_WRIST_PARALLEL.value);
         this.state = LiftArmState.FREE;
     }
+    public void initPosSpecimen(){
+        ascentLeft.setPosition(ServoConstants.ASCENT_LEFT_UP.value);
+        ascentRight.setPosition(ServoConstants.ASCENT_RIGHT_UP.value);
+        lifter.resetSlide();
+        clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE_CAN_SLIDE.value);
+        armUp.setPosition(ServoConstants.UP_ARM_PARALLEL.value);
+        wristUp.setPosition(ServoConstants.UP_WRIST_PARALLEL.value);
+        this.state = LiftArmState.FREE;
+    }
 
     public void autoInitPos(){
         ascentLeft.setPosition(ServoConstants.ASCENT_LEFT_DOWN.value);
