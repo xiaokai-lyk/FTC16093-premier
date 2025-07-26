@@ -10,12 +10,15 @@ import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 
+import org.firstinspires.ftc.teamcode.Subsystems.Constants.ServoConstants;
 import org.firstinspires.ftc.teamcode.Subsystems.FrontArm;
 import org.firstinspires.ftc.teamcode.Subsystems.LiftArm;
 
+import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.Point;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 
 public class AutoCommand {
@@ -31,10 +34,14 @@ public class AutoCommand {
     }
 
     /*--------------SAMPLE----------------*/
-    public Command autoReleasePreloadSample(){
+    public Command autoReleasePreloadSample_1(){
         return new SequentialCommandGroup(
-                new WaitCommand(100),
-                liftArm.releaseHigh(),
+//                new WaitCommand(100),
+                liftArm.releaseHigh()
+        );
+    }
+    public Command autoReleasePreloadSample_2(){
+        return new SequentialCommandGroup(
                 new WaitCommand(180),
                 liftArm.releaseHigh()
         );
@@ -78,14 +85,15 @@ public class AutoCommand {
     /*--------------SPECIMEN----------------*/
     public Command scorePreloadSpecimen(){
         return new SequentialCommandGroup(
-                liftArm.highChamber(),
-                new WaitCommand(300),
+                liftArm.FirstHighChamber(),
+                new WaitCommand(400),
                 liftArm.highChamber()
         );
     }
 
     public Command autoIntakeSpecimen(){
         return new SequentialCommandGroup(
+                new WaitCommand(120),
                 liftArm.highChamber()
         );
     }
@@ -94,6 +102,14 @@ public class AutoCommand {
         return new SequentialCommandGroup(
                 new WaitCommand(80),
                 liftArm.highChamber()
+        );
+    }
+
+    public Command autoScoreLastSpecimen(){
+        return new SequentialCommandGroup(
+                new WaitCommand(80),
+                new InstantCommand(()->liftArm.getClawUp().setPosition(ServoConstants.UP_CLAW_OPEN.value)),
+                liftArm.resetSlideForAutoChamberEnd()
         );
     }
 

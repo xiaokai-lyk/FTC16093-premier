@@ -52,7 +52,7 @@ public class FrontArm {
 
     public FrontArm(@NonNull HardwareMap hardwareMap){
         vision = new Vision(hardwareMap, null);
-        vision.initialize();
+//        vision.initialize();
         this.armSpinner = hardwareMap.get(Servo.class, "armSpin");
         this.claw = hardwareMap.get(Servo.class, "claw");
         this.wrist = hardwareMap.get(Servo.class, "wrist");
@@ -320,6 +320,18 @@ public class FrontArm {
         open_claw(claw_open);
         set_spinner(SpinnerConstant.PARALLEL);
         set_arm_wrist(ServoConstants.ARM_WRIST_AUTO_FREE);
+        set_wrist(ServoConstants.WRIST_PARALLEL);
+        set_arm_spinner(ServoConstants.ARM_SPINNER_FRONT);
+        this.state = State.FREE;
+        frontSlide.setTargetPosition(0);
+        frontSlide.setPower(1);
+        frontSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+
+    public void autoChamberInitPos(){
+        open_claw(claw_open);
+        set_spinner(SpinnerConstant.PARALLEL);
+        set_arm_wrist(ServoConstants.ARM_WRIST_AUTOCHAMBER_FREE);
         set_wrist(ServoConstants.WRIST_PARALLEL);
         set_arm_spinner(ServoConstants.ARM_SPINNER_FRONT);
         this.state = State.FREE;

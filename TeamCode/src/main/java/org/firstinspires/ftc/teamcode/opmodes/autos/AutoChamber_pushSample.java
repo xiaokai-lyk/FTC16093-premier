@@ -101,7 +101,7 @@ public class AutoChamber_pushSample extends AutoOpModeEx {
         buildPaths();
         buildActions();
 
-        frontArm.autoInitPos();
+        frontArm.autoChamberInitPos();
         liftArm.autoChamberInitPos();
         follower.setMaxPower(1);
     }
@@ -197,7 +197,7 @@ public class AutoChamber_pushSample extends AutoOpModeEx {
                 null, scoreChamber1, null, goToHP,
                 null, scoreChamber2, null, goToHP,
                 null, scoreChamber3, null, goToHP,
-                null, scoreChamber3, null, park);
+                null, scoreChamber3, null, park, null);
     }
 
     private Command actionEnd(){
@@ -205,10 +205,11 @@ public class AutoChamber_pushSample extends AutoOpModeEx {
     }
 
     private void buildActions(){
-        Command intakeSpecimenCommand, scoreSpecimenCommand, scorePreloadCommand;
+        Command intakeSpecimenCommand, scoreSpecimenCommand, scorePreloadCommand, scoreLastSpecimenCommand;
         scorePreloadCommand = autoCommand.scorePreloadSpecimen().andThen(actionEnd());
         intakeSpecimenCommand = autoCommand.autoIntakeSpecimen().andThen(actionEnd());
         scoreSpecimenCommand = autoCommand.autoScoreSpecimen().andThen(actionEnd());
+        scoreLastSpecimenCommand = autoCommand.autoScoreLastSpecimen().andThen(actionEnd());
 
 
         actions.addAll(Arrays.asList(scorePreloadCommand,
@@ -219,7 +220,7 @@ public class AutoChamber_pushSample extends AutoOpModeEx {
                 intakeSpecimenCommand, null, scoreSpecimenCommand, null,
                 intakeSpecimenCommand, null, scoreSpecimenCommand, null,
                 intakeSpecimenCommand, null, scoreSpecimenCommand, null,
-                intakeSpecimenCommand, null, scoreSpecimenCommand, null));
+                intakeSpecimenCommand, null, scoreLastSpecimenCommand, null));
     }
 
     private void periodic() {

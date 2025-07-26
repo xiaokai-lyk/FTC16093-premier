@@ -9,11 +9,13 @@ public enum MotorConstants {
     LIFT_HIGH(955),
     LIFT_LOW(400),
     LIFT_ABOVE_BASKET_TOLERANCE(700),
-    LIFT_PARK_AIM(400),
-    LIFT_HIGH_CHAMBER(440),
+    LIFT_PARK_AIM(370),
+    LIFT_HIGH_CHAMBER(455),
+    LIFT_HIGH_CHAMBER_FIRST(440),
 
 
     FINAL_ASCENT_THRESHOLD(400),
+//    FINAL_ASCENT_SLIDE_FINISH(750)
     ;
 
     public final int value;

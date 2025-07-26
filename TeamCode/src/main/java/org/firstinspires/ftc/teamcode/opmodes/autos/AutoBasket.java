@@ -46,9 +46,9 @@ public class AutoBasket extends AutoOpModeEx {
     private final Pose startPose = new Pose(0, 114, Math.toRadians(-45));
 
     private final Pose scorePose = new Pose(2.7, 126, Math.toRadians(-45));
-    private final Pose pickup1Pose = new Pose(6.5, 116, Math.toRadians(0));
-    private final Pose pickup2Pose = new Pose(7, 126.3, Math.toRadians(0));
-    private final Pose pickup3Pose = new Pose(10.5, 124, Math.toRadians(30));
+    private final Pose pickup1Pose = new Pose(6, 117.5, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(6, 126.5, Math.toRadians(0));
+    private final Pose pickup3Pose = new Pose(9.5, 124, Math.toRadians(29));
     private final Pose parkControlPose = new Pose(46, 126,Math.toRadians(-90));
     private final Pose parkPose = new Pose(50, 85, Math.toRadians(-90));
     private int currentPathId = 0;
@@ -134,7 +134,7 @@ public class AutoBasket extends AutoOpModeEx {
                 .setLinearHeadingInterpolation(parkControlPose.getHeading(), parkPose.getHeading())
                 .build();
 
-        pathChainList.addPath(scorePreload,
+        pathChainList.addPath(null, scorePreload, null,
                 grabPickup1, scorePickup1,
                 grabPickup2, scorePickup2,
                 grabPickup3, scorePickup3,
@@ -147,14 +147,16 @@ public class AutoBasket extends AutoOpModeEx {
     }
 
     private void buildActions(){
-        Command intakeSampleCommand, releasePreloadCommand, releaseCommand, parkCommand, intakeLastSampleCommand;
+        Command intakeSampleCommand, releasePreloadCommand_1, releasePreloadCommand_2, releaseCommand, parkCommand, intakeLastSampleCommand;
         intakeSampleCommand = autoCommand.autoIntakeSample().andThen(actionEnd());
         releaseCommand = autoCommand.autoReleaseHigh().andThen(actionEnd());
-        releasePreloadCommand = autoCommand.autoReleasePreloadSample().andThen(actionEnd());
+        releasePreloadCommand_1 = autoCommand.autoReleasePreloadSample_1().andThen(actionEnd());
+        releasePreloadCommand_2 = autoCommand.autoReleasePreloadSample_2().andThen(actionEnd());
+
         parkCommand = liftArm.parkCommand().andThen(actionEnd());
         intakeLastSampleCommand = autoCommand.autoIntakeLastSample().andThen(actionEnd());
 
-        actions.addAll(Arrays.asList(releasePreloadCommand,
+        actions.addAll(Arrays.asList(releasePreloadCommand_1, null, releasePreloadCommand_2,
                 intakeSampleCommand, releaseCommand,
                 intakeSampleCommand, releaseCommand,
                 intakeSampleCommand, releaseCommand,

@@ -56,12 +56,17 @@ class Lifter{
                 new InstantCommand(this::toSlowMode),
                 new WaitUntilCommand(()->this.getPosition()>MotorConstants.FINAL_ASCENT_THRESHOLD.value),
                 new InstantCommand(()->setPower(1))
+//                new WaitUntilCommand(()->this.getPosition()>MotorConstants.FINAL_ASCENT_SLIDE_FINISH.value)
         );
     }
 
     void hold_slide(){
         setPosition(getPosition()-10);
     }
+
+//    void release_slide(){
+//        setPosition(getPosition()+20); //防止只有一侧爬升
+//    }
 
     public Command ascent_down(){
         return new InstantCommand(()->setPower(-1));
@@ -112,8 +117,12 @@ class Lifter{
         return new InstantCommand(()->setPosition(MotorConstants.LIFT_HIGH_CHAMBER.value));
     }
 
+    Command FirstGetFromWallCommand(){
+        return new InstantCommand(()->setPosition(MotorConstants.LIFT_HIGH_CHAMBER_FIRST.value));
+    }
 
-    void resetSlide(){
+
+    public void resetSlide(){
         new SequentialCommandGroup(
                 new InstantCommand(()->setPosition(0)),
                 new WaitUntilCommand(this::isFinished),
@@ -160,6 +169,18 @@ class Lifter{
     }
     public boolean isFinishedForSpecimen(){
         return isFinished(80);
+    }
+
+    public Command resetSlideForAutoChamberEnd(){
+        return new SequentialCommandGroup(
+                new InstantCommand(()->setPosition(0)),
+                new WaitUntilCommand(this::isFinished),
+                new InstantCommand(()->setPower(-0.3)),
+                new WaitCommand(70),
+                new InstantCommand(()->setMode(DcMotor.RunMode.RUN_TO_POSITION)),
+                new InstantCommand(this::resetEncoder),
+                new InstantCommand(()->setPosition(0))
+        );
     }
 }
 
@@ -216,7 +237,7 @@ public class LiftArm {
         ascentRight.setPosition(ServoConstants.ASCENT_RIGHT_DOWN.value);
         clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE_CAN_SLIDE.value);
         armUp.setPosition(ServoConstants.UP_ARM_PARALLEL.value);
-        wristUp.setPosition(ServoConstants.UP_WRIST_PARALLEL.value);
+        wristUp.setPosition(ServoConstants.UP_WRIST_INIT.value);
     }
 
     public void autoChamberInitPos(){
@@ -243,6 +264,50 @@ public class LiftArm {
                                 new InstantCommand(()->clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE.value)),
                                 new WaitCommand(30),
                                 lifter.getFromWallCommand(),
+                                new WaitUntilCommand(lifter::isFinishedForSpecimen),
+                                new InstantCommand(()->{
+                                    armUp.setPosition(ServoConstants.UP_ARM_PARALLEL.value);
+                                    wristUp.setPosition(ServoConstants.UP_WRIST_PARALLEL.value);
+                                    this.state = LiftArmState.PRE_CHAMBER;
+                                })
+                        ),
+                        new SequentialCommandGroup(
+                                new InstantCommand(()->clawUp.setPosition(ServoConstants.UP_CLAW_OPEN.value)),
+                                new WaitCommand(20),
+                                new SequentialCommandGroup(
+                                        new InstantCommand(lifter::resetSlideForChamber),
+                                        new WaitUntilCommand(lifter::isFinishedForSpecimen),
+                                        new InstantCommand(()->{
+                                            armUp.setPosition(ServoConstants.UP_ARM_WALL.value);
+                                            clawUp.setPosition(ServoConstants.UP_CLAW_OPEN.value);
+                                            wristUp.setPosition(ServoConstants.UP_WRIST_WALL.value);
+                                            this.state=LiftArmState.WALL;
+                                        })
+                                )
+                        )
+                        ,()->this.state==LiftArmState.WALL
+                ),
+                ()->this.state==LiftArmState.FREE
+        );
+    }
+
+    public Command FirstHighChamber(){
+        return new ConditionalCommand(
+                new SequentialCommandGroup(
+                        new InstantCommand(()->{
+                            armUp.setPosition(ServoConstants.UP_ARM_WALL.value);
+                            clawUp.setPosition(ServoConstants.UP_CLAW_OPEN.value);
+                            wristUp.setPosition(ServoConstants.UP_WRIST_WALL.value);
+                            lifter.resetSlideForChamber();
+                        }),
+                        new WaitUntilCommand(lifter::isFinishedForSpecimen),
+                        new InstantCommand(()->this.state=LiftArmState.WALL)
+                ),
+                new ConditionalCommand(
+                        new SequentialCommandGroup(
+                                new InstantCommand(()->clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE.value)),
+                                new WaitCommand(30),
+                                lifter.FirstGetFromWallCommand(),
                                 new WaitUntilCommand(lifter::isFinishedForSpecimen),
                                 new InstantCommand(()->{
                                     armUp.setPosition(ServoConstants.UP_ARM_PARALLEL.value);
@@ -455,5 +520,9 @@ public class LiftArm {
 
     public void resetLifterEncoder(){
         lifter.resetEncoder();
+    }
+
+    public Command resetSlideForAutoChamberEnd(){
+        return lifter.resetSlideForAutoChamberEnd();
     }
 }
