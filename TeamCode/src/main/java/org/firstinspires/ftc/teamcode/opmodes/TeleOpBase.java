@@ -61,8 +61,8 @@ public class TeleOpBase extends CommandOpModeEx {
 
 
         driveCore.resetHeading();
-        driveCore.yawHeading += 90;
-        driveCore.yawHeading %= 360;
+//        driveCore.yawHeading += 90;
+//        driveCore.yawHeading %= 360;
         driveCore.resetOdo();
         driveCore.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         CommandScheduler.getInstance().schedule(driveCommand);
@@ -177,7 +177,7 @@ public class TeleOpBase extends CommandOpModeEx {
         new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.DPAD_UP))
                 .whileHeld(()->liftArm.setLifterPower(0.5));
         new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.DPAD_DOWN))
-                .whileHeld(()->liftArm.setLifterPower(-0.5))
+                .whileHeld(()->liftArm.setLifterPower(-1))
                 .whenReleased(liftArm::resetLifterEncoder);
         new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.DPAD_LEFT))
                 .whileHeld(()->frontArm.setPositionOffset(15));

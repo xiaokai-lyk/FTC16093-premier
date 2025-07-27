@@ -292,14 +292,30 @@ public class FrontArm {
             set_spinner(SpinnerConstant.GIVE_HP);
             set_wrist(ServoConstants.WRIST_PARALLEL);
             set_arm_wrist(ServoConstants.ARM_WRIST_TURN);
-        }).andThen(
-                new WaitCommand(200),
+        });
+    }
+
+    public Command specimenToZone(){
+        return new SequentialCommandGroup(
                 new InstantCommand(()->open_claw(true)),
                 new WaitCommand(200),
                 new InstantCommand(this::initPos),
                 new InstantCommand(()->this.state = State.FREE)
         );
     }
+
+    public Command giveHPWithoutTurn(){
+        return new SequentialCommandGroup(
+                new InstantCommand(()->this.state = State.GIVEHP),
+                new InstantCommand(()->frontSlide.setTargetPosition(MotorConstants.FRONT_FAR.value)),
+                new WaitCommand(400),
+                new InstantCommand(()->open_claw(true)),
+                new WaitCommand(50),
+                new InstantCommand(this::initPos),
+                new InstantCommand(()->this.state = State.FREE)
+        );
+    }
+
 
     public void initPos(boolean resetSlide) {
         open_claw(claw_open);

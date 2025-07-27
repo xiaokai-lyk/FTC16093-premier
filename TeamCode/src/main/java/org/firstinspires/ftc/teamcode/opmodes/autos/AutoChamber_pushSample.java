@@ -76,14 +76,14 @@ public class AutoChamber_pushSample extends AutoOpModeEx {
     private final Pose endPushToHPControlPose = new Pose(28,20,Math.toRadians(0));
     private final Pose HPPose = new Pose(0, 29, Math.toRadians(0));
 
-    private final Pose scorePose0 = new Pose(28.2, 61, Math.toRadians(0));
-    private final Pose scorePose1 = new Pose(28.2, 61, Math.toRadians(0));
-    private final Pose scorePose2 = new Pose(28.2, 62, Math.toRadians(0));
-    private final Pose scorePose3 = new Pose(28.2, 63, Math.toRadians(0));
-    private final Pose scorePose4 = new Pose(28.2, 64, Math.toRadians(0));
+    private final Pose scorePose0 = new Pose(28.2, 62, Math.toRadians(0));
+    private final Pose scorePose1 = new Pose(28.2, 62, Math.toRadians(0));
+    private final Pose scorePose2 = new Pose(28.2, 63, Math.toRadians(0));
+    private final Pose scorePose3 = new Pose(28.2, 64, Math.toRadians(0));
+    private final Pose scorePose4 = new Pose(28.2, 65, Math.toRadians(0));
 
 //    private final Pose parkControlPose = new Pose(, 25, Math.toRadians(0));
-    private final Pose parkPose = new Pose(8, 28, Math.toRadians(0));
+    private final Pose parkPose = new Pose(7, 28, Math.toRadians(0));
     private int currentPathId = 0;
 
     @Override
@@ -197,7 +197,7 @@ public class AutoChamber_pushSample extends AutoOpModeEx {
                 null, scoreChamber1, null, goToHP,
                 null, scoreChamber2, null, goToHP,
                 null, scoreChamber3, null, goToHP,
-                null, scoreChamber3, null, park, null);
+                null, scoreChamber3, null, park);
     }
 
     private Command actionEnd(){

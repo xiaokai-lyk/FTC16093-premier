@@ -24,6 +24,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 
+import org.firstinspires.ftc.teamcode.Subsystems.Constants.ServoConstants;
 import org.firstinspires.ftc.teamcode.Subsystems.FrontArm;
 import org.firstinspires.ftc.teamcode.Subsystems.LiftArm;
 import org.firstinspires.ftc.teamcode.Subsystems.driving.NewMecanumDrive;
@@ -107,31 +108,34 @@ public class TeleOpDual extends CommandOpModeEx {
     @Override
     public void functionalButtons() {
         //Sample
-        new ButtonEx(()->gamepadEx2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)>0.5 && frontArm.state == FrontArm.State.FREE && liftArm.state == LiftArm.LiftArmState.FREE && mode ==Tasks.SAMPLE).whenPressed(
-                (new ParallelCommandGroup(frontArm.waitClawHandover(),liftArm.afterHandover())
-                        .andThen(new ParallelCommandGroup(liftArm.releaseHigh(), new InstantCommand(frontArm::initPos))
-                )));
-        new ButtonEx(()->gamepadEx2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)>0.5 && frontArm.state == FrontArm.State.FREE && liftArm.state == LiftArm.LiftArmState.RELEASE && mode ==Tasks.SAMPLE).whenPressed(
-                (new ParallelCommandGroup(frontArm.clawHandover(),liftArm.afterHandover())
-                        .andThen(new ParallelCommandGroup(liftArm.releaseHigh(), new InstantCommand(frontArm::initPos)))
-                        .alongWith(
-                                new SequentialCommandGroup(
-                                        new WaitCommand(200),
-                                        new InstantCommand(() -> {
-                                            XOffset = 1;
-                                            YOffset = 1;
-                                        }),
-                                        new WaitCommand(200),
-                                        new InstantCommand(() -> {
-                                            XOffset = 0;
-                                            YOffset = 0;
-                                        })
-                        ))));
+//        new ButtonEx(()->gamepadEx2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)>0.5 && frontArm.state == FrontArm.State.FREE && liftArm.state == LiftArm.LiftArmState.FREE && mode ==Tasks.SAMPLE).whenPressed(
+//                (new ParallelCommandGroup(frontArm.waitClawHandover(),liftArm.afterHandover())
+//                        .andThen(new ParallelCommandGroup(liftArm.releaseHigh(), new InstantCommand(frontArm::initPos))
+//                )));
+//        new ButtonEx(()->gamepadEx2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)>0.5 && frontArm.state == FrontArm.State.FREE && liftArm.state == LiftArm.LiftArmState.RELEASE && mode ==Tasks.SAMPLE).whenPressed(
+//                (new ParallelCommandGroup(frontArm.clawHandover(),liftArm.afterHandover())
+//                        .andThen(new ParallelCommandGroup(liftArm.releaseHigh(), new InstantCommand(frontArm::initPos)))
+//                        .alongWith(
+//                                new SequentialCommandGroup(
+//                                        new WaitCommand(200),
+//                                        new InstantCommand(() -> {
+//                                            XOffset = 1;
+//                                            YOffset = 1;
+//                                        }),
+//                                        new WaitCommand(200),
+//                                        new InstantCommand(() -> {
+//                                            XOffset = 0;
+//                                            YOffset = 0;
+//                                        })
+//                        ))));
 
         //Specimen
-        new ButtonEx(()->(gamepadEx2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)>0.5
+        new ButtonEx(()->(gamepadEx2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)>0.5
                 && frontArm.state == FrontArm.State.HOLDING_BLOCK)&& mode == Tasks.SPECIMEN)
-                .whenPressed(frontArm.giveHP());
+                .whenPressed(frontArm.giveHPWithoutTurn());
+//        new ButtonEx(()->(gamepadEx2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)>0.5
+//                && frontArm.state == FrontArm.State.GIVEHP)&& mode == Tasks.SPECIMEN)
+//                .whenPressed(frontArm.specimenToZone());
         new ButtonEx(()->gamepadEx1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)>0.5
                 && frontArm.state != FrontArm.State.DOWN && mode == Tasks.SPECIMEN)
                 .whenPressed(new SequentialCommandGroup(frontArm.highChamber(), liftArm.highChamber()));
@@ -141,19 +145,19 @@ public class TeleOpDual extends CommandOpModeEx {
                 .whenPressed(new SequentialCommandGroup(frontArm.highChamber(), liftArm.highChamber())
                         );
 
-        new ButtonEx(()->gamepadEx2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)>0.5
-                && frontArm.state != FrontArm.State.DOWN && liftArm.state == LiftArm.LiftArmState.FREE && mode == Tasks.SPECIMEN)
-                .whenPressed(new SequentialCommandGroup(
-                        new WaitCommand(200),
-                        new InstantCommand(() -> {
-                            XOffset = 1;
-                            YOffset = -0.4;
-                        }),
-                        new WaitCommand(500),
-                        new InstantCommand(() -> {
-                            XOffset = 0;
-                            YOffset = 0;
-                        })));
+//        new ButtonEx(()->gamepadEx2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)>0.5
+//                && frontArm.state != FrontArm.State.DOWN && liftArm.state == LiftArm.LiftArmState.FREE && mode == Tasks.SPECIMEN)
+//                .whenPressed(new SequentialCommandGroup(
+//                        new WaitCommand(200),
+//                        new InstantCommand(() -> {
+//                            XOffset = 1;
+//                            YOffset = -0.4;
+//                        }),
+//                        new WaitCommand(500),
+//                        new InstantCommand(() -> {
+//                            XOffset = 0;
+//                            YOffset = 0;
+//                        })));
 
         //Shared
         new ButtonEx(()->(gamepadEx2.getButton(GamepadKeys.Button.RIGHT_BUMPER)
@@ -207,7 +211,8 @@ public class TeleOpDual extends CommandOpModeEx {
         //Ascent
         new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.B)).whenPressed(new SequentialCommandGroup(
                 new InstantCommand(()->mode= Tasks.ASCENT),
-                liftArm.ascent_up()
+                liftArm.ascent_up(),
+                new InstantCommand(()->frontArm.getArmWrist().setPosition(ServoConstants.ARM_WRIST_AUTOCHAMBER_FREE.value))
         ).andThen(
                 new WaitUntilCommand(()->gamepadEx1.getButton(GamepadKeys.Button.B)),
                 new InstantCommand(liftArm::hold_slide),
@@ -216,6 +221,17 @@ public class TeleOpDual extends CommandOpModeEx {
                 new WaitUntilCommand(()->gamepadEx1.getButton(GamepadKeys.Button.B)),
                 new InstantCommand(liftArm::hold_slide).alongWith(liftArm.ascent_end())
         ));
+
+        //Open Loop Ascent
+        new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.DPAD_UP))
+                .whileHeld(()->liftArm.setLifterPower(0.5));
+        new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.DPAD_DOWN))
+                .whileHeld(()->liftArm.setLifterPower(-1))
+                .whenReleased(liftArm::resetLifterEncoder);
+        new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.DPAD_LEFT))
+                .whileHeld(()->frontArm.setPositionOffset(15));
+        new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.DPAD_RIGHT))
+                .whileHeld(()->frontArm.setPositionOffset(-15));
     }
 
     @Override
