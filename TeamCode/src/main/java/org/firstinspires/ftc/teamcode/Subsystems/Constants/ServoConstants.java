@@ -27,8 +27,8 @@ public enum ServoConstants {
     ARM_WRIST_CHAMBER_INTAKE(0.5),
 
     UP_CLAW_OPEN(0.3),
-    UP_CLAW_CLOSE_CAN_SLIDE(0.95),
-    UP_CLAW_CLOSE(0.97),
+    UP_CLAW_CLOSE_CAN_SLIDE(0.88),
+    UP_CLAW_CLOSE(0.9),
     UP_WRIST_BASKET(0.53),
     UP_WRIST_PARALLEL(0.63),
     UP_WRIST_INIT(0.8),
@@ -47,7 +47,7 @@ public enum ServoConstants {
     ASCENT_LEFT_UP(0.32),
     ASCENT_LEFT_MID(0.65),
     ASCENT_LEFT_DOWN(0.75),
-    ASCENT_RIGHT_UP(0.68),
+    ASCENT_RIGHT_UP(0.63),
     ASCENT_RIGHT_MID(0.39),
     ASCENT_RIGHT_DOWN(0.26),
     ;

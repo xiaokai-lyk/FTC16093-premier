@@ -14,6 +14,7 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.teamcode.Subsystems.Constants.ServoConstants;
 import org.firstinspires.ftc.teamcode.Subsystems.FrontArm;
 import org.firstinspires.ftc.teamcode.Subsystems.LiftArm;
 import org.firstinspires.ftc.teamcode.Subsystems.driving.NewMecanumDrive;
@@ -61,8 +62,8 @@ public class TeleOpBase extends CommandOpModeEx {
 
 
         driveCore.resetHeading();
-//        driveCore.yawHeading += 90;
-//        driveCore.yawHeading %= 360;
+        driveCore.yawHeading += 90; //如果specimen自动接solo手动就把这行去掉
+        driveCore.yawHeading %= 360;    //如果specimen自动接solo手动就把这行去掉
         driveCore.resetOdo();
         driveCore.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         CommandScheduler.getInstance().schedule(driveCommand);
@@ -163,22 +164,23 @@ public class TeleOpBase extends CommandOpModeEx {
         //Ascent
         new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.A)).whenPressed(new SequentialCommandGroup(
                 new InstantCommand(()->mode=Tasks.ASCENT),
-                liftArm.ascent_up()
+                liftArm.ascent_up(),
+                new InstantCommand(()->frontArm.getArmWrist().setPosition(ServoConstants.ARM_WRIST_AUTOCHAMBER_FREE.value))
         ).andThen(
                 new WaitUntilCommand(()->gamepadEx1.getButton(GamepadKeys.Button.A)),
                 new InstantCommand(liftArm::hold_slide),
                 new WaitUntilCommand(()->gamepadEx1.getButton(GamepadKeys.Button.A)),
                 liftArm.ascent_down(),
                 new WaitUntilCommand(()->gamepadEx1.getButton(GamepadKeys.Button.A)),
-                new InstantCommand(liftArm::hold_slide).alongWith(liftArm.ascent_end())
+                new InstantCommand(liftArm::hold_slide_controlByPower).alongWith(liftArm.ascent_end())
         ));
 
         // Open loop controlling
         new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.DPAD_UP))
-                .whileHeld(()->liftArm.setLifterPower(0.5));
+                .whileHeld(()->liftArm.setLifterPower(-0.05));
         new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.DPAD_DOWN))
-                .whileHeld(()->liftArm.setLifterPower(-1))
-                .whenReleased(liftArm::resetLifterEncoder);
+                .whileHeld(()->liftArm.setLifterPower(-0.8))
+                .whenReleased(liftArm::resetLifterEncoderAndPower);
         new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.DPAD_LEFT))
                 .whileHeld(()->frontArm.setPositionOffset(15));
         new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.DPAD_RIGHT))

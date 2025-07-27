@@ -219,15 +219,15 @@ public class TeleOpDual extends CommandOpModeEx {
                 new WaitUntilCommand(()->gamepadEx1.getButton(GamepadKeys.Button.B)),
                 liftArm.ascent_down(),
                 new WaitUntilCommand(()->gamepadEx1.getButton(GamepadKeys.Button.B)),
-                new InstantCommand(liftArm::hold_slide).alongWith(liftArm.ascent_end())
+                new InstantCommand(liftArm::hold_slide_controlByPower).alongWith(liftArm.ascent_end())
         ));
 
         //Open Loop Ascent
         new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.DPAD_UP))
-                .whileHeld(()->liftArm.setLifterPower(0.5));
+                .whileHeld(()->liftArm.setLifterPower(-0.05));
         new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.DPAD_DOWN))
                 .whileHeld(()->liftArm.setLifterPower(-1))
-                .whenReleased(liftArm::resetLifterEncoder);
+                .whenReleased(liftArm::resetLifterEncoderAndPower);
         new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.DPAD_LEFT))
                 .whileHeld(()->frontArm.setPositionOffset(15));
         new ButtonEx(()->gamepadEx1.getButton(GamepadKeys.Button.DPAD_RIGHT))

@@ -47,8 +47,8 @@ public class AutoBasket extends AutoOpModeEx {
 
     private final Pose scorePose = new Pose(2.7, 126, Math.toRadians(-45));
     private final Pose pickup1Pose = new Pose(6, 117.5, Math.toRadians(0));
-    private final Pose pickup2Pose = new Pose(6, 126.5, Math.toRadians(0));
-    private final Pose pickup3Pose = new Pose(9.5, 124, Math.toRadians(29));
+    private final Pose pickup2Pose = new Pose(6, 126.6, Math.toRadians(0.5));
+    private final Pose pickup3Pose = new Pose(9.5, 124, Math.toRadians(29.3));
     private final Pose parkControlPose = new Pose(46, 126,Math.toRadians(-90));
     private final Pose parkPose = new Pose(50, 85, Math.toRadians(-90));
     private int currentPathId = 0;
@@ -190,13 +190,20 @@ public class AutoBasket extends AutoOpModeEx {
             );
         }
         Iterator<PathChain> it = pathChainList.iterator();
+        int pathCount = 0;
         while (it.hasNext()){
+            pathCount+=1;
             if (!opModeIsActive())break;
             periodic();
             if(!follower.isBusy() && !this.actionRunning){
                 PathChain path = it.next();
 //                if(path!=null) follower.follow(path, 1, 0.5, Math.toRadians(0), 1);
-                if(path!=null)follower.followPath(path);
+                if(path!=null){
+                    if (pathCount==11){
+                        follower.followPath(path,0.1,false);
+                    }
+                    else follower.followPath(path, 1,true);
+                }
                 Command currentAction = actions.get(currentPathId);
                 if(currentAction!=null){
                     currentAction.schedule();

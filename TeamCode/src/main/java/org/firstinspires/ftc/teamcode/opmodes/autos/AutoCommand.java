@@ -42,7 +42,7 @@ public class AutoCommand {
     }
     public Command autoReleasePreloadSample_2(){
         return new SequentialCommandGroup(
-//                new WaitCommand(180),
+                new WaitCommand(120),
                 liftArm.releaseHigh()
         );
     }

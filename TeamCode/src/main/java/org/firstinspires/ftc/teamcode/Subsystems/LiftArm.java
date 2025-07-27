@@ -61,7 +61,11 @@ class Lifter{
     }
 
     void hold_slide(){
-        setPosition(getPosition()-10);
+        setPosition(getPosition()-15);
+    }
+
+    void hold_slide_controlByPower(){
+        setPower(-0.4);
     }
 
 //    void release_slide(){
@@ -137,11 +141,12 @@ class Lifter{
         new SequentialCommandGroup(
                 new InstantCommand(()->setPosition(0)),
                 new WaitUntilCommand(this::isFinishedForSpecimen),
-                new InstantCommand(()->setPower(-0.3)),
+                new InstantCommand(()->setPower(-0.5)),
                 new WaitCommand(50),
                 new InstantCommand(()->setMode(DcMotor.RunMode.RUN_TO_POSITION)),
-                new InstantCommand(this::resetEncoder),
-                new InstantCommand(()->setPosition(0))
+                new InstantCommand(()->setPosition(0)),
+                new WaitUntilCommand(this::isFinishedForSpecimen),
+                new InstantCommand(this::resetEncoder)
         ).schedule();
     }
 
@@ -217,7 +222,7 @@ public class LiftArm {
         ascentLeft.setPosition(ServoConstants.ASCENT_LEFT_DOWN.value);
         ascentRight.setPosition(ServoConstants.ASCENT_RIGHT_DOWN.value);
         lifter.resetSlide();
-        clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE_CAN_SLIDE.value);
+        clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE.value);
         armUp.setPosition(ServoConstants.UP_ARM_PARALLEL.value);
         wristUp.setPosition(ServoConstants.UP_WRIST_PARALLEL.value);
         this.state = LiftArmState.FREE;
@@ -235,7 +240,7 @@ public class LiftArm {
     public void autoInitPos(){
         ascentLeft.setPosition(ServoConstants.ASCENT_LEFT_DOWN.value);
         ascentRight.setPosition(ServoConstants.ASCENT_RIGHT_DOWN.value);
-        clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE_CAN_SLIDE.value);
+        clawUp.setPosition(ServoConstants.UP_CLAW_CLOSE.value);
         armUp.setPosition(ServoConstants.UP_ARM_PARALLEL.value);
         wristUp.setPosition(ServoConstants.UP_WRIST_INIT.value);
     }
@@ -451,6 +456,10 @@ public class LiftArm {
         lifter.hold_slide();
     }
 
+    public void hold_slide_controlByPower(){
+        lifter.hold_slide_controlByPower();
+    }
+
     public Command ascent_end(){
         return new SequentialCommandGroup(
                 new InstantCommand(()->armUp.setPosition(ServoConstants.UP_ARM_BACK.value))
@@ -476,7 +485,8 @@ public class LiftArm {
                 ),
                 new WaitUntilCommand(lifter::isFinished),
                 new WaitCommand(1000),
-                new InstantCommand(lifter::disable)
+                new InstantCommand(()->lifter.setPosition(MotorConstants.LIFT_PARK.value)),
+                new WaitUntilCommand(lifter::isFinished)
         );
     }
 
@@ -518,8 +528,9 @@ public class LiftArm {
         lifter.setPower(power);
     }
 
-    public void resetLifterEncoder(){
+    public void resetLifterEncoderAndPower(){
         lifter.resetEncoder();
+        lifter.setPower(-1);
     }
 
     public Command resetSlideForAutoChamberEnd(){
