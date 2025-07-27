@@ -8,12 +8,15 @@ import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 
 import com.arcrobotics.ftclib.command.InstantCommand;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.follower.FollowerConstants;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
+import com.pedropathing.follower.FollowerConstants;
 
 import org.firstinspires.ftc.teamcode.Subsystems.FrontArm;
 import org.firstinspires.ftc.teamcode.Subsystems.LiftArm;
@@ -111,13 +114,17 @@ public class AutoChamber_pushSample extends AutoOpModeEx {
         return new Point(follower.getPose().getX(),follower.getPose().getY());
     }
 
+//    public void followPath(PathChain pathChain) {
+//        this.followPath(pathChain, FollowerConstants.automaticHoldEnd);
+//    }
+
     private double getCurrentHeading(){
         return follower.getPose().getHeading();
     }
 
     private void buildPaths() {
         PathChain toControlPoseForPush, toPush1, toPush2, toPush3,
-                pushEnd1, pushEnd2, pushEnd3, goToHP,
+                pushEnd1, pushEnd2, pushEnd3, goToHP, goToHPAfterPush,
                 scoreChamber0, scoreChamber1, scoreChamber2, scoreChamber3, scoreChamber4, park;
         scoreChamber0 = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(startPose), new Point(scorePose0)))
@@ -159,6 +166,11 @@ public class AutoChamber_pushSample extends AutoOpModeEx {
                 .setLinearHeadingInterpolation(push3Pose.getHeading(), endPush3.getHeading())
                 .build();
 
+        goToHPAfterPush = follower.pathBuilder()
+                .addPath(new BezierCurve(new Point(endPush3), new Point(HPPose)))
+                .setLinearHeadingInterpolation(endPush3.getHeading(), HPPose.getHeading())
+                .build();
+
         goToHP = follower.pathBuilder()
                 .addPath(new BezierCurve(getCurrentPoint(), new Point(endPushToHPControlPose), new Point(HPPose)))
                 .setLinearHeadingInterpolation(endPush3.getHeading(), HPPose.getHeading())
@@ -193,7 +205,7 @@ public class AutoChamber_pushSample extends AutoOpModeEx {
                 toControlPoseForPush, toPush1,
                 pushEnd1, toPush2,
                 pushEnd2, toPush3,
-                pushEnd3, goToHP,
+                pushEnd3, goToHPAfterPush,
                 null, scoreChamber1, null, goToHP,
                 null, scoreChamber2, null, goToHP,
                 null, scoreChamber3, null, goToHP,
@@ -250,13 +262,24 @@ public class AutoChamber_pushSample extends AutoOpModeEx {
             );
         }
         Iterator<PathChain> it = pathChainList.iterator();
+        int pathCount = 0;
         while (it.hasNext()){
+            pathCount+=1;
             if (!opModeIsActive())break;
             periodic();
             if(!follower.isBusy() && follower.driveError < 1.0 && !this.actionRunning){
                 PathChain path = it.next();
-                if(path!=null)follower.follow(path,1.2,1.8, Math.toRadians(10));
-                if(path!=null) follower.followPath(path);
+                if(path!=null){
+                    if(pathCount==9){
+                        follower.setMaxPower(0.01);
+                        follower.followPath(path);
+                    }
+                    else if(pathCount==13 || pathCount==17 || pathCount==21) {
+                        follower.follow(path, 1.2, 1.8, Math.toRadians(10));
+                    }
+                    else follower.follow(path,1.2,1.8, Math.toRadians(10));
+                }
+//                if(path!=null) follower.followPath(path);
                 Command currentAction = actions.get(currentPathId);
                 if(currentAction!=null){
                     currentAction.schedule();
